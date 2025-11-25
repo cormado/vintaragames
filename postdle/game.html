@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postdle - Vintara Games</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #111111;
+            --tertiary-black: #1a1a1a;
+            --card-bg: #222222;
+            --border-color: #333333;
+            --white: #ffffff;
+            --gray: #cccccc;
+            --text-gray: rgba(255, 255, 255, 0.9);
+            --red: #ff4d4d;
+            --green: #4dff4d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--primary-black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+        header {
+            background: rgba(0, 0, 0, 0.98);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: padding 0.3s ease;
+        }
+
+        header.scrolled { padding: 12px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 30px; }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+
+        .hero {
+            background: var(--primary-black);
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .hero-content { position: relative; z-index: 1; animation: fadeInUp 1s ease-out; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 20px;
+            font-weight: 200;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            opacity: 0.85;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        main { padding: 80px 0; }
+
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .game-year {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-gray);
+        }
+
+        .game-poster {
+            display: block;
+            margin: 0 auto 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+        }
+
+        .attempts {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .attempt-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: background 0.3s ease;
+        }
+
+        .attempt-indicator.red { background: var(--red); }
+        .attempt-indicator.green { background: var(--green); }
+
+        .input-container { position: relative; margin-bottom: 20px; }
+
+        .guess-input {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--tertiary-black);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--white);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .guess-input:focus {
+            border-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .guess-input.shake {
+            animation: shake 0.5s;
+            border-color: var(--red);
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .autocomplete-item:hover { background: var(--tertiary-black); }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--white);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--gray);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .modal-title { font-size: 2rem; margin-bottom: 20px; }
+        .modal-message { font-size: 1.2rem; margin-bottom: 30px; color: var(--text-gray); }
+
+        .restart-btn {
+            padding: 14px 32px;
+            background: var(--white);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: var(--gray);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            background: var(--primary-black);
+            padding: 80px 0 40px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+        }
+
+        .footer-logo { font-size: 2.2rem; font-weight: 700; color: var(--white); text-decoration: none; margin-bottom: 40px; display: inline-block; letter-spacing: 2px; }
+        .footer-logo:hover { transform: scale(1.05); }
+
+        .footer-nav { display: flex; justify-content: center; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+        .footer-nav .btn { background: var(--white); color: var(--primary-black); padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; }
+        .footer-nav .btn:hover { background: var(--gray); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255,255,255,0.2); }
+
+        .footer-legal { opacity: 0.6; font-size: 0.9rem; max-width: 900px; margin: 0 auto; line-height: 1.8; padding: 0 20px; }
+
+        @media (max-width: 640px) {
+            .hero { padding: 140px 0 60px; }
+            main { padding: 40px 0; }
+            .game-container { padding: 20px; }
+            .attempt-indicator { width: 30px; height: 30px; }
+        }
+
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="/" class="logo">VINTARA GAMES</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>POSTDLE</h1>
+                <p>Adivina la película basada en su póster pixelado. Tienes 5 intentos, cada fallo revela más detalles.</p>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <div class="container">
+            <div class="game-container fade-in">
+                <div class="game-year" id="gameYear"></div>
+                <canvas id="posterCanvas" class="game-poster"></canvas>
+                <div class="attempts" id="attempts"></div>
+                <div class="input-container">
+                    <input type="text" class="guess-input" id="guessInput" placeholder="Escribe el nombre de la película...">
+                    <ul class="autocomplete-list" id="autocompleteList"></ul>
+                </div>
+                <button class="submit-btn" id="submitBtn">Intentar</button>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-message" id="modalMessage"></p>
+            <button class="restart-btn" id="restartBtn">Volver a Jugar</button>
+        </div>
+    </div>
+
+    <div class="modal" id="noMoreModal">
+        <div class="modal-content">
+            <h2 class="modal-title">¡No hay más niveles!</h2>
+            <p class="modal-message">Ya has jugado todos los disponibles. Intenta de nuevo otro día.</p>
+            <button class="restart-btn" onclick="window.location.href='/'">Volver al Inicio</button>
+        </div>
+    </div>
+
+    <footer id="contacto">
+        <div class="container">
+            <a href="/" class="footer-logo">VINTARA.XYZ</a>
+            <nav class="footer-nav">
+                <a href="https://discord.gg/h5ZK4wQJMG" target="_blank" rel="noopener" class="btn">DISCORD</a>
+                <a href="https://linktr.ee/thejj53" target="_blank" rel="noopener" class="btn">REDES</a>
+                <a href="#" class="btn">TÉRMINOS</a>
+            </nav>
+            <p class="footer-legal">© <span id="currentYear"></span> Vintara</p>
+        </div>
+    </footer>
+
+    <script>
+        const movies = [
+            { title: 'Shrek', year: 2001, image: 'shrek.png' },
+            { title: 'Monsters Inc', year: 2001, image: 'monstersinc.png' },
+            { title: 'Toy Story', year: 1995, image: 'toystory.png' },
+            // Agrega más aquí ↓
+        ];
+
+        const playedLevelsKey = 'postdle_played';
+        let playedLevels = JSON.parse(localStorage.getItem(playedLevelsKey)) || [];
+
+        let currentMovie, attemptsLeft = 5, currentAttempt = 0, currentPixelationIndex = 0;
+        const pixelationFactors = [6, 8, 11, 14, 18]; // ← Pixelado perfecto ahora
+
+        const gameYear = document.getElementById('gameYear');
+        const posterCanvas = document.getElementById('posterCanvas');
+        const attemptsContainer = document.getElementById('attempts');
+        const guessInput = document.getElementById('guessInput');
+        const autocompleteList = document.getElementById('autocompleteList');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultModal = document.getElementById('resultModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const restartBtn = document.getElementById('restartBtn');
+        const noMoreModal = document.getElementById('noMoreModal');
+
+        // Indicadores de intentos
+        for (let i = 0; i < 5; i++) {
+            const div = document.createElement('div');
+            div.classList.add('attempt-indicator');
+            attemptsContainer.appendChild(div);
+        }
+        const indicators = document.querySelectorAll('.attempt-indicator');
+
+        function selectRandomMovie() {
+            const available = movies.filter(m => !playedLevels.includes(m.title));
+            if (!available.length) { noMoreModal.classList.add('show'); return null; }
+            return available[Math.floor(Math.random() * available.length)];
+        }
+
+        function pixelateImage(img, factor) {
+            const ctx = posterCanvas.getContext('2d');
+            const maxW = 400, maxH = 593;
+            let w = img.width, h = img.height;
+            const ratio = w / h;
+
+            if (w > maxW || h > maxH) {
+                if (ratio > maxW / maxH) { w = maxW; h = w / ratio; }
+                else { h = maxH; w = h * ratio; }
+            }
+
+            posterCanvas.width = w; posterCanvas.height = h;
+
+            const blockSize = Math.max(1, Math.floor(Math.min(w, h) / factor));
+            const temp = document.createElement('canvas');
+            temp.width = Math.floor(w / blockSize);
+            temp.height = Math.floor(h / blockSize);
+            temp.getContext('2d').drawImage(img, 0, 0, temp.width, temp.height);
+
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(temp, 0, 0, temp.width, temp.height, 0, 0, w, h);
+        }
+
+        function loadPoster() {
+            if (!currentMovie) return;
+            const img = new Image();
+            img.src = currentMovie.image + '?v=' + Date.now(); // evita caché
+            img.onload = () => pixelateImage(img, pixelationFactors[currentPixelationIndex]);
+        }
+
+        // Autocompletado
+        guessInput.addEventListener('input', () => {
+            const val = guessInput.value.toLowerCase();
+            autocompleteList.innerHTML = '';
+            autocompleteList.style.display = 'none';
+            if (val.length === 0) return;
+
+            const matches = movies.filter(m => m.title.toLowerCase().includes(val));
+            if (matches.length) {
+                autocompleteList.style.display = 'block';
+                matches.forEach(m => {
+                    const li = document.createElement('li');
+                    li.classList.add('autocomplete-item');
+                    li.textContent = m.title;
+                    li.onclick = () => { guessInput.value = m.title; autocompleteList.style.display = 'none'; };
+                    autocompleteList.appendChild(li);
+                });
+            }
+        });
+
+        // Enviar intento
+        submitBtn.onclick = () => {
+            const guess = guessInput.value.trim();
+            if (!movies.some(m => m.title === guess)) {
+                guessInput.classList.add('shake');
+                setTimeout(() => guessInput.classList.remove('shake'), 600);
+                return;
+            }
+
+            currentAttempt++;
+            attemptsLeft--;
+
+            if (guess.toLowerCase() === currentMovie.title.toLowerCase()) {
+                indicators[currentAttempt - 1].classList.add('green');
+                showModal(true);
+            } else {
+                indicators[currentAttempt - 1].classList.add('red');
+                currentPixelationIndex++;
+                loadPoster();
+                if (attemptsLeft === 0) showModal(false);
+            }
+
+            guessInput.value = '';
+            autocompleteList.style.display = 'none';
+        };
+
+        function showModal(win) {
+            modalTitle.textContent = win ? '¡Felicidades!' : '¡Se acabaron los intentos!';
+            modalMessage.textContent = win ? `Adivinaste: ${currentMovie.title}` : `La película era: ${currentMovie.title}`;
+            resultModal.classList.add('show');
+        }
+
+        restartBtn.onclick = () => {
+            resultModal.classList.remove('show');
+            playedLevels.push(currentMovie.title);
+            localStorage.setItem(playedLevelsKey, JSON.stringify(playedLevels));
+            initGame();
+        };
+
+        function initGame() {
+            currentMovie = selectRandomMovie();
+            if (!currentMovie) return;
+            attemptsLeft = 5; currentAttempt = 0; currentPixelationIndex = 0;
+            gameYear.textContent = `Año: ${currentMovie.year}`;
+            loadPoster();
+            indicators.forEach(i => i.classList.remove('red', 'green'));
+        }
+
+        // Efectos visuales
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('scrolled', scrollY > 100);
+        });
+
+        new IntersectionObserver(e => e.forEach(en => en.isIntersecting && en.target.classList.add('visible')), 
+            { threshold: 0.1 }).observe(document.querySelector('.game-container'));
+
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        initGame();
+    </script>
+</body>
+</html>
