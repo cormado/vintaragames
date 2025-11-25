@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Postdle - Vintara Games</title>
-    <link rel ="icon" href="/logo.png" type="image/x-icon">
+    <link rel="icon" href="/logo.png" type="image/x-icon">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -19,6 +19,8 @@
             --text-gray: rgba(255, 255, 255, 0.9);
             --red: #ff4d4d;
             --green: #4dff4d;
+            --skip-bg: #333333;
+            --skip-hover: #444444;
         }
 
         body {
@@ -45,9 +47,6 @@
 
         header.scrolled { padding: 12px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
 
-        .header-content { display: flex; justify-content: space-between; align-items: center; }
-        .header-left { display: flex; align-items: center; gap: 30px; }
-
         .logo {
             font-size: 1.6rem;
             font-weight: 700;
@@ -63,7 +62,6 @@
             padding: 160px 0 80px;
             text-align: center;
             position: relative;
-            overflow: hidden;
             min-height: 50vh;
             display: flex;
             align-items: center;
@@ -80,13 +78,6 @@
         }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        .hero-content { position: relative; z-index: 1; animation: fadeInUp 1s ease-out; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
         .hero h1 {
             font-size: clamp(2.5rem, 6vw, 4rem);
@@ -117,6 +108,11 @@
             padding: 40px;
             border: 1px solid var(--border-color);
             animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .game-year {
@@ -204,11 +200,14 @@
 
         .autocomplete-item:hover { background: var(--tertiary-black); }
 
-        .submit-btn {
-            width: 100%;
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .submit-btn, .skip-btn {
+            flex: 1;
             padding: 14px;
-            background: var(--white);
-            color: var(--primary-black);
             border: none;
             border-radius: 50px;
             font-weight: 600;
@@ -216,10 +215,31 @@
             transition: all 0.3s ease;
         }
 
+        .submit-btn {
+            background: var(--white);
+            color: var(--primary-black);
+        }
+
         .submit-btn:hover {
             background: var(--gray);
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .skip-btn {
+            background: var(--skip-bg);
+            color: var(--text-gray);
+        }
+
+        .skip-btn:hover:not(:disabled) {
+            background: var(--skip-hover);
+            transform: translateY(-3px);
+        }
+
+        .skip-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .modal {
@@ -264,7 +284,7 @@
         .restart-btn:hover {
             background: var(--gray);
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(255,255,255,0.2);
         }
 
         footer {
@@ -289,6 +309,7 @@
             main { padding: 40px 0; }
             .game-container { padding: 20px; }
             .attempt-indicator { width: 30px; height: 30px; }
+            .button-group { flex-direction: column; }
         }
 
         .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
@@ -299,10 +320,8 @@
 
     <header id="header">
         <div class="container">
-            <div class="header-content">
-                <div class="header-left">
-                    <a href="/" class="logo">VINTARA GAMES</a>
-                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <a href="/" class="logo">VINTARA GAMES</a>
             </div>
         </div>
     </header>
@@ -326,7 +345,10 @@
                     <input type="text" class="guess-input" id="guessInput" placeholder="Escribe el nombre de la película...">
                     <ul class="autocomplete-list" id="autocompleteList"></ul>
                 </div>
-                <button class="submit-btn" id="submitBtn">Intentar</button>
+                <div class="button-group">
+                    <button class="submit-btn" id="submitBtn">Intentar</button>
+                    <button class="skip-btn" id="skipBtn">Skip (-1 Vida)</button>
+                </div>
             </div>
         </div>
     </main>
@@ -349,11 +371,11 @@
 
     <footer id="contacto">
         <div class="container">
-            <a href="/" class="footer-logo">VINTARA.XYZ</a>
+            <a href="https://vintara.xyz" class="footer-logo">VINTARA.XYZ</a>
             <nav class="footer-nav">
                 <a href="https://discord.gg/h5ZK4wQJMG" target="_blank" rel="noopener" class="btn">DISCORD</a>
-                <a href="https://linktr.ee/thejj53" target="_blank" rel="noopener" class="btn">REDES</a>
-                <a href="#" class="btn">TÉRMINOS</a>
+                <a href="" target="_blank" rel="noopener" class="btn">REDES</a>
+                <a href="https://vintara.xyz/terminos" class="btn">TÉRMINOS</a>
             </nav>
             <p class="footer-legal">© <span id="currentYear"></span> Vintara</p>
         </div>
@@ -364,14 +386,32 @@
             { title: 'Shrek', year: 2001, image: 'shrek.png' },
             { title: 'Monsters Inc', year: 2001, image: 'monstersinc.png' },
             { title: 'Toy Story', year: 1995, image: 'toystory.png' },
-            // Agrega más aquí ↓
+            { title: 'Bad Boys', year: 1995, image: 'badboys.png' },
+            { title: 'Top Gun', year: 1986, image: 'topgun.png' },
+            { title: 'Paddington', year: 2014, image: 'paddington.png' },
+            { title: 'El Rey Leon', year: 1994, image: 'elreyleon.png' },
+            { title: 'Grandes Heroes', year: 2014, image: 'grandesheroes.png' },
+            { title: 'Avengers', year: 2012, image: 'avengers.png' },
+            { title: 'Grandes Heroes', year: 2014, image: 'grandesheroes.png' },
+            { title: 'Pesadilla Antes De Navidad', year: 2006, image: 'pesadillaantesdenavidad.png' },
+            { title: 'Deadpool', year: 2016, image: 'deadpool.png' },
+            { title: 'Avengers: End Game', year: 2019, image: 'avengerendgame.png' },
+            { title: 'Toy Story 2', year: 1999, image: 'toystory2.png' },
+            { title: 'Toy Story 3', year: 2010, image: 'toystory3.png' },
+            { title: 'Toy Story 4', year: 2019, image: 'toystory4.png' },
+            { title: 'Coco', year: 2017, image: 'coco.png' },
+            { title: 'Turning Red', year: 2022, image: 'red.png' },
+            { title: 'Wall-E', year: 2008, image: 'walle.png' },
+            { title: 'Buscando A Nemo', year: 2003, image: 'buscandoanemo.png' },
+            { title: 'Soul', year: 2020, image: 'soul.png' },
+            { title: 'Ralph', year: 2012, image: 'ralph.png' },
         ];
 
         const playedLevelsKey = 'postdle_played';
         let playedLevels = JSON.parse(localStorage.getItem(playedLevelsKey)) || [];
 
         let currentMovie, attemptsLeft = 5, currentAttempt = 0, currentPixelationIndex = 0;
-        const pixelationFactors = [6, 8, 11, 14, 18]; // ← Pixelado perfecto ahora
+        const pixelationFactors = [6, 13, 19, 26, 39];
 
         const gameYear = document.getElementById('gameYear');
         const posterCanvas = document.getElementById('posterCanvas');
@@ -379,19 +419,24 @@
         const guessInput = document.getElementById('guessInput');
         const autocompleteList = document.getElementById('autocompleteList');
         const submitBtn = document.getElementById('submitBtn');
+        const skipBtn = document.getElementById('skipBtn');
         const resultModal = document.getElementById('resultModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
         const restartBtn = document.getElementById('restartBtn');
         const noMoreModal = document.getElementById('noMoreModal');
 
-        // Indicadores de intentos
+        // Indicadores
         for (let i = 0; i < 5; i++) {
             const div = document.createElement('div');
             div.classList.add('attempt-indicator');
             attemptsContainer.appendChild(div);
         }
         const indicators = document.querySelectorAll('.attempt-indicator');
+
+        function updateSkipButton() {
+            skipBtn.disabled = attemptsLeft <= 1;
+        }
 
         function selectRandomMovie() {
             const available = movies.filter(m => !playedLevels.includes(m.title));
@@ -425,7 +470,7 @@
         function loadPoster() {
             if (!currentMovie) return;
             const img = new Image();
-            img.src = currentMovie.image + '?v=' + Date.now(); // evita caché
+            img.src = currentMovie.image + '?v=' + Date.now();
             img.onload = () => pixelateImage(img, pixelationFactors[currentPixelationIndex]);
         }
 
@@ -449,7 +494,7 @@
             }
         });
 
-        // Enviar intento
+        // Intentar
         submitBtn.onclick = () => {
             const guess = guessInput.value.trim();
             if (!movies.some(m => m.title === guess)) {
@@ -473,6 +518,24 @@
 
             guessInput.value = '';
             autocompleteList.style.display = 'none';
+            updateSkipButton();
+        };
+
+        // SKIP (-1 vida)
+        skipBtn.onclick = () => {
+            if (attemptsLeft <= 1) return;
+
+            currentAttempt++;
+            attemptsLeft--;
+            indicators[currentAttempt - 1].classList.add('red');
+            currentPixelationIndex++;
+            loadPoster();
+
+            if (attemptsLeft === 0) {
+                setTimeout(() => showModal(false), 600);
+            }
+
+            updateSkipButton();
         };
 
         function showModal(win) {
@@ -491,15 +554,19 @@
         function initGame() {
             currentMovie = selectRandomMovie();
             if (!currentMovie) return;
-            attemptsLeft = 5; currentAttempt = 0; currentPixelationIndex = 0;
+
+            attemptsLeft = 5;
+            currentAttempt = 0;
+            currentPixelationIndex = 0;
+
             gameYear.textContent = `Año: ${currentMovie.year}`;
             loadPoster();
             indicators.forEach(i => i.classList.remove('red', 'green'));
+            updateSkipButton();
         }
 
-        // Efectos visuales
         window.addEventListener('scroll', () => {
-            header.classList.toggle('scrolled', scrollY > 100);
+            document.querySelector('header').classList.toggle('scrolled', scrollY > 100);
         });
 
         new IntersectionObserver(e => e.forEach(en => en.isIntersecting && en.target.classList.add('visible')), 

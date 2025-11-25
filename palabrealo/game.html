@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palabrealo - Vintara Games</title>
+    <link rel="icon" href="/logo.png" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #111111;
+            --tertiary-black: #1a1a1a;
+            --card-bg: #222222;
+            --border-color: #333333;
+            --white: #ffffff;
+            --gray: #cccccc;
+            --text-gray: rgba(255, 255, 255, 0.9);
+            --green: #4dff4d;
+            --yellow: #ffd700;
+            --red: #ff4d4d;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--primary-black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        header {
+            background: rgba(0, 0, 0, 0.98);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: padding 0.3s ease;
+        }
+        header.scrolled { padding: 12px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+
+        /* Botón de ayuda */
+        .help-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--tertiary-black);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--white);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .help-btn:hover {
+            background: var(--secondary-black);
+            transform: scale(1.05);
+        }
+
+        .hero {
+            background: var(--primary-black);
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .hero-content { position: relative; z-index: 1; animation: fadeInUp 1s ease-out; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 20px;
+            font-weight: 200;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            opacity: 0.85;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        main { padding: 80px 0; }
+        .game-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            animation: fadeInUp 1s ease-out;
+        }
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+        .grid-row { display: contents; }
+        .letter-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--tertiary-black);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        .letter-box.filled { border-color: var(--gray); animation: pop 0.2s ease; }
+        @keyframes pop {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .letter-box.correct { background: var(--green); border-color: var(--green); color: var(--primary-black); animation: flip 0.5s ease; }
+        .letter-box.present { background: var(--yellow); border-color: var(--yellow); color: var(--primary-black); animation: flip 0.5s ease; }
+        .letter-box.absent { background: var(--red); border-color: var(--red); animation: flip 0.5s ease; }
+        @keyframes flip {
+            0% { transform: rotateX(0); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0); }
+        }
+        .guess-input {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--tertiary-black);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--white);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .guess-input:focus {
+            border-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--white);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background: var(--gray);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .modal-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .modal-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-gray);
+        }
+        .restart-btn {
+            padding: 14px 32px;
+            background: var(--white);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .restart-btn:hover {
+            background: var(--gray);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+        footer {
+            background: var(--primary-black);
+            padding: 80px 0 40px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+        }
+        .footer-logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            margin-bottom: 40px;
+            display: inline-block;
+            letter-spacing: 2px;
+            transition: transform 0.3s ease;
+        }
+        .footer-logo:hover {
+            transform: scale(1.05);
+        }
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .footer-nav .btn {
+            background: var(--white);
+            color: var(--primary-black);
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .footer-nav .btn:hover {
+            background: var(--gray);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+        .footer-legal {
+            opacity: 0.6;
+            font-size: 0.9rem;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.8;
+            padding: 0 20px;
+        }
+        /* Responsive */
+        @media (max-width: 968px) {
+            .game-container {
+                padding: 30px;
+            }
+        }
+        @media (max-width: 640px) {
+            .hero {
+                padding: 140px 0 60px;
+            }
+            main {
+                padding: 40px 0;
+            }
+            .game-container {
+                padding: 20px;
+            }
+            .letter-box {
+                font-size: 1.5rem;
+            }
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="/" class="logo">VINTARA GAMES</a>
+                </div>
+                <button class="help-btn" id="helpBtn">?</button>
+            </div>
+        </div>
+    </header>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>PALABREALO</h1>
+                <p>Adivina la palabra de 5 letras en 6 intentos. Verde: letra correcta en posición correcta. Amarillo: letra correcta, posición incorrecta. Gris: letra no en la palabra.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Main Content - Game -->
+    <main>
+        <div class="container">
+            <div class="game-container fade-in">
+                <div class="word-grid" id="wordGrid"></div>
+                <input type="text" class="guess-input" id="guessInput" maxlength="5" placeholder="Escribe tu palabra...">
+                <button class="submit-btn" id="submitBtn">Intentar</button>
+            </div>
+        </div>
+    </main>
+    <!-- Modal for Help -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Cómo jugar</h2>
+            <p class="modal-message">Adivina la palabra escribiendo con 5 letras.<br><br>🟩 - La letra está en la palabra y en la posición exacta<br>🟨 - La letra está en la palabra pero en otra posición<br>🟥 - La letra no está en la palabra</p>
+            <button class="restart-btn" onclick="document.getElementById('helpModal').classList.remove('show')">Cerrar</button>
+        </div>
+    </div>
+    <!-- Modal for Win/Lose -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-message" id="modalMessage"></p>
+            <button class="restart-btn" id="restartBtn">Volver a Jugar</button>
+        </div>
+    </div>
+    <!-- Modal for No More Levels -->
+    <div class="modal" id="noMoreModal">
+        <div class="modal-content">
+            <h2 class="modal-title">¡No hay más niveles!</h2>
+            <p class="modal-message">Ya has jugado todos los disponibles. Intenta de nuevo otro día.</p>
+            <button class="restart-btn" onclick="window.location.href='/'">Volver al Inicio</button>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <a href="https://vintara.xyz" class="footer-logo">VINTARA.XYZ</a>
+            <nav class="footer-nav">
+                <a href="https://discord.gg/h5ZK4wQJMG" target="_blank" rel="noopener" class="btn">DISCORD</a>
+                <a href="" target="_blank" rel="noopener" class="btn">REDES</a>
+                <a href="https://vintara.xyz/terminos" class="btn">TÉRMINOS</a>
+            </nav>
+            <p class="footer-legal">La marca "Vintara" y sucesores aún no es una marca registrada legalmente por ningún registro de la USPTO. © <span id="currentYear"></span></p>
+        </div>
+    </footer>
+    <script>
+        // Lista de palabras (niveles, agrega más aquí para cientos)
+        const words = [
+            'ARBOL',
+            'LIBRO',
+            'ACTOR',
+            'AVION',
+            'FELIZ',
+            'MANOS',
+            'SABIO',
+            'SIETE',
+            'LUNAR',
+            'SIETE',
+            'NIEVE',
+            'PLANO',
+            'RAPTO',
+            'SALTO',
+            'TIEMO',
+            'VIAJE',
+            'ZORRO',
+            'CASAS',
+            'JUEGO',
+            'NADAR',
+            'RUIDO',
+            'SUELO',
+            'TIGRE',
+            'VOLAR',
+            'BEBER',
+            'CIELO',
+            'DULCE',
+            'FUEGO',
+            'GRUPO',
+            'HUESO',
+            'JARDI',
+            'LLAVE',
+            'MUNDO',
+            'NOCHE',
+            'PERLA',
+            'QUITO',
+            'RATON',
+            'SILLA',
+            'TARDE',
+            'VALOR',
+            'YERBA',
+            'ZUMBA',
+            'PERRO',
+            'GATOS',
+            'CASCO',
+            'PLUMA',
+            'CAMPO',
+            'FLOTA',
+            'ROCAS',
+            'SUEÑA',
+            'TRIGO',
+            'VISTA',
+            'VISCO',
+            'HACER'
+            // Agrega más: 'PERRO', 'GATOA', etc. (todas de 5 letras, mayúsculas, sin tildes)
+        ];
+        // Niveles jugados (localStorage)
+        const playedLevelsKey = 'palabrealo_played';
+        let playedLevels = JSON.parse(localStorage.getItem(playedLevelsKey)) || [];
+        // Variables del juego
+        let currentWord;
+        let attemptsLeft = 6;
+        let currentAttempt = 0;
+        // Elementos DOM
+        const wordGrid = document.getElementById('wordGrid');
+        const guessInput = document.getElementById('guessInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultModal = document.getElementById('resultModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const restartBtn = document.getElementById('restartBtn');
+        const noMoreModal = document.getElementById('noMoreModal');
+        const helpModal = document.getElementById('helpModal');
+        const helpBtn = document.getElementById('helpBtn');
+        // Crear grid de 6x5
+        for (let row = 0; row < 6; row++) {
+            const gridRow = document.createElement('div');
+            gridRow.classList.add('grid-row');
+            for (let col = 0; col < 5; col++) {
+                const box = document.createElement('div');
+                box.classList.add('letter-box');
+                gridRow.appendChild(box);
+            }
+            wordGrid.appendChild(gridRow);
+        }
+        const rows = document.querySelectorAll('.grid-row');
+        // Seleccionar palabra aleatoria sin repetir
+        function selectRandomWord() {
+            const availableWords = words.filter(word => !playedLevels.includes(word));
+            if (availableWords.length === 0) {
+                noMoreModal.classList.add('show');
+                return null;
+            }
+            const randomIndex = Math.floor(Math.random() * availableWords.length);
+            return availableWords[randomIndex];
+        }
+        // Manejar intento
+        function handleGuess() {
+            const guess = guessInput.value.toUpperCase().trim();
+            if (guess.length !== 5) return;
+            const row = rows[currentAttempt];
+            const boxes = row.querySelectorAll('.letter-box');
+            // Calcular colores
+            let wordCopy = currentWord.split('');
+            for (let i = 0; i < 5; i++) {
+                boxes[i].textContent = guess[i];
+                boxes[i].classList.add('filled');
+                if (guess[i] === currentWord[i]) {
+                    boxes[i].classList.add('correct');
+                    wordCopy[i] = null;  // Marcar como usado
+                }
+            }
+            for (let i = 0; i < 5; i++) {
+                if (!boxes[i].classList.contains('correct')) {
+                    const index = wordCopy.indexOf(guess[i]);
+                    if (index !== -1) {
+                        boxes[i].classList.add('present');
+                        wordCopy[index] = null;
+                    } else {
+                        boxes[i].classList.add('absent');
+                    }
+                }
+            }
+            currentAttempt++;
+            attemptsLeft--;
+            if (guess === currentWord) {
+                showModal(true);
+            } else if (attemptsLeft === 0) {
+                showModal(false);
+            }
+            guessInput.value = '';
+        }
+        // Mostrar modal
+        function showModal(isWin) {
+            if (isWin) {
+                modalTitle.textContent = '¡Felicidades!';
+                modalMessage.textContent = `Adivinaste la palabra: ${currentWord}`;
+            } else {
+                modalTitle.textContent = '¡Se acabaron los intentos!';
+                modalMessage.textContent = `La palabra era: ${currentWord}`;
+            }
+            resultModal.classList.add('show');
+        }
+        // Reiniciar juego
+        restartBtn.addEventListener('click', () => {
+            resultModal.classList.remove('show');
+            playedLevels.push(currentWord);
+            localStorage.setItem(playedLevelsKey, JSON.stringify(playedLevels));
+            initGame();
+        });
+        // Inicializar juego
+        function initGame() {
+            currentWord = selectRandomWord();
+            if (!currentWord) return;
+            attemptsLeft = 6;
+            currentAttempt = 0;
+            // Limpiar grid
+            document.querySelectorAll('.letter-box').forEach(box => {
+                box.textContent = '';
+                box.classList.remove('filled', 'correct', 'present', 'absent');
+            });
+            guessInput.value = '';
+        }
+        // Eventos
+        submitBtn.addEventListener('click', handleGuess);
+        guessInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') handleGuess();
+        });
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+        // Header scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                document.getElementById('header').classList.add('scrolled');
+            } else {
+                document.getElementById('header').classList.remove('scrolled');
+            }
+            lastScroll = currentScroll;
+        });
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+        // Actualizar año automáticamente
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        // Iniciar
+        initGame();
+    </script>
+</body>
+</html>
