@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SHAPE NIGHTS: ULTIMATE EDITION</title>
-  <link rel="icon" type="image/png" href="icon.png" />
+
   <style>
     :root{
       --bg:#000;
@@ -1302,10 +1302,6 @@
   </div>
 
   <script>
-      // Crear el objeto de audio una sola vez
-  const jumpscareAudio = new Audio('jumpscare.mp3');
-  jumpscareAudio.volume = 1.9; // puedes ajustar el volumen si quieres (0.0 a 1.0)
-
     // ===================== MENU MANAGER (teclado + click) =====================
     const menu = document.getElementById('menu');
     const game = document.getElementById('game');
@@ -1508,6 +1504,8 @@ function runAction(action){
     // ===================== GAME LOGIC =====================
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const CAM_NAMES = { 1: "ESCENARIO", 2: "COMEDOR", 3: "PASILLO OESTE", 4: "CUEVA PIRATA", 5: "PUERTA IZQ", 6: "PASILLO ESTE", 7: "ZONA SERVICIO", 8: "PUERTA DER" };
+    const jumpscareAudio = new Audio('jumpscare.mp3');
+    jumpscareAudio.volume = 1.0;  // Nota: el máximo es 1.0, no puedes poner 1.9 (se ignora o queda en 1.0)
 
     const CAM_SCENES = {
       1: { bg: "radial-gradient(circle at 50% 20%, rgba(120,200,255,0.16) 0%, transparent 50%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Stage Feed" },
@@ -2266,6 +2264,7 @@ function runAction(action){
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(killer === 'Golden' ? 'Golden' : killer, 6);
       playSound(100, 'sawtooth', 0.8, 2);
+
       jumpscareAudio.currentTime = 0;  // reinicia por si se corta un jumpscare anterior
       jumpscareAudio.play().catch(() => {});  // reproduce el sonido real
 
