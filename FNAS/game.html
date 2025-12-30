@@ -40,6 +40,7 @@
       z-index:-2;
       opacity:0.14;
       filter:saturate(0.9) contrast(1.05);
+          pointer-events:none;
     }
     #bg-vignette{
       position:fixed;
@@ -60,6 +61,9 @@
       height:100vh;
       padding: clamp(18px, 3vw, 48px);
       gap: clamp(18px, 3vw, 44px);
+          position: relative;
+          z-index: 10000;
+          pointer-events: auto;
     }
 
     .menu-left{
@@ -69,6 +73,46 @@
       justify-content:center;
       gap: 26px;
     }
+
+    /* (v22) Botón YouTube "Guía" */
+    .yt-btn{
+      width: fit-content;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.92);
+      text-decoration:none;
+      cursor:pointer;
+      transition: transform 140ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+      user-select:none;
+    }
+    .yt-btn .yt-text{
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .yt-btn svg{
+      width: 32px;
+      height: 22px;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+    }
+    .yt-btn:hover{
+      transform: translateY(-2px);
+      background: rgba(0,0,0,0.35);
+      border-color: rgba(255,255,255,0.26);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    }
+    .yt-btn:focus-visible{
+      outline: 2px solid rgba(0,255,0,0.35);
+      outline-offset: 4px;
+    }
+
 
     .menu-title{
       font-family: Georgia, "Times New Roman", Times, serif;
@@ -303,7 +347,132 @@
       overflow:hidden;
       pointer-events:none;
     }
-    #poster-big{
+    
+    /* ===================== VENT HATCH (COMPuERTA) ===================== */
+    #vent-hatch{
+      position:absolute;
+      /* Centro-derecha, debajo del monitor/poster: coincide con la zona marcada */
+      left: 76%;
+      top: 73%;
+      transform: translate(-50%,-50%);
+      width: 44%;
+      height: 34%;
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(68, 68, 68, 0.5), rgba(0,0,0,0.50)),
+        radial-gradient(circle at 30% 25%, rgba(169, 169, 169, 0.1), transparent 55%),
+        linear-gradient(to bottom, rgba(36, 36, 36, 0.85), rgba(0,0,0,0.65));
+      border: 5px solid rgba(255,255,255,0.16);
+      box-shadow:
+        0 0 5px 30px rgba(0,0,0,0.35) inset,
+        0 18px 35px rgba(0,0,0,0.55),
+        0 0 40px rgba(0,0,0,0.35) inset;
+      overflow:hidden;
+      pointer-events:none;
+      opacity: 0.92;
+      z-index: 15;
+    }
+
+    /* marco industrial */
+    #vent-hatch::before{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow:
+        0 0 0 2px rgba(0,0,0,0.25) inset,
+        0 0 35px rgba(0,0,0,0.55) inset;
+    }
+
+    /* puerta que baja */
+    #vent-hatch .hatch-door{
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:110%;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 8px, rgba(0,0,0,0) 8px, rgba(0,0,0,0) 22px),
+        linear-gradient(to bottom, rgba(60,60,70,0.85), rgba(10,10,12,0.95));
+      border-bottom: 2px solid rgba(255,255,255,0.18);
+      transform: translateY(-112%);
+      transition: transform 260ms cubic-bezier(.2,.9,.2,1);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.65);
+    }
+
+    #vent-hatch.closed .hatch-door{
+      transform: translateY(0%);
+    }
+
+    /* bolts */
+    #vent-hatch .hatch-bolts{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 18%, rgba(255,255,255,0.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 90% 18%, rgba(255,255,255,0.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 10% 82%, rgba(255,255,255,0.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 90% 82%, rgba(255,255,255,0.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,0.18) 0 2px, transparent 3px),
+        radial-gradient(circle at 50% 90%, rgba(255,255,255,0.18) 0 2px, transparent 3px);
+      opacity: 0.9;
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+
+    /* label + indicator */
+    #vent-hatch .hatch-label{
+      position:absolute;
+      left: 14px;
+      bottom: 12px;
+      font-family: var(--ui-font);
+      font-size: clamp(14px, 1.1vw, 18px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(220,240,255,0.82);
+      text-shadow: 0 0 18px rgba(0,180,255,0.18);
+    }
+
+    #vent-hatch .hatch-indicator{
+      position:absolute;
+      right: 14px;
+      bottom: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(60,255,140,0.25);
+      border: 1px solid rgba(120,255,180,0.35);
+      box-shadow: 0 0 22px rgba(0,255,120,0.20);
+    }
+
+    #vent-hatch.closed .hatch-indicator{
+      background: rgba(255,60,60,0.20);
+      border-color: rgba(255,120,120,0.40);
+      box-shadow: 0 0 26px rgba(255,60,60,0.22);
+    }
+
+    #vent-hatch .hatch-stamp{
+      position:absolute;
+      top: 14px;
+      right: 16px;
+      font-family: var(--ui-font);
+      font-size: clamp(12px, 1vw, 16px);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,120,120,0.0);
+      opacity: 0.0;
+      transform: translateY(-6px);
+      transition: opacity 200ms ease, transform 200ms ease;
+      text-shadow: 0 0 18px rgba(255,80,80,0.35);
+    }
+    #vent-hatch.closed .hatch-stamp{
+      opacity: 1.0;
+      transform: translateY(0px);
+      color: rgba(255,120,120,0.92);
+    }
+
+#poster-big{
       position:absolute;
       top:16%;
       left:50%;
@@ -374,20 +543,68 @@
       position:relative;
     }
 
+    
     #yellow-plush{
       position:absolute;
-      left: 15%;
-      bottom: 34px;
-      width:46px; height:46px;
-      border-radius: 10px;
-      background: rgba(255,220,60,0.35);
-      border: 1px solid rgba(255,220,60,0.22);
-      box-shadow: 0 0 20px rgba(255,220,60,0.10);
-      transform: rotate(-2deg);
-      pointer-events:none;
+      /* Reubicado: más a la izquierda y más arriba para no tapar UI */
+      left: 25%;
+      bottom: 15%;
+      width: 64px;
+      height: 56px;
+      border-radius: 10px 10px 14px 14px;
+      background: #ffcc00; /* visible golden yellow */
+      box-shadow:
+        0 10px 24px rgba(0,0,0,0.45),
+        inset 0 -6px 0 rgba(0,0,0,0.12),
+        inset 0 6px 0 rgba(255,255,255,0.18);
+      opacity: 1;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.12s ease;
+      z-index: 30; /* encima del fondo del escritorio, debajo de la UI del monitor */
     }
-
-    .monitor-glow{
+#yellow-plush:hover{
+  filter: brightness(1.06) saturate(1.05);
+}
+/* Minimal "8-bit/geometric" face using only ::before/::after */
+#yellow-plush::before{
+  content:"";
+  position:absolute;
+  left: 50%;
+  top: 20px;
+  width: 10px;
+  height: 10px;
+  background: #0b0b0b;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: -16px 0 0 #0b0b0b, 16px 0 0 #0b0b0b; /* two eyes */
+  pointer-events: none;
+}
+#yellow-plush::after{
+  content:"";
+  position:absolute;
+  left: 50%;
+  top: 34px;
+  width: 8px;
+  height: 8px;
+  background: #0b0b0b; /* nose */
+  transform: translateX(-50%);
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* Click squish */
+#yellow-plush.plush-press{
+  transform: scale(0.9);
+}
+#yellow-plush:hover{
+  filter: brightness(1.06) saturate(1.05);
+}
+/* Minimal "8-bit/geometric" face using only ::before/::after */
+/* Click squish */
+#yellow-plush.plush-press{
+  transform: scale(0.9);
+}
+.monitor-glow{
       width:220px;
       height:140px;
       background:#020202;
@@ -424,6 +641,7 @@
     .door-block{
       position:absolute;
       inset:0;
+      z-index:2;
       background: repeating-linear-gradient(90deg, #222 0px, #222 25px, #111 25px, #111 50px);
       transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
       transform: translateY(-100%);
@@ -435,6 +653,7 @@
     .light-fx{
       position:absolute;
       inset:0;
+      z-index:5;
       background:transparent;
       transition: background 0.2s ease;
       pointer-events:none;
@@ -561,6 +780,18 @@
     }
     .cam-btn.active + .cam-t{ fill:#000; }
 
+    /* === v25: Map alert blink (CAM 4) === */
+    .map-alert-blink{
+      animation: mapAlertAnim 0.5s infinite steps(2, start);
+      fill: #ff0000 !important;
+      stroke: #ffaaaa !important;
+      stroke-width: 4px;
+    }
+    @keyframes mapAlertAnim{
+      0%{ opacity: 1; }
+      50%{ opacity: 0.3; }
+    }
+
     /* Monster render */
     .monster-box{
       display:flex;
@@ -568,6 +799,7 @@
       align-items:center;
       filter: drop-shadow(0 0 15px rgba(0,0,0,0.8));
     }
+        .monster-box.silhouette{ filter: brightness(0.55) saturate(0) drop-shadow(0 0 15px rgba(0,0,0,0.9)); }
     .m-head{
       width:80px; height:80px;
       border-radius: 15px;
@@ -611,7 +843,7 @@
       position:absolute;
       bottom:0;
       left:50%;
-      transform: translateX(-50%);
+      transform: translate3d(-50%,0,0);
       width: 450px;
       height: 50px;
       background: rgba(50,50,50,0.6);
@@ -628,13 +860,15 @@
       text-shadow: 0 0 10px rgba(0,255,0,0.22);
       backdrop-filter: blur(8px);
       box-shadow: 0 -10px 30px rgba(0,255,0,0.12);
-      transition: all 0.2s ease;
+      will-change: transform;
+      backface-visibility: hidden;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     #cam-pull:hover{
-      background: rgba(0,255,0,0.16);
+      background: rgba(0,255,0,0.25); /* Brillo verde sutil */
       border-color: rgba(0,255,0,0.35);
-      box-shadow: 0 -18px 45px rgba(0,255,0,0.22);
-      transform: translateX(-50%) translateY(-8px);
+      box-shadow: 0 -10px 40px rgba(0,255,0,0.35); /* Glow más fuerte */
+      /* NO transform: evita hueco/borde flotante */
     }
 
     /* Jumpscare */
@@ -643,7 +877,7 @@
       position:fixed;
       inset:0;
       background:#000;
-      z-index:1500;
+      z-index:20000;
       justify-content:center;
       align-items:center;
     }
@@ -986,6 +1220,9 @@
 
     /* Variantes por animatrónico */
     .anim--Grey .anim-head, .anim--Grey .anim-body{ background-color: rgba(120,120,120,0.25); }
+    /* (Fix v20 #1) Freddy en puerta: color marrón oscuro para diferenciarlo */
+    .anim--Grey.door-freddy .anim-head, .anim--Grey.door-freddy .anim-body{ background-color: #5d4037 !important; }
+
     .anim--Purple .anim-head, .anim--Purple .anim-body{ background-color: rgba(106,13,173,0.28); }
     .anim--Yellow .anim-head, .anim--Yellow .anim-body{ background-color: rgba(212,175,55,0.25); }
     .anim--Foxy .anim-head, .anim--Foxy .anim-body{ background-color: rgba(160,0,0,0.25); }
@@ -1019,6 +1256,90 @@
     .anim--Grey .anim-hat{ display:block; }
 
   
+    
+    /* ===================== UCN ===================== */
+    #ucnScreen{ margin-top: 10px; }
+    .ucn-row{
+      margin-top: 14px;
+      display:flex;
+      gap:14px;
+      flex-wrap: wrap;
+      align-items:stretch;
+      justify-content:flex-start;
+      max-width: 820px;
+    }
+    .ucn-card{
+      width: 150px;
+      min-height: 140px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.35);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25) inset;
+      padding: 12px 12px 10px;
+    }
+    .ucn-name{ font-size: 16px; letter-spacing:0.5px; color: rgba(255,255,255,0.92); }
+    .ucn-ai{ margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.55); }
+    .ucn-controls{ margin-top: 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .ucn-btn{
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: transform .08s ease, background .15s ease;
+    }
+    .ucn-btn:hover{ transform: translateX(2px); background: rgba(255,255,255,0.06); }
+    .ucn-value{
+      width: 40px; text-align:center;
+      font-size: 22px; color:#fff;
+      font-variant-numeric: tabular-nums;
+    }
+    .ucn-scale{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+    }
+    .ucn-actions{ margin-top: 16px; display:flex; gap:20px; }
+    .ucn-night{ margin-top: 10px; font-size: 14px; color: rgba(255,255,255,0.75); }
+
+    /* Night stars (campaign/free-play) */
+    .night-star{
+      margin-left: 10px;
+      font-size: 16px;
+      line-height: 1;
+      color: #4b4b4b;
+      opacity: 0.95;
+      text-shadow: 0 0 10px rgba(0,0,0,0.65);
+      transform: translateY(-1px);
+    }
+    .night-star.is-yellow{
+      color:#ffd24a;
+      text-shadow: 0 0 14px rgba(255,210,74,0.55);
+    }
+    .night-star.is-purple{
+      color:#b87cff;
+      text-shadow: 0 0 14px rgba(184,124,255,0.55);
+    }
+
+    /* Meta red stars */
+    .meta-star{
+      width: 26px; height: 26px;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 22px;
+      opacity: 0.18;
+      filter: drop-shadow(0 0 10px rgba(255,0,0,0.15));
+      transition: opacity .25s ease, transform .25s ease, filter .25s ease;
+      user-select:none;
+    }
+    .meta-star.unlocked{
+      opacity: 0.95;
+      filter: drop-shadow(0 0 14px rgba(255,0,0,0.35));
+    }
+    .meta-star.unlocked:hover{ transform: scale(1.06) rotate(-3deg); }
+
+
     /* Extra: Animatronic viewer */
     .anim-viewer{
       margin-top: 14px;
@@ -1070,7 +1391,360 @@
       line-height: 1.35;
     }
 
-  </style>
+  
+
+    /* --- Power usage indicator --- */
+    .pwr-wrap{ display:flex; align-items:center; gap:12px; }
+    #usage-ind{ display:flex; align-items:center; gap:8px; font-size:12px; letter-spacing:0.18em; opacity:0.92; }
+    #usage-ind .u-label{ color: rgba(255,255,255,0.55); }
+    #usage-ind .u-bars{ display:flex; gap:4px; }
+    #usage-ind .u-bar{ width:10px; height:12px; border:1px solid rgba(255,255,255,0.18); border-radius:2px; background:rgba(255,255,255,0.06); box-shadow: 0 0 10px rgba(255,255,255,0.04) inset; }
+    #usage-ind.is-1 .u-bar:nth-child(-n+1),
+    #usage-ind.is-2 .u-bar:nth-child(-n+2){ background: rgba(120,255,160,0.20); border-color: rgba(120,255,160,0.30); }
+    #usage-ind.is-3 .u-bar:nth-child(-n+3){ background: rgba(255,220,120,0.22); border-color: rgba(255,220,120,0.32); }
+    #usage-ind.is-4 .u-bar:nth-child(-n+4){ background: rgba(255,90,90,0.22); border-color: rgba(255,90,90,0.32); }
+    #usage-ind.is-4{ animation: usagePulse 0.9s ease-in-out infinite; }
+    @keyframes usagePulse{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.25);} }
+
+    /* Make sure menu is clickable and above overlays (FORCE v29) */
+    #menu{
+      position: relative;
+      z-index: 10000;
+      pointer-events: auto;
+    }
+    /* Asegurar que el menú siempre gane en prioridad de clic */
+    .menu-item{
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 10001;
+    }
+    /* Evitar capas invisibles tragando clics */
+    #game, #blackout, #jumpscare, #victory-screen, #cam-overlay{
+      pointer-events: auto;
+    }
+/* Freddy warning eyes (pre-attack cue) */
+    .anim.eyes-alert .anim-eye .anim-pupil{
+      background:#f3f6ff;
+      box-shadow: 0 0 18px rgba(245,248,255,0.95), 0 0 38px rgba(255,255,255,0.60);
+    }
+
+    /* ===== VENT + HEAT SYSTEM (v17) ===== */
+    .heat-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:6px;
+      font-size:13px;
+      letter-spacing:0.06em;
+      color:rgba(255,255,255,0.85);
+      text-transform:uppercase;
+    }
+    .heat-bar{
+      width:140px;
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.14);
+      overflow:hidden;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.55);
+    }
+    #heat-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, rgba(255,215,0,0.9), rgba(255,80,80,0.95));
+      transition: width 0.12s linear;
+    }
+
+    .vent-ctrl{
+      position:absolute;
+      right: 18%;
+      bottom: 118px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      z-index: 800;
+      pointer-events:auto;
+    }
+    .btn-vent{
+      width:84px;
+      height:44px;
+      letter-spacing:0.14em;
+    }
+    .vent-status{
+      font-size:12px;
+      opacity:0.8;
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:10px;
+      background:rgba(0,0,0,0.35);
+      text-transform:uppercase;
+    }
+    .vent-status.closed{
+      color: rgba(255,120,120,0.95);
+      border-color: rgba(255,120,120,0.45);
+      box-shadow: 0 0 18px rgba(255,90,90,0.18);
+    }
+
+    .cam-btn-vent{
+      stroke: rgba(255,80,80,0.9);
+      fill: rgba(255,40,40,0.15);
+    }
+    #cam-vent-btn.active{
+      fill: rgba(255,40,40,0.35);
+      stroke: rgba(255,120,120,1);
+    }
+
+    /* VENT camera visuals */
+    .vent-scene{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 60% 30%, rgba(120,200,255,0.06) 0%, transparent 55%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 14px),
+        linear-gradient(to bottom, #0a0a0f, #040406);
+      filter: contrast(1.05) saturate(1.05);
+      opacity:0.95;
+      z-index:1;
+    }
+    .vent-pipe{
+      position:absolute;
+      border-radius:999px;
+      background: linear-gradient(180deg, rgba(200,200,220,0.14), rgba(50,50,70,0.22));
+      border:1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.6);
+      z-index:2;
+    }
+    .vent-grate{
+      position:absolute;
+      left: 55%;
+      top: 40%;
+      width: 34%;
+      height: 38%;
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 9px);
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 22px rgba(0,0,0,0.55) inset;
+      z-index:2;
+      opacity:0.55;
+    }
+    .vent-eyes{
+      position:absolute;
+      left: 48%;
+      top: 54%;
+      width: 140px;
+      height: 60px;
+      transform: translate(-50%,-50%);
+      z-index: 9;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 18px;
+      pointer-events:none;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.25));
+    }
+    .vent-eye{
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.0);
+      border: 2px solid rgba(255,255,255,0.0);
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    .vent-eyes.white .vent-eye{
+      background: rgba(255,255,255,0.92);
+      border-color: rgba(255,255,255,0.72);
+      box-shadow: 0 0 24px rgba(255,255,255,0.55);
+    }
+    .vent-eyes.gold .vent-eye{
+      background: rgba(255,220,120,0.92);
+      border-color: rgba(255,220,120,0.72);
+      box-shadow: 0 0 24px rgba(255,190,80,0.55);
+    }
+
+
+.vent-eyes.red .vent-eye{
+  background: rgba(255,70,70,0.92);
+  border-color: rgba(255,70,70,0.72);
+  box-shadow: 0 0 26px rgba(255,70,70,0.62);
+}
+.vent-eyes.purple .vent-eye{
+  background: rgba(170,90,255,0.92);
+  border-color: rgba(170,90,255,0.72);
+  box-shadow: 0 0 26px rgba(170,90,255,0.62);
+}
+
+/* Foxy run: little jitter while visible on CAM 5/8 */
+.foxy-run{
+  animation: foxyRunJitter 0.08s infinite;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,0.18));
+}
+@keyframes foxyRunJitter{
+  0%{ transform: translate(0,0); }
+  25%{ transform: translate(1px,-1px); }
+  50%{ transform: translate(-1px,1px); }
+  75%{ transform: translate(1px,0); }
+  100%{ transform: translate(0,-1px); }
+}
+
+
+    /* === v24: Foxy visual alarm on CAM 4 === */
+    @keyframes camAlertRedPulse{
+      0%   { opacity: 0.05; }
+      50%  { opacity: 0.28; }
+      100% { opacity: 0.10; }
+    }
+    #cam-screen.cam-alert-red::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: rgba(255,0,0,0.35);
+      opacity: 0.1;
+      animation: camAlertRedPulse 0.55s steps(2,end) infinite;
+      pointer-events:none;
+      z-index: 6;
+      mix-blend-mode: screen;
+    }
+    #cam-screen.cam-alert-red{
+      box-shadow: 0 0 0 2px rgba(255,0,0,0.25) inset, 0 0 28px rgba(255,0,0,0.20);
+    }
+
+
+/* ================= v34: EASTER EGGS (CSS-ONLY) ================= */
+.prop.lucia-wanted{
+  background:#eec;
+  border:2px solid rgba(0,0,0,0.35);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:6px 6px 4px;
+  gap:4px;
+  font-family: system-ui, Arial, sans-serif;
+}
+.prop.lucia-wanted .lw-top{
+  color:#5a0b0b;
+  font-weight:900;
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.prop.lucia-wanted .lw-photo{
+  width:70%;
+  height:52%;
+  background: linear-gradient(180deg, #999, #666);
+  border:2px solid rgba(0,0,0,0.25);
+  display:flex; align-items:center; justify-content:center;
+}
+.prop.lucia-wanted .lw-photo span{
+  color:#111;
+  font-size:26px;
+  font-weight:900;
+  opacity:0.85;
+  transform: translateY(-1px);
+}
+.prop.lucia-wanted .lw-bot{
+  color:#222;
+  font-size:10px;
+  opacity:0.85;
+}
+
+.prop.glitch-doc{
+  background:#050505;
+  border:2px solid #3cff7a;
+  box-shadow: 0 0 12px rgba(60,255,122,0.35);
+  font-family: "Courier New", monospace;
+  padding:6px;
+  color:#37ff7a;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  text-shadow: 0 0 8px rgba(55,255,122,0.25);
+}
+.prop.glitch-doc .glitch-title{
+  font-weight:900;
+  font-size:12px;
+  letter-spacing:0.5px;
+}
+.prop.glitch-doc .glitch-body{
+  font-size:10px;
+  opacity:0.9;
+  line-height:1.05;
+}
+
+.prop.hatch{
+  background: repeating-linear-gradient(45deg, #666 0 8px, #2f2f2f 8px 16px);
+  border:2px solid rgba(0,0,0,0.55);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06), 0 10px 18px rgba(0,0,0,0.35);
+  opacity:0.10;
+  cursor: pointer;
+  pointer-events: auto;
+  position:absolute;
+}
+.prop.hatch.revealed{ opacity:1; }
+.prop.hatch .hatch-label{
+  position:absolute;
+  left:50%; top:-18px;
+  transform:translateX(-50%);
+  font-size:10px;
+  color:#eaeaea;
+  background: rgba(0,0,0,0.55);
+  padding:2px 6px;
+  border-radius:10px;
+  opacity:0;
+  transition:opacity 200ms ease;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.prop.hatch.revealed .hatch-label{ opacity:1; }
+
+/* Lucia overlay (solo vivo) */
+#lucia-overlay{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index: 99999;
+  pointer-events:none;
+}
+#lucia-overlay.active{
+  display:flex;
+  animation: luciaFlash 120ms steps(2, start) infinite;
+}
+#lucia-overlay .lucia-text{
+  color:#b00000;
+  font-family: "Courier New", monospace;
+  font-weight:900;
+  letter-spacing: 3px;
+  font-size: 34px;
+  text-shadow: 0 0 18px rgba(176,0,0,0.55);
+}
+@keyframes luciaFlash{
+  0%{ opacity: 1; }
+  50%{ opacity: 0.15; }
+}
+
+
+    /* === v34 PATCH: Z-Index supremo para pantallas críticas === */
+    #jumpscare { z-index: 99999 !important; }
+    #cinematic { z-index: 99999 !important; }
+    #victory-screen { z-index: 99995 !important; }
+    #blackout { z-index: 99990 !important; }
+    #death-tip { z-index: 99998 !important; }
+
+  
+
+/* === Z-INDEX SUPREMO: pantallas críticas sobre el menú === */
+#jumpscare, #cinematic, #victory-screen { z-index: 99999 !important; }
+#blackout { z-index: 99990 !important; }
+#menu { z-index: 10000; } /* El menú queda abajo de los sustos */
+#death-tip { z-index: 99998 !important; }
+#cin-text { position: relative; z-index: 100000; text-shadow: 0 0 10px red; }
+</style>
 </head>
 
 <body>
@@ -1078,7 +1752,11 @@
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="https://cdn.pixabay.com/video/2024/09/26/233353_large.mp4" type="video/mp4">
   </video>
-  <audio id="jumpscare-sound" preload="auto">
+  
+<audio id="menu-bgm" loop preload="auto" style="display:none">
+  <source src="692008__zhr__horror-music-5.wav" type="audio/wav">
+</audio>
+<audio id="jumpscare-sound" preload="auto">
   <source src="jumpscare.mp3" type="audio/mpeg">
 </audio>
   <div id="bg-vignette"></div>
@@ -1089,6 +1767,14 @@
       <h1 class="menu-title" aria-label="Título del juego">Five Nights<br>at<br>Shape's</h1>
       <div class="menu-hint">USE ↑/↓ Y ENTER</div>
 
+      <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="yt-btn" style="display:flex; align-items:center; gap:10px; margin-bottom:15px; text-decoration:none; width:fit-content;">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="#ff0000" aria-hidden="true" focusable="false">
+          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+        </svg>
+        <span style="color:#fff; font-weight:bold; font-size:16px; letter-spacing:1px; text-transform:uppercase;">Guía</span>
+      </a>
+
+
       <nav class="menu-list" role="menu" aria-label="Menú principal" tabindex="0" id="menuList">
         <div class="menu-item is-selected" role="menuitem" tabindex="-1" data-action="new-game" aria-label="Nuevo juego">
           <span class="menu-arrow">&gt;&gt;</span><span>New Game</span>
@@ -1097,19 +1783,19 @@
           <span class="menu-arrow">&gt;&gt;</span><span>Continue</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="noche-1" aria-label="Noche 1">
-          <span class="menu-arrow">&gt;&gt;</span><span>Noche 1</span>
+          <span class="menu-arrow">&gt;&gt;</span><span>Noche 1</span><span class="night-star" data-night="1" aria-hidden="true">★</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="noche-2" aria-label="Noche 2">
-          <span class="menu-arrow">&gt;&gt;</span><span>Noche 2</span>
+          <span class="menu-arrow">&gt;&gt;</span><span>Noche 2</span><span class="night-star" data-night="2" aria-hidden="true">★</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="noche-3" aria-label="Noche 3">
-          <span class="menu-arrow">&gt;&gt;</span><span>Noche 3</span>
+          <span class="menu-arrow">&gt;&gt;</span><span>Noche 3</span><span class="night-star" data-night="3" aria-hidden="true">★</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="noche-4" aria-label="Noche 4">
-          <span class="menu-arrow">&gt;&gt;</span><span>Noche 4</span>
+          <span class="menu-arrow">&gt;&gt;</span><span>Noche 4</span><span class="night-star" data-night="4" aria-hidden="true">★</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="noche-5" aria-label="Noche 5">
-          <span class="menu-arrow">&gt;&gt;</span><span>Noche 5</span>
+          <span class="menu-arrow">&gt;&gt;</span><span>Noche 5</span><span class="night-star" data-night="5" aria-hidden="true">★</span>
         </div>
         <div class="menu-item" role="menuitem" tabindex="-1" data-action="ucn" aria-label="Ultimate Custom Night">
           <span class="menu-arrow">&gt;&gt;</span><span>UCN (Ultimate Custom Night)</span>
@@ -1118,6 +1804,78 @@
           <span class="menu-arrow">&gt;&gt;</span><span>Extra</span>
         </div>
       </nav>
+
+      
+      <!-- UCN / Customize Night -->
+      <div id="ucnScreen" style="display:none;">
+        <div class="menu-subhint">Customize Night</div>
+
+        <div class="ucn-row" aria-label="Ajuste de IA de animatrónicos">
+          <div class="ucn-card" data-anim="Grey">
+            <div class="ucn-name">Freddy</div>
+            <div class="ucn-ai">A.I. Level</div>
+            <div class="ucn-controls">
+              <button class="ucn-btn" type="button" aria-label="Bajar IA Freddy" data-ucn="Grey:-1">&#9664;</button>
+              <div class="ucn-value" id="ucn-val-Grey">0</div>
+              <button class="ucn-btn" type="button" aria-label="Subir IA Freddy" data-ucn="Grey:+1">&#9654;</button>
+            </div>
+          </div>
+
+          <div class="ucn-card" data-anim="Purple">
+            <div class="ucn-name">Bonnie</div>
+            <div class="ucn-ai">A.I. Level</div>
+            <div class="ucn-controls">
+              <button class="ucn-btn" type="button" aria-label="Bajar IA Bonnie" data-ucn="Purple:-1">&#9664;</button>
+              <div class="ucn-value" id="ucn-val-Purple">0</div>
+              <button class="ucn-btn" type="button" aria-label="Subir IA Bonnie" data-ucn="Purple:+1">&#9654;</button>
+            </div>
+          </div>
+
+          <div class="ucn-card" data-anim="Yellow">
+            <div class="ucn-name">Chica</div>
+            <div class="ucn-ai">A.I. Level</div>
+            <div class="ucn-controls">
+              <button class="ucn-btn" type="button" aria-label="Bajar IA Chica" data-ucn="Yellow:-1">&#9664;</button>
+              <div class="ucn-value" id="ucn-val-Yellow">0</div>
+              <button class="ucn-btn" type="button" aria-label="Subir IA Chica" data-ucn="Yellow:+1">&#9654;</button>
+            </div>
+          </div>
+
+          <div class="ucn-card" data-anim="Foxy">
+            <div class="ucn-name">Foxy</div>
+            <div class="ucn-ai">A.I. Level</div>
+            <div class="ucn-controls">
+              <button class="ucn-btn" type="button" aria-label="Bajar IA Foxy" data-ucn="Foxy:-1">&#9664;</button>
+              <div class="ucn-value" id="ucn-val-Foxy">0</div>
+              <button class="ucn-btn" type="button" aria-label="Subir IA Foxy" data-ucn="Foxy:+1">&#9654;</button>
+            </div>
+          </div>
+
+          <div class="ucn-card" data-anim="Golden">
+            <div class="ucn-name">Golden</div>
+            <div class="ucn-ai">A.I. Level</div>
+            <div class="ucn-controls">
+              <button class="ucn-btn" type="button" aria-label="Bajar IA Golden Freddy" data-ucn="Golden:-1">&#9664;</button>
+              <div class="ucn-value" id="ucn-val-Golden">0</div>
+              <button class="ucn-btn" type="button" aria-label="Subir IA Golden Freddy" data-ucn="Golden:+1">&#9654;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ucn-scale">(0-2) easy &nbsp;&nbsp; (3-6) med &nbsp;&nbsp; (7-12) hard &nbsp;&nbsp; (13-20) extreme</div>
+
+        <nav class="menu-list ucn-actions" role="menu" aria-label="Acciones UCN" tabindex="0" id="ucnActions">
+          <div class="menu-item" role="menuitem" tabindex="-1" data-action="ucn-ready" aria-label="Iniciar UCN">
+            <span class="menu-arrow">&gt;&gt;</span><span>READY</span>
+          </div>
+          <div class="menu-item" role="menuitem" tabindex="-1" data-action="ucn-back" aria-label="Volver">
+            <span class="menu-arrow">&gt;&gt;</span><span>Back</span>
+          </div>
+        </nav>
+
+        <div class="ucn-night" id="ucnNightLabel">Noche 6</div>
+      </div>
+
 
       <!-- Extra screens -->
       <div id="extraScreen" style="display:none;">
@@ -1128,6 +1886,9 @@
           </div>
           <div class="menu-item" role="menuitem" tabindex="-1" data-action="extra-anim" aria-label="Animatrónico">
             <span class="menu-arrow">&gt;&gt;</span><span>Animatrónico</span>
+          </div>
+            <div class="menu-item" role="menuitem" tabindex="-1" data-action="extra-cine" aria-label="Cinemática" id="extraCineItem" style="display:none;">
+            <span class="menu-arrow">&gt;&gt;</span><span>Cinematica</span>
           </div>
           <div class="menu-item" role="menuitem" tabindex="-1" data-action="extra-back" aria-label="Volver">
             <span class="menu-arrow">&gt;&gt;</span><span>Back</span>
@@ -1191,12 +1952,34 @@
         <div id="fallbackText" class="figure-fallback" style="display:none;">ASSET NO ENCONTRADO</div>
       </div>
     </aside>
-  </main>
+  
+      <div id="meta-stars" aria-label="Progreso" style="position:fixed; right:28px; bottom:24px; z-index:1200; display:flex; gap:10px; align-items:center;">
+        <div class="meta-star meta-star--red" id="redStar1" title="Se desbloquea con Noches 1-5 en morado">★</div>
+        <div class="meta-star meta-star--red" id="redStar2" title="Se desbloquea con Noche 6 (hard+)">★</div>
+        <div class="meta-star meta-star--red" id="redStar3" title="Se desbloquea con Noche 7 (5/20)">★</div>
+      </div>
+
+</main>
 
   <!-- ===================== GAME ===================== -->
   <div id="game">
     <div id="hud-top">
-      <div id="pwr-text">ENERGÍA: 100%</div>
+      <div class="pwr-wrap" aria-label="Energía y consumo">
+        <div id="pwr-text">ENERGÍA: 99%</div>
+        <div id="usage-ind" role="img" aria-label="Consumo de energía">
+          <span class="u-label">USO</span>
+          <span class="u-bars" aria-hidden="true">
+            <span class="u-bar"></span>
+            <span class="u-bar"></span>
+            <span class="u-bar"></span>
+            <span class="u-bar"></span>
+          </span>
+        </div>
+      </div>
+      <div class="heat-wrap" aria-label="Calor">
+        <div id="heat-text">CALOR: 0%</div>
+        <div class="heat-bar" aria-hidden="true"><div id="heat-fill"></div></div>
+      </div>
       <div id="time-text">12 AM</div>
       <div id="night-text">NOCHE 1</div>
     </div>
@@ -1205,7 +1988,16 @@
       <div id="back-wall">
         <div id="poster-big"></div>
         <div id="papers"></div>
-      </div>
+      
+        <!-- VENT HATCH (mecánica principal) -->
+        <div id="vent-hatch" aria-hidden="true">
+          <div class="hatch-door"></div>
+          <div class="hatch-bolts" aria-hidden="true"></div>
+          <div class="hatch-label">VENT</div>
+          <div class="hatch-indicator" aria-hidden="true"></div>
+          <div class="hatch-stamp">CLOSED</div>
+        </div>
+</div>
       <div id="hanging-figure"></div>
       <div id="floor-checker"></div>
 
@@ -1216,11 +2008,18 @@
       <div class="door-way left">
         <div id="l-light-fx" class="light-fx"></div>
         <div id="l-door-asset" class="door-block"></div>
-        <div id="m-office-l" style="position:absolute; bottom:80px; left:15%; display:none;"></div>
+        <div id="m-office-l" style="position:absolute; bottom:80px; left:15%; display:none; z-index:560; pointer-events:none;"></div>
       </div>
+
+            <div id="m-office-front" style="position:absolute; bottom:190px; left:50%; transform:translateX(-50%); display:none; z-index:525; pointer-events:none;"></div>
 
       <div class="desk">
         <div id="yellow-plush" aria-hidden="true"></div>
+
+        <div class="vent-ctrl">
+          <button id="btn-vent" class="btn-ui btn-vent" onclick="toggleVent()">VENT</button>
+          <div id="vent-status" class="vent-status">OPEN</div>
+        </div>
 
         <div class="btn-group">
           <button id="btn-dl" class="btn-ui" onclick="toggleDoor('l')">DOOR L</button>
@@ -1240,7 +2039,7 @@
       <div class="door-way right">
         <div id="r-light-fx" class="light-fx"></div>
         <div id="r-door-asset" class="door-block"></div>
-        <div id="m-office-r" style="position:absolute; bottom:80px; right:15%; display:none;"></div>
+        <div id="m-office-r" style="position:absolute; bottom:80px; right:15%; display:none; z-index:560; pointer-events:none;"></div>
       </div>
     </div>
 
@@ -1257,8 +2056,13 @@
         <svg class="map-svg" viewBox="0 0 800 300">
           <path d="M400,20 L400,80 M400,80 L250,80 L250,220 L400,220 M400,80 L550,80 L550,220 L400,220 M250,150 L150,150"
                 fill="none" stroke="#222" stroke-width="8"/>
-          <g onclick="setCam(1)"><rect class="cam-btn active" x="375" y="10" width="50" height="40"/><text class="cam-t" x="400" y="35">1</text></g>
+          
+          <path d="M400,120 L400,150" stroke="white" stroke-width="2" stroke-dasharray="4"/>
+          <path d="M275,220 Q330,210 375,190" stroke="white" stroke-width="2" stroke-dasharray="4"/>
+          <path d="M525,160 L425,160" stroke="white" stroke-width="2" stroke-dasharray="4"/>
+<g onclick="setCam(1)"><rect class="cam-btn active" x="375" y="10" width="50" height="40"/><text class="cam-t" x="400" y="35">1</text></g>
           <g onclick="setCam(2)"><rect class="cam-btn" x="375" y="80" width="50" height="40"/><text class="cam-t" x="400" y="105">2</text></g>
+          <g onclick="setCam('V')"><rect id="cam-vent-btn" class="cam-btn cam-btn-vent" x="375" y="150" width="50" height="40"/><text class="cam-t" x="400" y="175">V</text></g>
           <g onclick="setCam(3)"><rect class="cam-btn" x="225" y="80" width="50" height="40"/><text class="cam-t" x="250" y="105">3</text></g>
           <g onclick="setCam(4)"><rect class="cam-btn" x="125" y="130" width="50" height="40"/><text class="cam-t" x="150" y="155">4</text></g>
           <g onclick="setCam(5)"><rect class="cam-btn" x="225" y="200" width="50" height="40"/><text class="cam-t" x="250" y="225">5</text></g>
@@ -1303,7 +2107,89 @@
   </div>
 
   <script>
-    // ===================== MENU MANAGER (teclado + click) =====================
+    // ===================== EARLY BOOT (v30) =====================
+    // Ensure core globals exist BEFORE any input handlers can fire.
+    const state = window.state || (window.state = { menuActive:true });
+    // Audio bootstrap (robust): never let audio break menu/UI.
+    let audioCtx = null;
+    let master = null;
+
+    function ensureAudio(){
+      if(audioCtx && master) return true;
+      try{
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return false;
+        audioCtx = new Ctx();
+        master = audioCtx.createGain();
+        master.gain.value = 0.55;
+        master.connect(audioCtx.destination);
+        return true;
+      }catch(e){
+        console.warn('Audio init failed:', e);
+        audioCtx = null;
+        master = null;
+        return false;
+      }
+    }
+
+    // Create audio objects lazily; some browsers dislike early construction.
+    ensureAudio();
+
+    // Generic one-shot SFX helper (was missing in some builds)
+    function playSound(freq=440, type='sine', ms=80, vol=0.08){
+      try{
+        if(!ensureAudio() || !audioCtx || !master) return;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        const t0 = audioCtx.currentTime;
+        const dur = Math.max(0.01, ms/1000);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol), t0 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        o.connect(g); g.connect(master);
+        o.start(t0);
+        o.stop(t0 + dur + 0.02);
+      }catch(e){ /* silent */ }
+    }
+
+    // Loud fallback jumpscare sfx (in case mp3 is blocked/missing)
+    function playJumpscareSfx(){
+      try{
+        if(!ensureAudio() || !audioCtx || !master) return;
+        const out = audioCtx.createGain();
+        out.gain.value = 1.0; // loud fallback
+        out.connect(master);
+
+        // Noise burst + downward tone
+        const len = Math.floor(audioCtx.sampleRate * 0.55);
+        const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0;i<len;i++){
+          data[i] = (Math.random()*2 - 1) * (1 - i/len);
+        }
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+
+        const bp = audioCtx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = 900;
+        bp.Q.value = 0.7;
+
+        const g = audioCtx.createGain();
+        g.gain.value = 0.9;
+
+        src.connect(bp); bp.connect(g); g.connect(out);
+        src.start();
+        src.stop(audioCtx.currentTime + 0.55);
+
+        // Low screech
+        playSound(140, 'sawtooth', 420, 0.6);
+        playSound(95, 'square', 520, 0.45);
+      }catch(e){ /* silent */ }
+    }
+// ===================== MENU MANAGER (teclado + click) =====================
     const menu = document.getElementById('menu');
     const game = document.getElementById('game');
 
@@ -1311,6 +2197,8 @@
     const extraScreen = document.getElementById('extraScreen');
     const jumpscareScreen = document.getElementById('jumpscareScreen');
     const animScreen = document.getElementById('animScreen');
+    const ucnScreen = document.getElementById('ucnScreen');
+    const ucnActions = document.getElementById('ucnActions');
 
     const extraList = document.getElementById('extraList');
     const jumpscareList = document.getElementById('jumpscareList');
@@ -1358,6 +2246,7 @@
       if(extraScreen) extraScreen.style.display = (mode === "extra") ? "block" : "none";
       if(jumpscareScreen) jumpscareScreen.style.display = (mode === "jumps") ? "block" : "none";
       if(animScreen) animScreen.style.display = (mode === "anim") ? "block" : "none";
+      if(ucnScreen) ucnScreen.style.display = (mode === "ucn") ? "block" : "none";
 
       // Reset selection
       selectedIndex = 0;
@@ -1392,30 +2281,90 @@
       return menuItems[selectedIndex]?.dataset?.action;
     }
 
-    // Robust click handling (delegation) — works even if DOM changes
-    document.addEventListener('click', (e)=>{
-      if(!menu || menu.style.display === 'none') return;
+    // Keep logical menuActive in sync with DOM visibility (defensive against focus/minimize edge-cases)
+    function syncMenuState(){
+      const menuVisible = !!(menu && menu.style.display !== 'none' && menu.offsetParent !== null);
+      if(menuVisible && !state.menuActive) state.menuActive = true;
+      if(!menuVisible && state.menuActive && game && game.style.display !== 'none') state.menuActive = false;
+    
+  stopMenuMusic();}
+    // Robust menu handling (delegación) — v29: click global SIMPLE (anti z-index / estados corruptos)
+    document.addEventListener('click', (e) => {
+      // Buscar el elemento clickeado o su padre
+      const btn = e.target.closest('.menu-item');
+      if (btn) {
+        // Forzar desbloqueo de audio
+        unlockAudio();
 
-      const item = e.target.closest('.menu-item');
-      if(item){
-        // only if visible
-        if(item.offsetParent === null) return;
-        setSelectedByElement(item);
-        runAction(item.dataset.action);
-        return;
+        // Marcar selección visual (si existe helper)
+        try{ setSelectedByElement(btn); }catch(_){}
+
+        // Ejecutar acción sin depender de estados complejos
+        const action = btn.getAttribute('data-action') || btn.dataset.action;
+        if (action) runAction(action);
       }
     }, true);
 
+
+    // UCN +/-: solo click/hold (NO hover)
+    const _ucnHold = { t:null, start:null, el:null };
+    function _applyUCNDelta(btn){
+      const spec = btn.getAttribute('data-ucn') || "";
+      const parts = spec.split(':');
+      const who = parts[0];
+      const delta = (parts[1] === '+1') ? 1 : -1;
+      ucnAI[who] = clampAI((ucnAI[who]||0) + delta);
+      renderUCN();
+      playSound(600 + Math.random()*90, 'square', 0.08, 0.05);
+    }
+    function _stopUCNHold(){
+      if(_ucnHold.t){ clearInterval(_ucnHold.t); _ucnHold.t=null; }
+      if(_ucnHold.start){ clearTimeout(_ucnHold.start); _ucnHold.start=null; }
+      _ucnHold.el = null;
+    }
+    document.addEventListener('pointerdown', (e)=>{
+      syncMenuState();
+      if(!menu || !state.menuActive) return;
+      const btn = e.target.closest('[data-ucn]');
+      if(!btn) return;
+      unlockAudio();
+      e.preventDefault();
+      _stopUCNHold();
+      _applyUCNDelta(btn); // 1 paso inmediato
+      _ucnHold.el = btn;
+      _ucnHold.start = setTimeout(()=>{
+        _ucnHold.t = setInterval(()=>{
+          if(!menu || !state.menuActive) return _stopUCNHold();
+          _applyUCNDelta(btn);
+        }, 90);
+      }, 260);
+    }, true);
+    window.addEventListener('pointerup', _stopUCNHold, true);
+    window.addEventListener('pointercancel', _stopUCNHold, true);
+    window.addEventListener('blur', _stopUCNHold, true);
+
     // Hover selection
     document.addEventListener('mousemove', (e)=>{
-      if(!menu || menu.style.display === 'none') return;
+      syncMenuState();
+      if(!menu || !state.menuActive) return;
+      // NOTE: No cambiar IA por hover. (Solo click/hold)
+
+
       const item = e.target.closest('.menu-item');
       if(!item || item.offsetParent === null) return;
       setSelectedByElement(item);
     });
 
     window.addEventListener('keydown', (e)=>{
-      if(!menu || menu.style.display === 'none') return;
+      syncMenuState();
+      if(!menu || !state.menuActive) return;
+
+      _keysHeld.add(e.code);
+      const _cineUnlocked = !!(progress && progress.red1 && progress.red2 && progress.red3);
+      if(_cineUnlocked && !_secretCineLatch && _keysHeld.has('KeyJ') && _keysHeld.has('Digit5')){
+        _secretCineLatch = true;
+        playCinematic(true);
+      }
 
       if(e.key === 'ArrowUp'){ e.preventDefault(); refreshMenuItems(); setSelected(selectedIndex-1); }
       if(e.key === 'ArrowDown'){ e.preventDefault(); refreshMenuItems(); setSelected(selectedIndex+1); }
@@ -1425,6 +2374,7 @@
         if(activeMenu === "jumps") setMenu("extra");
         else if(activeMenu === "anim") setMenu("extra");
         else if(activeMenu === "extra") setMenu("main");
+
       }
 
       if(activeMenu === "anim"){
@@ -1475,23 +2425,41 @@ function runAction(action){
       // Game start actions
       if(action === "new-game"){
         localStorage.setItem('shape_nights_save', '1');
+        progress = loadProgress();
+        progress.campaignActive = true;
+        progress.campaignNext = 1;
+        saveProgress(progress);
+        applyProgressUI();
         startGame(1);
         return;
       }
       if(action === "continue"){
+        // Si ya tenés las 3 estrellas rojas, reproducí la cinemática al ganar
+        try{
+          if(progress && progress.red1 && progress.red2 && progress.red3){
+            setTimeout(()=> playCinematic(false), 1200);
+          }
+        }catch(e){}
         const saved = parseInt(localStorage.getItem('shape_nights_save') || "1", 10);
         startGame(Math.min(6, Math.max(1, saved)));
         return;
       }
       if(action.startsWith("noche-")){
         const n = parseInt(action.split("-")[1], 10);
+        progress = loadProgress();
+        progress.campaignActive = false;
+        saveProgress(progress);
+        applyProgressUI();
         startGame(Math.min(6, Math.max(1, n)));
         return;
       }
       if(action === "ucn"){
-        startGame(6);
+        setMenu("ucn");
         return;
       }
+      if(action === "ucn-back"){ setMenu("main"); return; }
+      if(action === "ucn-ready"){ startUCNNight(); return; }
+      if(action === "extra-cine"){ playCinematic(true); return; }
     }
 
     // Initialize menu
@@ -1501,114 +2469,488 @@ function runAction(action){
     window.runAction = runAction;
     window.setMenu = setMenu;
 
-
     // ===================== GAME LOGIC =====================
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const CAM_NAMES = { 1: "ESCENARIO", 2: "COMEDOR", 3: "PASILLO OESTE", 4: "CUEVA PIRATA", 5: "PUERTA IZQ", 6: "PASILLO ESTE", 7: "ZONA SERVICIO", 8: "PUERTA DER" };
-    const jumpscareAudio = new Audio('jumpscare.mp3');
-    jumpscareAudio.volume = 1.0;  // Nota: el máximo es 1.0, no puedes poner 1.9 (se ignora o queda en 1.0)
+        // (v30) audioCtx is initialized in EARLY BOOT
+    // --- Audio unlock + simple synth music/SFX (no external files) ---
+    // (v30) master is initialized at top of script
+    function unlockAudio(){
+      try{
+        // Lazy init + resume (user-gesture safe)
+        ensureAudio();
+        if(audioCtx && audioCtx.state === 'suspended'){
+          audioCtx.resume().catch(()=>{});
+        }
+      }catch(e){
+        console.warn('unlockAudio:', e);
+      }
+      // Menu music is HTMLAudio-based; never let it crash input.
+      try{
+        if(state.menuActive) startMenuMusic();
+        else stopMenuMusic();
+      }catch(e){
+        console.warn('menu music toggle:', e);
+      }
+    }
 
-    const CAM_SCENES = {
-      1: { bg: "radial-gradient(circle at 50% 20%, rgba(120,200,255,0.16) 0%, transparent 50%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Stage Feed" },
-      2: { bg: "radial-gradient(circle at 40% 25%, rgba(255,180,80,0.10) 0%, transparent 55%), linear-gradient(to bottom, #0b0b10, #050508)", label: "Dining Area" },
-      3: { bg: "radial-gradient(circle at 60% 20%, rgba(200,120,255,0.10) 0%, transparent 52%), linear-gradient(to bottom, #0a0a0f, #030305)", label: "West Hall" },
-      4: { bg: "radial-gradient(circle at 50% 18%, rgba(255,60,60,0.10) 0%, transparent 55%), linear-gradient(to bottom, #08080c, #020203)", label: "Pirate Cove" },
-      5: { bg: "radial-gradient(circle at 55% 20%, rgba(255,255,120,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Left Door" },
-      6: { bg: "radial-gradient(circle at 45% 20%, rgba(120,255,180,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #030305)", label: "East Hall" },
-      7: { bg: "radial-gradient(circle at 50% 22%, rgba(80,160,255,0.10) 0%, transparent 55%), linear-gradient(to bottom, #09090e, #020203)", label: "Service Zone" },
-      8: { bg: "radial-gradient(circle at 50% 22%, rgba(255,255,120,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Right Door" }
+
+// ================= v34: SECRET "LUCIA" (solo vivo, monitor ABAJO) =================
+function playWhiteNoise(ms=1100, vol=0.30){
+  try{
+    unlockAudio();
+    if(!audioCtx) return;
+    const sr = audioCtx.sampleRate || 44100;
+    const len = Math.max(1, Math.floor(sr * (ms/1000)));
+    const buf = audioCtx.createBuffer(1, len, sr);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<len;i++){
+      data[i] = (Math.random()*2-1) * (0.7 + 0.3*Math.random());
+    }
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const g = audioCtx.createGain();
+    g.gain.value = vol;
+    src.connect(g); g.connect(master);
+    src.start();
+    src.stop(audioCtx.currentTime + (ms/1000));
+  }catch(e){}
+}
+
+function triggerLuciaSecret(){
+  if(state.menuActive || state.dead) return;
+  if(state.camOpen) return; // sorpresa total
+  const now = Date.now();
+  state.luciaOverlayUntil = now + 900;
+  const el = document.getElementById('lucia-overlay');
+  if(el){
+    el.classList.add('active');
+    setTimeout(()=>{ try{ if(Date.now() >= state.luciaOverlayUntil) el.classList.remove('active'); }catch(_){} }, 920);
+  }
+  playWhiteNoise(1200, 0.35);
+}
+
+(function(){
+  const seq = ['L','U','C','I','A'];
+  window.addEventListener('keydown', (e)=>{
+    if(state.menuActive || state.dead) return;
+    if(state.camOpen) return;
+    const k = (e.key || '').toUpperCase();
+    if(!k) return;
+    const idx = state.luciaSeqIdx||0;
+    if(k === seq[idx]){
+      state.luciaSeqIdx = idx + 1;
+      if(state.luciaSeqIdx >= seq.length){
+        state.luciaSeqIdx = 0;
+        triggerLuciaSecret();
+      }
+    } else {
+      state.luciaSeqIdx = (k === 'L') ? 1 : 0;
+    }
+  }, true);
+})();
+
+// v34: Nariz del peluche (honk normal vs grave/distorsionado por noche)
+function playPlushHonk(){
+  try{
+    unlockAudio();
+    const n = state.displayNight || state.night || 1;
+    const low = (n >= 4);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = low ? 'sawtooth' : 'square';
+    o.frequency.value = low ? 360 : 880;
+    g.gain.value = 0.0;
+    o.connect(g);
+    if(low){
+      const ws = audioCtx.createWaveShaper();
+      const curve = new Float32Array(256);
+      for(let i=0;i<curve.length;i++){
+        const x = (i/(curve.length-1))*2-1;
+        curve[i] = Math.tanh(3.2*x);
+      }
+      ws.curve = curve;
+      ws.oversample = '2x';
+      g.connect(ws); ws.connect(master);
+    } else {
+      g.connect(master);
+    }
+    const t = audioCtx.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(low ? 0.22 : 0.16, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (low ? 0.22 : 0.14));
+    o.start(t);
+    o.stop(t + (low ? 0.25 : 0.16));
+  }catch(e){}
+}
+
+document.addEventListener('click', (e)=>{
+  const plush = e.target.closest('#yellow-plush');
+  if(!plush) return;
+  if(state.menuActive || state.dead) return;
+    // Tiny squish animation feedback
+  plush.classList.add('plush-press');
+  setTimeout(()=>{ try{ plush.classList.remove('plush-press'); }catch(_e){} }, 120);
+  playPlushHonk();
+}, true);
+
+
+
+    // Arm unlock on first user gesture (autoplay policy) — and re-arm after focus
+    function armAudioUnlock(){
+      document.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
+      document.addEventListener("keydown", unlockAudio, { once:true });
+    }
+    armAudioUnlock();
+
+    // Robust focus/minimize behavior:
+    // - Try to suspend on blur to save CPU
+    // - On focus, re-arm unlock and try resume (if blocked, next gesture will unlock)
+    window.addEventListener('blur', () => {
+      try{
+        if(audioCtx && audioCtx.state === 'running'){
+          audioCtx.suspend().catch(()=>{});
+        }
+      }catch(e){ console.warn(e); }
+    });
+
+    window.addEventListener('focus', () => {
+      try{
+        armAudioUnlock();
+        ensureAudio();
+        if(audioCtx && audioCtx.state === 'suspended'){
+          audioCtx.resume().catch(()=>{});
+        }
+        if(state.menuActive) startMenuMusic();
+      }catch(e){ console.warn(e); }
+    });
+
+
+
+
+    let _menuMusic = null;
+    function startMenuMusic(){
+  if(!state.menuActive) return;
+  try{
+    const bgm = document.getElementById('menu-bgm');
+    if(!bgm) return;
+    // Only start if not already playing
+    if(bgm.paused){
+      bgm.volume = 0.6;
+      // Don't hard reset every time; just start.
+      const p = bgm.play();
+      if(p && typeof p.catch === 'function'){
+        p.catch(e => console.log("Esperando interacción para audio...", e));
+      }
+    }
+  }catch(e){
+    console.warn('startMenuMusic:', e);
+  }
+}
+
+function stopMenuMusic(){
+  try{
+    const bgm = document.getElementById('menu-bgm');
+    if(!bgm) return;
+    bgm.pause();
+    bgm.currentTime = 0;
+  }catch(e){
+    console.warn('stopMenuMusic:', e);
+  }
+}
+
+    // ===================== PROGRESS / STARS =====================
+    const PROG_KEY = "shape_nights_progress_v2";
+    const _keysHeld = new Set();
+    let _secretCineLatch = false;
+    function loadProgress(){
+      try{
+        const raw = localStorage.getItem(PROG_KEY);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+      return {
+        nightStars: { "1":"none","2":"none","3":"none","4":"none","5":"none" }, // none|yellow|purple
+        ucnStar: "none", // none|yellow|purple|red
+        red1:false, red2:false, red3:false,
+        campaignActive:false,
+        campaignNext:1
+      };
+    }
+    function saveProgress(p){ try{ localStorage.setItem(PROG_KEY, JSON.stringify(p)); }catch(e){} }
+    let progress = loadProgress();
+
+    function unlockRedStarsIfNeeded(){
+      const allPurple = ["1","2","3","4","5"].every(k => progress.nightStars[k] === "purple");
+      if(allPurple) progress.red1 = true;
+      // red2: night6 cleared on hard+ (we set this when UCN cleared with hard+)
+      // red3: night7 cleared (5/20)
+      saveProgress(progress);
+    }
+
+    function applyProgressUI(){
+      // Red stars bottom-right
+      const r1 = document.getElementById("redStar1");
+      const r2 = document.getElementById("redStar2");
+      const r3 = document.getElementById("redStar3");
+      r1 && r1.classList.toggle("unlocked", !!progress.red1);
+      r2 && r2.classList.toggle("unlocked", !!progress.red2);
+      r3 && r3.classList.toggle("unlocked", !!progress.red3);
+
+      // Extra -> Cinematica unlocks when all 3 red
+      const cine = document.getElementById("extraCineItem");
+      if(cine) cine.style.display = (progress.red1 && progress.red2 && progress.red3) ? "block" : "none";
+      // Night 1–5 stars (yellow / purple)
+      document.querySelectorAll('.night-star').forEach(el=>{
+        const n = el.getAttribute('data-night');
+        const st = (progress && progress.nightStars) ? (progress.nightStars[n] || "none") : "none";
+        el.classList.remove('is-yellow','is-purple');
+        if(st === "yellow") el.classList.add('is-yellow');
+        if(st === "purple") el.classList.add('is-purple');
+      });
+
+    }
+
+    // ===================== UCN CONFIG =====================
+    const ucnAI = { Grey:0, Purple:0, Yellow:0, Foxy:0, Golden:0 };
+
+    function clampAI(v){ return Math.max(0, Math.min(20, v)); }
+    function clampAI(v){ return Math.max(0, Math.min(20, v)); }
+    
+    // === Campaign AI (Noches 1–5) ===
+    // Valores 0–20. Ajustados para que Night 1 sea fácil y Night 5 sea mucho más difícil.
+    const CAMPAIGN_AI = {
+      // Campaign (Night 1–5) estilo FNaF1: valores base a las 12 AM.
+      // Luego, durante la noche:
+      // 2 AM: Bonnie +1
+      // 3 AM: Bonnie/Chica/Foxy +1
+      // 4 AM: Bonnie/Chica/Foxy +1
+      // Freddy NO cambia durante la noche.
+      1:{ Grey:0, Purple:0, Yellow:0, Foxy:0, Golden:0 },
+      2:{ Grey:0, Purple:3, Yellow:1, Foxy:1, Golden:0 },
+      3:{ Grey:1, Purple:0, Yellow:5, Foxy:2, Golden:1 },
+      4:{ Grey:null, Purple:2, Yellow:4, Foxy:6, Golden:3 }, // Grey null => 50/50 entre 1 o 2
+      5:{ Grey:3, Purple:5, Yellow:7, Foxy:5, Golden:4 }
     };
+    function getCampaignAI(id){
+      const baseT = CAMPAIGN_AI[state.night] || CAMPAIGN_AI[5];
+      let base = baseT[id];
+      // Night 4: Freddy es "?" (50/50 1 o 2) y NO cambia durante la noche
+      if(id === 'Grey' && state.night === 4){
+        if(state.campaignFreddyBase == null){
+          state.campaignFreddyBase = (Math.random() < 0.5) ? 1 : 2;
+        }
+        base = state.campaignFreddyBase;
+      }
+      base = clampAI(base ?? 0);
 
-    function playSound(f, type, vol, dur){
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type; o.frequency.value = f;
-      g.gain.setValueAtTime(vol, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime + dur);
-    }
-    function laugh(){
-      playSound(220, 'sawtooth', 0.18, 0.25);
-      setTimeout(()=> playSound(180, 'sawtooth', 0.14, 0.18), 90);
-      setTimeout(()=> playSound(260, 'square', 0.12, 0.22), 180);
-    }
-    function ambientMusic(){ playSound(52 + Math.random()*16, 'sine', 0.05, 2); }
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-    function roll10(){ return Math.floor(Math.random()*10)+1; }
-    function rollDice(th){ return roll10() >= th; }
-    function thresholdByNight(){ return Math.max(2, 7 - state.night); }
+      // Golden: se mantiene por tabla (y su propio rework maneja frecuencia en UCN).
+      if(id === 'Golden') return base;
 
-    function aiTickMs(){
-      if(state.ucn) return 5000;
-      return clamp(15000 - (state.night - 1) * 2500, 5000, 15000);
+      // Incrementos por hora (estilo FNaF1)
+      // state.time: 0=12AM, 1=1AM, 2=2AM, ...
+      let add = 0;
+      if(state.time >= 2 && id === 'Purple') add += 1;              // 2AM
+      if(state.time >= 3 && (id === 'Purple' || id === 'Yellow' || id === 'Foxy')) add += 1; // 3AM
+      if(state.time >= 4 && (id === 'Purple' || id === 'Yellow' || id === 'Foxy')) add += 1; // 4AM
+
+      return clampAI(base + add);
     }
-    function moveChance(){
-      if(state.ucn) return 0.92;
-      return clamp(0.58 + (state.night - 1) * 0.09, 0.58, 0.94);
+    function campaignRoll(id){
+      const ai = getCampaignAI(id);
+      if(ai <= 0) return false;
+      const r = 1 + Math.floor(Math.random()*20);
+      return r <= ai;
     }
-    function attackDelayMs(){
-      if(state.ucn) return 2500;
-      return clamp(5200 - (state.night - 1) * 650, 2600, 5200);
+    function rollODM(id){
+      return state.ucn ? ucnRoll(id) : campaignRoll(id);
     }
-    function foxyStepChance(){
-      if(state.ucn) return 0.85;
-      return clamp(0.50 + (state.night - 1) * 0.08, 0.50, 0.82);
+function renderUCN(){
+      ["Grey","Purple","Yellow","Foxy","Golden"].forEach(k=>{
+        const el = document.getElementById("ucn-val-"+k);
+        if(el) el.textContent = String(ucnAI[k]);
+      });
+      const all20 = ["Grey","Purple","Yellow","Foxy","Golden"].every(k=> ucnAI[k] === 20);
+      const label = document.getElementById("ucnNightLabel");
+      if(label) label.textContent = all20 ? "Noche 7" : "Noche 6";
     }
 
-    const HOUR_MS = 32000;
+    function ucnDifficulty(){
+      const vals = Object.values(ucnAI);
+      const all20 = vals.every(v=> v===20);
+      const max = Math.max(...vals);
+      if(all20) return "red";
+      if(max >= 13) return "purple";
+      if(max >= 7) return "yellow";
+      return "none";
+    }
 
-    const state = {
-      night: 1,
-      pwr: 100,
-      time: 0,
-      cam: 1,
-      camOpen: false,
-      doors: {l:false, r:false},
-      lights: {l:false, r:false},
-      powerOut: false,
-      powerOutKill: null,
-      powerOutTimers: [],
-      ucn: false,
-      loops: [],
-      cinematicLock: false,
-      doorAttackBusyUntil: { l: 0, r: 0 },
-      golden: {
-        active:false,
-        spawnedAt:0,
-        camOpenedAt:0,
-        flipWindowMs: 650,
-        stareMs: 0,
-        stareToLaughMs: 2600,
-        killScheduled:false
-      },
-      monsters: [
-        { id:'Purple', pos:1, route:[1,2,3,5,0], door:'l', color:'#6a0dad', stalled:false, stallTimer:null },
-        { id:'Yellow', pos:1, route:[1,2,6,7,8,0], door:'r', color:'#d4af37', stalled:false, stallTimer:null },
-        { id:'Grey', pos:1, type:'freddy', color:'#444', stalled:false, holdCam8:false, holdUntil:0, door:'r', stallTimer:null, atDoor:false, doorArriveAt:0, leaveAt:0, unwatchedMs:0, lastDoorTick:0 },
-        { id:'Foxy', pos:4, type:'foxy', color:'#800', phase:0, attacking:false, attackSide:null, phaseTimer:null }
-      ]
-    };
+    function startUCNNight(){
+      // UCN counts as night 6 always, but if 5/20 -> show night 7
+      const all20 = ["Grey","Purple","Yellow","Foxy","Golden"].every(k=> ucnAI[k] === 20);
+      // Persist chosen AI for gameplay
+      try{ localStorage.setItem("shape_nights_ucn_ai", JSON.stringify(ucnAI)); }catch(e){}
+      startGame(all20 ? 7 : 6);
+    }
 
-    const ui = {
-      camOverlay: document.getElementById('cam-overlay'),
-      camInfo: document.getElementById('cam-info'),
-      camDetails: document.getElementById('cam-details'),
-      camRender: document.getElementById('cam-render-area'),
-      foxyPhase: document.getElementById('foxy-phase'),
-      goldenOffice: document.getElementById('golden-office'),
-      poweroutFreddy: document.getElementById('powerout-freddy'),
-      blackout: document.getElementById('blackout'),
-      deathTip: document.getElementById('death-tip'),
-      deathTitle: document.getElementById('death-title'),
-      deathKiller: document.getElementById('death-killer'),
-      deathMessage: document.getElementById('death-message'),
-      btnRetry: document.getElementById('btn-retry'),
-      btnMenu: document.getElementById('btn-menu')
-    };
+    // ===================== CINEMATIC (same as 5/20 ending) =====================
+    let _cinRunning = false;
+    function playCinematic(fromExtra){
+      if(_cinRunning) return;
+      _cinRunning = true;
+      unlockAudio();
+      stopMenuMusic();
+      // reuse blackout overlay + jumpscare layer
+      const ov = document.getElementById("cinematic");
+      if(!ov){
+        const d = document.createElement("div");
+        d.id = "cinematic";
+        d.style.position="fixed";
+        d.style.inset="0";
+        d.style.zIndex="4000";
+        d.style.background="#000";
+        d.style.display="flex";
+        d.style.alignItems="center";
+        d.style.justifyContent="center";
+        d.style.flexDirection="column";
+        d.innerHTML = `<div id="cin-glitch" style="width:min(760px,92vw); height:min(360px,48vh); border-radius:18px; border:1px solid rgba(255,0,0,0.14); background:rgba(255,255,255,0.03); box-shadow:0 0 70px rgba(255,0,0,0.10); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+            <div id="cin-text" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size:clamp(26px,4.3vw,54px); letter-spacing:0.12em; text-transform: lowercase; color: rgba(255,40,40,0.95); text-shadow: 0 0 18px rgba(255,0,0,0.55), 0 0 60px rgba(255,0,0,0.18); opacity:0.92;">they are still there</div>
+          </div>`;
+        document.body.appendChild(d);
+      }
+      const layer = document.getElementById("cinematic");
+      const box = document.getElementById("cin-glitch");
+      layer.style.display="flex";
 
-    ui.btnRetry?.addEventListener('click', ()=> location.reload());
-    ui.btnMenu?.addEventListener('click', ()=>{
+
+      // Música turbia original (WebAudio) durante la cinemática
+      let _stopCine = null;
+      try{
+        const out = audioCtx.createGain();
+        out.gain.value = 0.0001;
+        out.connect(master);
+        const lp = audioCtx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.value = 320;
+        lp.Q.value = 0.9;
+        lp.connect(out);
+
+        const o1 = audioCtx.createOscillator();
+        o1.type = "sawtooth";
+        o1.frequency.value = 55;
+
+        const o2 = audioCtx.createOscillator();
+        o2.type = "triangle";
+        o2.frequency.value = 110;
+        o2.detune.value = -8;
+
+        const g1 = audioCtx.createGain(); g1.gain.value = 0.55;
+        const g2 = audioCtx.createGain(); g2.gain.value = 0.28;
+
+        o1.connect(g1); g1.connect(lp);
+        o2.connect(g2); g2.connect(lp);
+
+        // Tremolo (latido)
+        const lfo = audioCtx.createOscillator();
+        lfo.type = "sine";
+        lfo.frequency.value = 3.6;
+        const lfoG = audioCtx.createGain();
+        lfoG.gain.value = 0.18;
+        lfo.connect(lfoG);
+        lfoG.connect(out.gain);
+
+        out.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        out.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.65);
+
+        o1.start(); o2.start(); lfo.start();
+
+        const drift = setInterval(()=>{
+          o1.detune.value = (-18 + Math.random()*36);
+          o2.detune.value = (-22 + Math.random()*44);
+          lp.frequency.value = 260 + Math.random()*140;
+        }, 220);
+
+        _stopCine = ()=>{
+          clearInterval(drift);
+          try{ out.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35); }catch(e){}
+          setTimeout(()=>{
+            try{ o1.stop(); o2.stop(); lfo.stop(); }catch(e){}
+            try{ out.disconnect(); }catch(e){}
+          }, 520);
+        };
+      }catch(e){}
+      const start = Date.now();
+      const dur = 3600;
+      const iv = setInterval(()=>{
+        const t = Date.now()-start;
+        // glitch stripes
+        const stripe = document.createElement("div");
+        stripe.style.position="absolute";
+        stripe.style.left="0";
+        stripe.style.right="0";
+        stripe.style.top=(Math.random()*100)+"%";
+        stripe.style.height=(6+Math.random()*20)+"px";
+        stripe.style.background=`rgba(255,255,255,${0.02+Math.random()*0.08})`;
+        stripe.style.transform=`translateX(${(-20+Math.random()*40)}px)`;
+        stripe.style.mixBlendMode="screen";
+        box.appendChild(stripe);
+        setTimeout(()=> stripe.remove(), 260);
+
+        if(t > dur){
+          clearInterval(iv);
+          // final scare flash
+          box.innerHTML = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">${renderEntity("Grey", 3.2)}</div>`;
+          playJumpscareSfx();
+          playSound(140, "sawtooth", 0.35, 0.55);
+          setTimeout(()=>{
+            if(_stopCine) _stopCine();
+            layer.style.display="none";
+            box.innerHTML = "";
+            _cinRunning = false;
+            if(fromExtra){
+              // stay in menu
+              startMenuMusic();
+            }else{
+              startMenuMusic();
+            }
+          }, 1100);
+        }
+      }, 90);
+    }
+
+    // Secret key combo (MENU): J + 5
+    let _cineKeys = { j:false, five:false, fired:false };
+    function _cineDown(e){
+      if(!menu || !state.menuActive) return;
+      const k = (e.key || "").toLowerCase();
+      if(k === "j") _cineKeys.j = true;
+      if(k === "5") _cineKeys.five = true;
+      if(_cineKeys.j && _cineKeys.five && !_cineKeys.fired){
+        _cineKeys.fired = true;
+        playCinematic(false);
+      }
+    }
+    function _cineUp(e){
+      const k = (e.key || "").toLowerCase();
+      if(k === "j") _cineKeys.j = false;
+      if(k === "5") _cineKeys.five = false;
+      if(!(_cineKeys.j && _cineKeys.five)) _cineKeys.fired = false;
+    }
+    window.addEventListener("keydown", _cineDown, true);
+    window.addEventListener("keyup", _cineUp, true);
+
+    // Kick UI once at load
+    applyProgressUI();
+    
+
+    ui.btnRetry && (ui.btnRetry.onclick = () => {
+      // Ocultar pantallas de muerte
+      ui.deathTip.style.display = 'none';
+      document.getElementById('jumpscare').style.display = 'none';
+      ui.blackout.style.display = 'none';
+      // Reiniciar
+      startGame(state.displayNight);
+    });
+ui.btnMenu?.addEventListener('click', ()=>{
+      state.menuActive = true;
+    startMenuMusic();
       ui.deathTip.style.display = 'none';
       document.getElementById('jumpscare').style.display = 'none';
       document.getElementById('victory-screen').style.display = 'none';
@@ -1616,27 +2958,53 @@ function runAction(action){
 
       game.style.display = 'none';
       menu.style.display = 'flex';
+      stopPoweroutMusic();
+      unlockAudio();
       setMenu("main");
     });
 
     function startGame(n){
+      state.menuActive = false;
+      unlockAudio();
+      stopMenuMusic();
+
       if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
 
-      state.night = n;
-      state.ucn = (n === 6);
-      state.pwr = 100;
+      state.displayNight = n;
+      state.night = (n === 7 ? 6 : n);
+      state.ucn = (n === 6 || n === 7);
+      // load UCN AI overrides
+      state.ucnAI = null;
+      if(state.ucn){
+        try{ state.ucnAI = JSON.parse(localStorage.getItem('shape_nights_ucn_ai')||'null'); }catch(e){ state.ucnAI=null; }
+      }
+      state.pwr = 99;
       state.time = 0;
+      state.dead = false;
+      state.luciaSeqIdx = 0;
+      state.luciaOverlayUntil = 0;
+      state.glitchDocUntil = 0;
+      state.luciaPoster = false;
+      state.cam7HatchClicks = 0;
+      state.cam7HatchRevealed = false;
       state.cam = 1;
       state.camOpen = false;
+      state.ventClosed = false;
+      state.heat = 0;
+      state.defenseLockedUntil = 0;
+      state.lastHeatTick = 0;
+      updateHeatUI();
       state.powerOut = false;
       state.cinematicLock = false;
       state.doorAttackBusyUntil = { l: 0, r: 0 };
 
-      state.golden.active=false;
-      state.golden.spawnedAt=0;
-      state.golden.camOpenedAt=0;
-      state.golden.stareMs=0;
-      state.golden.killScheduled=false;
+      // reset Freddy night-4 base roll
+      state.campaignFreddyBase = null;
+
+      clearGolden();
+      state.golden.cooldownUntil = 0;
+      state.golden.camOpenedAt = 0;
+      state.golden.lastRollAt = 0;
       ui.goldenOffice && (ui.goldenOffice.style.display = 'none');
       ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'none');
       ui.blackout.style.display = 'none';
@@ -1651,17 +3019,45 @@ function runAction(action){
         document.getElementById(`btn-l${s}`).classList.remove('active-light');
       });
 
+      state.officeArmed.Purple=false; state.officeArmed.Yellow=false;
+
       state.monsters.forEach(m=>{
         if(m.stallTimer){ clearInterval(m.stallTimer); m.stallTimer=null; }
         if(m.phaseTimer){ clearTimeout(m.phaseTimer); m.phaseTimer=null; }
+        if(m.foxyTimers){ m.foxyTimers.forEach(t=>{ try{ clearTimeout(t); }catch(e){} }); m.foxyTimers.length=0; }
 
         if(m.id==='Purple' || m.id==='Yellow'){
-          m.pos=1; m.stalled=false;
+          m.pos=1; m.stalled=false; m.atDoor=false; m.doorArriveAt=0; m.inOfficeArmed=false; m.enteredAt=0; m.entering=false; m.enterRemaining=0;
         }
         if(m.id==='Grey'){
-          m.pos=1; m.stalled=false; m.holdCam8=false; m.holdUntil=0; m.door='r';
-          m.atDoor=false; m.doorArriveAt=0; m.leaveAt=0; m.unwatchedMs=0; m.lastDoorTick=0;
-        }
+  m.pos=1;
+  m.stalled=false;
+  m.cooldownUntil=0;
+  m.inVent=false;
+  m.hidden=false;
+  m.waitingDoor=false;
+  m.waitSide=null;
+  m.path=null;
+
+  state.freddyVent.active=false;
+  state.freddyVent.stage='none';
+  state.freddyVent.mode='';
+  state.freddyVent.fromSide=null;
+  state.freddyVent.pendingOutcome = null;
+  state.freddyVent.stageUntil=0;
+  state.freddyVent.whiteUntil=0;
+  state.freddyVent.pendingOutcome = null;
+state.freddyVent.teleportSide=null;
+state.freddyVent.enteredAt = 0;
+  stopFreddyVentLoop();
+
+  if(state.freddyDoor){
+    state.freddyDoor.active=false;
+    state.freddyDoor.attackAt=0;
+    state.freddyDoor.source='';
+    state.freddyDoor.startedAt=0;
+  }
+}
         if(m.id==='Foxy'){
           m.pos=4; m.phase=0; m.attacking=false; m.attackSide=null;
         }
@@ -1674,18 +3070,28 @@ function runAction(action){
       document.getElementById('time-text').innerText = "12 AM";
       ui.camOverlay.style.display = 'none';
       ui.foxyPhase.style.display = 'none';
+      // restore camera map in case a previous blackout hid it
+      const _mapEl = document.getElementById('cam-map');
+      if(_mapEl) _mapEl.style.display = 'block';
 
       state.loops.forEach(l=> clearInterval(l));
       state.loops = [];
       state.powerOutTimers.forEach(t=> clearTimeout(t));
       state.powerOutTimers = [];
+      state.powerOutSide = 'l';
+      state.foxyDrainCount = 0;
+      state.fanMs = 0;
       if(state.powerOutKill) clearInterval(state.powerOutKill);
 
-      state.loops.push(setInterval(tickAI, aiTickMs()));
+            const _nowAI = Date.now();
+      state.aiGraceUntil = _nowAI + (state.ucn ? 4500 : 3500); // early grace so UCN/campaign don't insta-move
+      state.aiClock = { Grey:_nowAI, Purple:_nowAI, Yellow:_nowAI, Foxy:_nowAI, Golden:_nowAI };
+
+state.loops.push(setInterval(tickAI, 180));
       state.loops.push(setInterval(updateCore, 100));
       state.loops.push(setInterval(ambientMusic, 2000));
       state.loops.push(setInterval(clockTick, HOUR_MS));
-      state.loops.push(setInterval(goldenCheck, 1000));
+      // goldenCheck se maneja desde tickAI (ODM) + goldenUpdate
     }
 
     function clockTick(){
@@ -1699,82 +3105,335 @@ function runAction(action){
       state.powerOut = true;
       state.cinematicLock = true;
 
-      ['l','r'].forEach(s=>{
-        state.lights[s] = false;
-        document.getElementById(`${s}-light-fx`).classList.remove('on');
-        document.getElementById(`btn-l${s}`).classList.remove('active-light');
-      });
+      // Forzar salir de cámaras
       state.camOpen = false;
+      state.camOpenSince = 0;
       ui.camOverlay.style.display = 'none';
-      updateFoxyPhaseUI();
+      const mapEl = document.getElementById('cam-map');
+      if(mapEl) mapEl.style.display = 'none';
 
-      ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'block');
-      ui.poweroutFreddy && (ui.poweroutFreddy.innerHTML = renderEntity('Grey', 2.4));
+      // Apagar luces y abrir puertas (sin control)
+      ['l','r'].forEach(side=>{
+        state.lights[side] = false;
+        const lf = document.getElementById(`${side}-light-fx`);
+        if(lf) lf.classList.remove('on');
+        const lb = document.getElementById(`btn-l${side}`);
+        if(lb) lb.classList.remove('active-light');
 
-      let flashes = 0;
-      const flicker = setInterval(()=>{
-        if(state.time >= 6){
-          clearInterval(flicker);
-          ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'none');
-          return;
+        state.doors[side] = false;
+        const da = document.getElementById(`${side}-door-asset`);
+        if(da) da.classList.remove('closed');
+        const db = document.getElementById(`btn-d${side}`);
+        if(db) db.classList.remove('active-door');
+      });
+
+      // Ocultar cualquier amenaza frontal
+      state.frontThreat = null;
+      const fNode = document.getElementById('m-office-front');
+      if(fNode){ fNode.style.display = 'none'; fNode.innerHTML = ''; }
+
+      // Oficina más oscura
+      ui.blackout.style.display = 'block';
+      ui.blackout.style.opacity = '1';
+      ui.blackout.style.background = 'rgba(0,0,0,0.72)';
+      ui.blackout.style.pointerEvents = 'auto';
+
+      // Sonido de apagón
+      playPowerDownSfx();
+
+      // Freddy aparece en una puerta (50/50) cuando empiece su melodía
+      state.powerOutSide = (Math.random() < 0.5) ? 'l' : 'r';
+      ui.poweroutFreddy.innerHTML = renderEntity('Grey', 2.2);
+
+      const placeFreddy = ()=>{
+        const isLeft = state.powerOutSide === 'l';
+        ui.poweroutFreddy.style.left = isLeft ? '14%' : '86%';
+        ui.poweroutFreddy.style.top = '62%';
+        ui.poweroutFreddy.style.transform = 'translate(-50%,-50%)';
+        ui.poweroutFreddy.style.width = '280px';
+        ui.poweroutFreddy.style.height = '280px';
+        ui.poweroutFreddy.style.borderRadius = '50%';
+        ui.poweroutFreddy.style.background = 'radial-gradient(circle at center, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0) 62%)';
+        ui.poweroutFreddy.style.display = 'block';
+      };
+
+      const startAttackLoop = ()=>{
+        if(state.powerOutKill) return;
+        ui.blackout.style.background = 'rgba(0,0,0,0.93)';
+        ui.poweroutFreddy.style.display = 'none';
+
+        state.powerOutKill = setInterval(()=>{
+          if(!state.powerOut) return;
+          // 20% cada 2 segundos
+          if(Math.random() < 0.20){
+            // ocultar overlay para que el jumpscare se vea
+            ui.blackout.style.display = 'none';
+            die('Grey', { reason: 'powerout' });
+          }
+        }, 2000);
+      };
+
+      const startFreddyJingle = ()=>{
+        if(!state.powerOut) return;
+        placeFreddy();
+        stopPoweroutMusic();
+        startPoweroutMusic();
+
+        // Duración de la melodía (luego se apaga todo)
+        state.powerOutTimers.push(setTimeout(()=>{
+          stopPoweroutMusic();
+          startAttackLoop();
+        }, 8000));
+      };
+
+      // Intentos tipo FNaF: 20% cada 5s (máx 20s)
+      let tries = 0;
+      const tryStart = ()=>{
+        if(!state.powerOut) return;
+        tries++;
+        const forced = tries >= 4; // 4*5s = 20s
+        if(forced || Math.random() < 0.20){
+          startFreddyJingle();
+        } else {
+          state.powerOutTimers.push(setTimeout(tryStart, 5000));
         }
-        ui.poweroutFreddy && (ui.poweroutFreddy.style.opacity = (flashes % 2 === 0) ? 0.25 : 1);
-        flashes++;
-      }, 280);
-
-      state.powerOutTimers.push(setTimeout(()=>{
-        if(state.time >= 6){
-          clearInterval(flicker);
-          ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'none');
-          return;
-        }
-        ui.blackout.style.display = 'block';
-      }, 3600));
-
-      state.powerOutTimers.push(setTimeout(()=>{
-        if(state.time >= 6){
-          ui.blackout.style.display = 'none';
-          ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'none');
-          clearInterval(flicker);
-          return;
-        }
-        clearInterval(flicker);
-        ui.poweroutFreddy && (ui.poweroutFreddy.style.display = 'none');
-        ui.blackout.style.display = 'none';
-        state.cinematicLock = false;
-        die('Grey', { reason: "powerout" });
-      }, 6200));
+      };
+      state.powerOutTimers.push(setTimeout(tryStart, 5000));
     }
 
-    function updateCore(){
-      const nightFactor = state.ucn ? 1.0 : (1.0 + (state.night - 1) * 0.08);
-      let usage = (0.07 + (state.doors.l + state.doors.r + state.camOpen + state.lights.l + state.lights.r) * 0.25) * nightFactor;
-      if(!state.powerOut) state.pwr -= usage/10;
+    
+    // ===================== POWER / BATERÍA =====================
+    function calcUsageBars(){
+      let bars = 1; // consumo base siempre
+      if(state.camOpen) bars += 1;
+      if(state.lights.l || state.lights.r) bars += 1;
+      if(state.doors.l || state.doors.r) bars += 1;
+      if(state.doors.l && state.doors.r) bars = 4;
+      return Math.max(1, Math.min(4, bars));
+    }
 
-      document.getElementById('pwr-text').innerText = `ENERGÍA: ${Math.max(0, Math.floor(state.pwr))}%`;
-      if(state.pwr <= 0 && !state.powerOut) startPowerOut();
+    function calcPowerDrainPerSec(bars){
+      // Ajuste solicitado: más batería / consumo más justo (la noche también es más corta).
+      // Mantiene el feeling FNaF (puertas cuestan más que luces), pero sin vaciarse “patéticamente” rápido.
+      const base = state.ucn ? 0.090 : (0.060 + (state.night - 1) * 0.010);
+      const mult = (bars === 1) ? 1.0 : (bars === 2) ? 1.55 : (bars === 3) ? 2.25 : 3.15;
+
+      let extra = 0;
+      if(state.camOpen) extra += 0.020;
+      if(state.lights.l) extra += 0.014;
+      if(state.lights.r) extra += 0.014;
+      if(state.doors.l) extra += 0.040;
+      if(state.doors.r) extra += 0.040;
+      if(state.doors.l && state.doors.r) extra += 0.055;
+
+      return (base * mult) + extra;
+    }
+
+    function updateUsageUI(bars){
+      const ind = document.getElementById('usage-ind');
+      if(!ind) return;
+      ind.classList.remove('is-1','is-2','is-3','is-4');
+      ind.classList.add('is-' + bars);
+    }
+
+
+    
+    function updateHeat(){
+      const now = Date.now();
+      if(!state.lastHeatTick) state.lastHeatTick = now;
+      const dt = Math.min(0.25, Math.max(0, (now - state.lastHeatTick) / 1000));
+      state.lastHeatTick = now;
+
+      // When power is out, heat slowly drifts down but defenses are irrelevant
+      if(state.powerOut){
+        state.heat = clamp(state.heat - 0.6 * dt, 0, 100);
+        updateHeatUI();
+        return;
+      }
+
+      // Fuente de calor: SOLO cuando la ventilación está cerrada.
+      if(state.ventClosed){
+        // Base (vent cerrada) + multiplicador fuerte si además cierras puertas laterales
+        let inc = 5; // +5% / sec
+        if(state.doors.l) inc += 4; // +4% / sec extra
+        if(state.doors.r) inc += 4; // +4% / sec extra
+        state.heat += inc * dt;
+      } else {
+        // Enfriamiento: al abrir la ventilación, baja LENTAMENTE (penalización),
+        // y si además cierras puertas, enfría todavía más lento.
+        let dec = 0.55; // -0.55% / sec
+        if(state.doors.l || state.doors.r) dec = 0.30; // penalización por puertas cerradas
+        state.heat -= dec * dt;
+      }
+
+      state.heat = clamp(state.heat, 0, 100);
+
+      // Overheat: force-open all defenses for 8 seconds
+      if(state.heat >= 100 && Date.now() >= (state.defenseLockedUntil||0)){
+        forceOpenAll('overheat');
+        state.defenseLockedUntil = Date.now() + 8000;
+      }
+
+      updateHeatUI();
+    }
+
+    function updateHeatUI(){
+      const ht = document.getElementById('heat-text');
+      const hf = document.getElementById('heat-fill');
+      if(ht) ht.textContent = `CALOR: ${Math.round(state.heat)}%`;
+      if(hf) hf.style.width = `${clamp(state.heat,0,100)}%`;
+    }
+
+    function forceOpenAll(reason='overheat'){
+      // Doors
+      if(state.doors.l){ state.doors.l = false; document.getElementById('l-door-asset')?.classList.remove('closed'); document.getElementById('btn-dl')?.classList.remove('active-door'); }
+      if(state.doors.r){ state.doors.r = false; document.getElementById('r-door-asset')?.classList.remove('closed'); document.getElementById('btn-dr')?.classList.remove('active-door'); }
+      // Lights
+      if(state.lights.l){ state.lights.l = false; document.getElementById('l-light-fx')?.classList.remove('on'); document.getElementById('btn-ll')?.classList.remove('active-light'); }
+      if(state.lights.r){ state.lights.r = false; document.getElementById('r-light-fx')?.classList.remove('on'); document.getElementById('btn-lr')?.classList.remove('active-light'); }
+
+      // Vent
+      state.ventClosed = false;
+      const vs = document.getElementById('vent-status');
+      if(vs){ vs.textContent = 'OPEN'; vs.classList.remove('closed'); }
+      document.getElementById('btn-vent')?.classList.remove('active-door');
+
+      // Cancel any armed front threats while locked
+      state.officeArmed.Purple = false;
+      state.officeArmed.Yellow = false;
+
+      // Small SFX
+      playSound(48, 'triangle', 0.12, 0.18);
+
+      // Optional note
+      if(reason==='overheat'){
+        // A tiny flash in the heat bar (no UI spam)
+        const hb = document.querySelector('.heat-bar');
+        if(hb){
+          hb.animate([{filter:'brightness(1.0)'},{filter:'brightness(1.6)'},{filter:'brightness(1.0)'}], {duration:420});
+        }
+      }
+    }
+
+
+    function updateCore(){
+
+      updateHeat();
+
+      const bars = calcUsageBars();
+      const drainPerSec = calcPowerDrainPerSec(bars);
+      if(!state.powerOut) state.pwr -= drainPerSec/10;
+        state.pwr = clamp(state.pwr, 0, 99);
+
+      // Fan drain (FNaF1-style): from Night 2+, extra -0.1% every N seconds
+      if(!state.powerOut){
+        if(state.night >= 2){
+          state.fanMs += 100;
+          const per = (state.night===2 ? 7000 : (state.night===3 ? 6000 : (state.night===4 ? 5000 : 4000)));
+          while(state.fanMs >= per){
+            state.fanMs -= per;
+            state.pwr = clamp(state.pwr - 0.07, 0, 99);
+          }
+        } else {
+          state.fanMs = 0;
+        }
+      }
+
+      const pwrShown = Math.max(0, Math.floor(state.pwr));
+      document.getElementById('pwr-text').innerText = `ENERGÍA: ${pwrShown}%`;
+      updateUsageUI(bars);
+      if(pwrShown <= 0 && !state.powerOut) startPowerOut();
+
 
       handleFreddyDoor();
       goldenUpdate(100);
+      // Bonnie/Chica: finalizan entrada SOLO con monitor abajo, con margen justo para reaccionar
+      const nowDoor = Date.now();
+      const dtStep = 100;
+      state.monsters.forEach(mm=>{
+        if((mm.id==='Purple' || mm.id==='Yellow') && mm.entering && !mm.inOfficeArmed){
+          if(state.camOpen) return; // NO cuentan mientras estás viendo cámaras
+          if(state.doors[mm.door]){ mm.entering=false; mm.enterRemaining=0; return; }
 
-      const ml = state.monsters.find(m => m.pos === 0 && m.door === 'l');
-      const mr = state.monsters.find(m => m.pos === 0 && m.door === 'r');
+          // El “tiempo de colarse” solo corre con monitor ABAJO,
+          // así al bajar cámaras el jugador SIEMPRE tiene ventana para alumbrar/cerrar.
+          mm.enterRemaining = (mm.enterRemaining || 0) - dtStep;
+          if(mm.enterRemaining <= 0){
+            mm.pos = 0;
+            mm.inOfficeArmed = true;
+            mm.enteredAt = nowDoor;
+            mm.entering = false;
+            mm.enterRemaining = 0;
+            mm.atDoor = false;
+            state.officeArmed[mm.id] = true;
+            playSound(70, 'sine', 0.09, 0.14);
+          }
+        }
+      });
+
+const ml = state.monsters.find(m => m.id==='Purple' && (m.atDoor || m.entering) && m.door === 'l' && m.pos === 5);
+      const mr = state.monsters.find(m => m.id==='Yellow' && (m.atDoor || m.entering) && m.door === 'r' && m.pos === 8);
+
+      // Freddy “ojos blancos” cuando está por atacar (solo si lo alumbras y la puerta está abierta)
+      const mfL = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'l' && m.pos === 5);
+      const mfR = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'r' && m.pos === 8);
+
+      // (Fix v20 #1) La advertencia de Freddy ahora se arma al iniciar el ataque de puerta
+      const freddyWarn = !!(state.freddyState && state.freddyState.warning && Date.now() < (state.freddyState.warningUntil||0));
+      const freddyDoorL = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'l' && Date.now() < (state.freddyDoor.attackAt||0));
+      const freddyDoorR = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'r' && Date.now() < (state.freddyDoor.attackAt||0));
 
       const lNode = document.getElementById('m-office-l');
       const rNode = document.getElementById('m-office-r');
 
-      const showLeft = ml && state.lights.l && !state.doors.l;
-      const showRight = mr && state.lights.r && !state.doors.r;
+      const showLeft = ml && state.lights.l && !state.doors.l && !state.camOpen;
+      const showRight = mr && state.lights.r && !state.doors.r && !state.camOpen;
 
-      lNode.style.display = showLeft ? 'block' : 'none';
-      lNode.innerHTML = showLeft ? renderEntity(ml.id, 1.5) : '';
+      const showFreddyLeft = !showLeft && mfL && state.lights.l && !state.doors.l && !state.camOpen && (freddyWarn || freddyDoorL);
+      const showFreddyRight = !showRight && mfR && state.lights.r && !state.doors.r && !state.camOpen && (freddyWarn || freddyDoorR);
 
-      rNode.style.display = showRight ? 'block' : 'none';
-      rNode.innerHTML = showRight ? renderEntity(mr.id, 1.5) : '';
+      // Solo se ve al animatrónico en la puerta cuando ALUMBRÁS (sin siluetas en oscuridad)
+      lNode.style.display = (showLeft || showFreddyLeft) ? 'block' : 'none';
+      lNode.style.opacity = '1';
+      lNode.innerHTML = showLeft ? renderEntity(ml.id, 1.5) : (showFreddyLeft ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
 
-      if(state.ucn){
-        if(ml && state.lights.l && ml.id==='Purple') ucnStallAtDoor(ml, 'l');
-        if(mr && state.lights.r && mr.id==='Yellow') ucnStallAtDoor(mr, 'r');
+      rNode.style.display = (showRight || showFreddyRight) ? 'block' : 'none';
+      rNode.style.opacity = '1';
+      rNode.innerHTML = showRight ? renderEntity(mr.id, 1.5) : (showFreddyRight ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
+
+      // === Front reveal (Bonnie/Chica): aparecen FRENTE al jugador antes del jumpscare ===
+      const fNode = document.getElementById('m-office-front');
+      if(fNode){
+        const ft = state.frontThreat;
+        const nowFT = Date.now();
+
+        // Si el jugador cerró la puerta durante la ventana, cancela el ataque y los hace retroceder
+        if(ft && state.doors[ft.side]){
+          const mm = state.monsters.find(x => x.id === ft.id);
+          state.frontThreat = null;
+          fNode.style.display = 'none';
+          fNode.innerHTML = '';
+          if(mm && mm.inOfficeArmed){
+            mm.inOfficeArmed = false;
+            mm.entering = false; mm.enterRemaining = 0;
+            mm.atDoor = false;
+            mm.pos = (mm.id === 'Purple') ? 3 : 7; // 1 cámara antes
+            mm.stalled = true;
+            if(mm.stallTimer){ clearTimeout(mm.stallTimer); }
+            mm.stallTimer = setTimeout(()=>{ mm.stalled=false; mm.stallTimer=null; }, 2500);
+            playSound(120, 'square', 0.05, 0.06);
+          }
+        }
+
+        const active = ft && !state.camOpen && !state.powerOut && nowFT < ft.until;
+        if(active){
+          fNode.style.display = 'block';
+          fNode.style.left = (ft.id === 'Purple') ? '46%' : '54%';
+          fNode.innerHTML = renderEntity(ft.id, 2.35);
+        } else {
+          fNode.style.display = 'none';
+          fNode.innerHTML = '';
+        }
       }
     }
 
@@ -1795,12 +3454,12 @@ function runAction(action){
       }, 780);
     }
 
-    function renderEntity(id, scale=1){
+    function renderEntity(id, scale=1, opts={}){
       const safe = String(id).replace(/[^a-zA-Z0-9_-]/g,'');
       const cls = "anim--" + safe;
       return `
-        <div class="monster-box" style="transform: scale(${scale})">
-          <div class="anim ${cls}">
+        <div class="monster-box${(opts && opts.silhouette) ? ' silhouette' : ''}" style="transform: scale(${scale})">
+          <div class="anim ${cls}${(opts && opts.extraClass) ? (" " + opts.extraClass) : ""}${(opts && opts.alertEyes) ? ' eyes-alert' : ''}">
             <div class="anim-ear anim-ear--l"></div>
             <div class="anim-ear anim-ear--r"></div>
 
@@ -1826,190 +3485,820 @@ function runAction(action){
       `;
     }
 
-    function tickAI(){
-      if(state.powerOut) return;
-      if(state.golden.active) return;
+    
+    function getUcnAI(id){
+      if(!state.ucn || !state.ucnAI) return null;
+      // ids: Grey, Purple, Yellow, Foxy, Golden
+      if(id === 'Grey') return state.ucnAI.Grey ?? 0;
+      if(id === 'Purple') return state.ucnAI.Purple ?? 0;
+      if(id === 'Yellow') return state.ucnAI.Yellow ?? 0;
+      if(id === 'Foxy') return state.ucnAI.Foxy ?? 0;
+      if(id === 'Golden') return state.ucnAI.Golden ?? 0;
+      return 0;
+    }
+    function ucnRoll(id){
+      const ai = getUcnAI(id);
+      if(ai === null) return true;
+      if(ai <= 0) return false;
+      const r = 1 + Math.floor(Math.random()*20);
+      return r <= ai;
+    }
 
+
+function tickAI(){
+      if(state.powerOut) return;
+
+      const now = Date.now();
+
+      if(state.aiGraceUntil && now < state.aiGraceUntil) return;
+
+      // === Golden Freddy (rework justo) ===
+      // - IA “letal” cap a 5 (no se vuelve injusto aunque lo pongás en 20)
+      // - IA > 10 SOLO aumenta frecuencia de intentos (más apariciones), no la ventana de esquive
+      // - Se activa SOLO si estás mirando cámaras (como FNaF)
+      const aiG = state.ucn ? (getUcnAI('Golden')||0) : getCampaignAI('Golden');
+      const capG = goldenChanceCap(aiG);
+      const intervalG = goldenAttemptIntervalMs(aiG);
+      const minCamForGolden = 550;
+
+      if(now >= (state.golden.cooldownUntil||0) && now - (state.aiClock.Golden||0) >= intervalG){
+        state.aiClock.Golden = now;
+
+        if(!state.golden.active){
+          const camOpenFor = state.camOpen ? (Date.now() - (state.camOpenSince || Date.now())) : 0;
+          if(state.camOpen && camOpenFor >= minCamForGolden){
+            if(capG > 0){
+              const r = 1 + Math.floor(Math.random()*20);
+              if(r <= capG) activateGolden();
+            }
+          }
+        }
+      }
+
+
+      // === Animatrónicos principales (ODM por tick dedicado) ===
       state.monsters.forEach(m=>{
         if(state.ucn && m.stalled) return;
+
+        // (v33) FAILSAFE: Si Foxy quedó atascado en fase 4/5 sin resolver, forzar reinicio.
+        if(m.id === 'Foxy' && m.phase >= 4){
+          if(!m.attacking && (!m.cooldownUntil || Date.now() > (m.cooldownUntil + 2000))){
+            m.phase = 1; m.pos = 4; m.attacking = false; m.attackSide = null;
+            updateFoxyPhaseUI();
+          }
+        }
+
+        const interval = (m.id === 'Grey') ? 2700 : 4600;
+        if(now - (state.aiClock[m.id]||0) < interval) return;
+        state.aiClock[m.id] = now;
 
         if(m.type === 'freddy') { moveFreddy(m); return; }
         if(m.type === 'foxy') { moveFoxy(m); return; }
         moveStandard(m);
       });
 
+      // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
+      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
+        if(!state.glitchDocUntil && Math.random() < 0.001){
+          state.glitchDocUntil = now + 2200 + Math.random()*1800;
+        }
+      }
+      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
+
       if(state.camOpen) renderCam();
       updateFoxyPhaseUI();
     }
 
     function moveStandard(m){
-      if(Math.random() > moveChance()) return;
-      let idx = m.route.indexOf(m.pos);
-      if(idx < m.route.length - 1) m.pos = m.route[idx+1];
-      if(m.pos === 0) scheduleAttack(m);
+
+  if(!rollODM(m.id)) return;
+
+  const now = Date.now();
+  const doorCam = (m.door === 'l') ? 5 : 8;
+  const doorIdx = m.route.indexOf(doorCam);
+  let idx = m.route.indexOf(m.pos);
+  if(idx < 0) idx = 0;
+
+  if(m.atDoor){
+    if(m.leaveAt == null) m.leaveAt = 0;
+    if(m.knockPending == null) m.knockPending = false;
+
+    // v34: Retirada natural si la puerta está cerrada
+    if(state.doors[m.door]){
+      if(!m.leaveAt){
+        m.leaveAt = now + (600 + Math.random()*600);
+      }
+      if(now < m.leaveAt){
+        if(Math.random() < 0.03) playSound(52, 'square', 0.015, 0.05);
+        return;
+      }
+      playSound(95, 'square', 0.12, 0.07); // door_thump
+      m.atDoor = false;
+      m.doorArriveAt = 0;
+      m.leaveAt = 0;
+      m.knockPending = false;
+      m.fakeUsed = false;
+      m.entering = false; m.enterRemaining = 0;
+      m.blockStreak = 0;
+      m.backtrackStreak = 0;
+      m.pos = 1; // stage
+      m.stalled = true;
+      if(m.stallTimer){ clearTimeout(m.stallTimer); }
+      m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 1600 + Math.random()*700);
+      return;
     }
+
+    // Puerta abierta: ventana de reacción
+    const waited = now - (m.doorArriveAt || now);
+    const minWait = (state.ucn ? 600 : 800);
+    if(waited < minWait){
+      if(Math.random() < 0.18) playSound(55, 'square', 0.02, 0.05);
+      return;
+    }
+
+    // Puerta abierta: wind-up (se resuelve en updateCore con monitor ABAJO)
+    m.leaveAt = 0;
+    m.knockPending = false;
+    m.fakeUsed = false;
+    m.fakeKnockStreak = 0;
+    m.blockStreak = 0;
+    if(!m.entering){
+      m.entering = true;
+      m.enterRemaining = (state.ucn ? 1700 : 2300);
+      playSound(68, 'square', 0.03, 0.06);
+    }
+    return;
+  }
+
+  // En CAM de puerta (CCTV) -> al acertar otra ODM pasa a puerta real
+  if(m.pos === doorCam){
+    m.atDoor = true;
+    m.doorArriveAt = now;
+    m.leaveAt = 0;
+    m.knockPending = false;
+    m.fakeUsed = false;
+    // v34: One-shot sting
+    m.stingPlayed = false;
+    playSound(90, 'sine', 0.06, 0.10);
+    return;
+  }
+
+  // Backtrack control
+  if(m.backtrackCooldownUntil == null) m.backtrackCooldownUntil = 0;
+  if(m.backtrackStreak == null) m.backtrackStreak = 0;
+  if(m.blockStreak == null) m.blockStreak = 0;
+
+  const canBack = (idx > 0 && idx < doorIdx && m.pos !== doorCam && m.pos !== 1);
+  const backChance = state.ucn ? 0.10 : 0.08;
+  if(canBack && now >= m.backtrackCooldownUntil && Math.random() < backChance){
+    m.backtrackStreak += 1;
+    m.backtrackCooldownUntil = now + 2200;
+
+    if(m.backtrackStreak >= 2){
+      m.pos = 1;
+      m.atDoor = false;
+      m.doorArriveAt = 0;
+      m.leaveAt = 0;
+      m.entering = false; m.enterRemaining = 0;
+      m.backtrackStreak = 0;
+      m.blockStreak = 0;
+      m.stalled = true;
+      if(m.stallTimer){ clearTimeout(m.stallTimer); }
+      m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 2800);
+      playSound(70, 'square', 0.02, 0.07);
+      return;
+    } else {
+      m.pos = m.route[Math.max(0, idx - 1)];
+      playSound(85, 'sine', 0.02, 0.05);
+      return;
+    }
+  }
+
+  // Avanza 1 cámara hacia la puerta
+  let nextIdx = Math.min(idx + 1, doorIdx);
+  if(nextIdx >= doorIdx) nextIdx = doorIdx;
+  m.pos = m.route[nextIdx];
+  m.backtrackStreak = 0;
+
+  if(m.pos === doorCam){
+    m.doorArriveAt = now;
+  }
+}
 
     function freddyDoorAllowedMs(isDoorClosed){
       const base = Math.max(2800, 7200 - (state.night - 1) * 1050);
       return isDoorClosed ? Math.floor(base * 1.9) : base;
     }
 
-    function handleFreddyDoor(){
-      if(state.ucn) return;
-      if(state.powerOut) return;
+    
+function handleFreddyDoor(){
+      
+      // CORTAFUEGOS DE SEGURIDAD (UCN): si Freddy tiene AI 0, nunca debe continuar un ataque armado
+      if(state.ucn && typeof getUcnAI === 'function' && getUcnAI('Grey') <= 0) {
+        if((state.freddyVent && state.freddyVent.active) || (state.freddyDoor && state.freddyDoor.active)) freddyResetToStage(0);
+        return;
+      }
+// (v17) Freddy Fazbear: rutas laterales + VENT (ataque/engaño) + reinicio al bloquearlo
+      if(state.time >= 6) { stopFreddyVentLoop(); return; }
+      if(state.powerOut){ stopFreddyVentLoop(); return; }
+
       const f = state.monsters.find(x => x.id === 'Grey');
-      if(!f || !f.atDoor) return;
-      if(state.time >= 6) return;
+      if(!f) { stopFreddyVentLoop(); return; }
 
       const now = Date.now();
-      if(!f.lastDoorTick) f.lastDoorTick = now;
-      const dt = Math.min(250, Math.max(0, now - f.lastDoorTick));
-      f.lastDoorTick = now;
 
-      const side = f.door;
-      const camDoor = f.pos;
-      const observing = state.camOpen && state.cam === camDoor;
-
-      if(now >= f.leaveAt){
-        f.atDoor = false;
-        f.unwatchedMs = 0;
-        f.lastDoorTick = 0;
-        f.pos = 1;
-        f.door = 'r';
-        playSound(60, 'square', 0.22, 0.10);
-        return;
+      // --- Helpers (scope global) ---
+      // Start/Reset/Attack helpers are defined below if missing (compat)
+      if(typeof isDoorOccupied !== 'function'){
+        window.isDoorOccupied = function(side){
+          // Bonnie (Purple) = left, Chica (Yellow) = right (but could be customized)
+          return state.monsters.some(mm=>{
+            if(mm.id!=='Purple' && mm.id!=='Yellow') return false;
+            if(mm.door !== side) return false;
+            return !!(mm.atDoor || mm.entering || mm.inOfficeArmed);
+          });
+        };
       }
+      if(typeof freddyResetToStage !== 'function'){
+        window.freddyResetToStage = function(cooldownMs=0){
+          const f = state.monsters.find(m => m.id === 'Grey');
+stopFreddyVentLoop();
+          state.freddyVent.active = false;
+          state.freddyVent.stage = 'none';
+          state.freddyVent.mode = '';
+          state.freddyVent.fromSide = null;
+          state.freddyVent.pendingOutcome = null;
+          state.freddyVent.stageUntil = 0;
+          state.freddyVent.whiteUntil = 0;
+          state.freddyVent.pendingOutcome = null;
+state.freddyVent.teleportSide = null;
+state.freddyVent.enteredAt = 0;
 
-      if(observing){
-        f.unwatchedMs = 0;
-        return;
-      }
-
-      f.unwatchedMs += dt;
-      const allowed = freddyDoorAllowedMs(!!state.doors[side]);
-      if(f.unwatchedMs >= allowed){
-        die('Grey', { reason: "unwatched" });
-      }
-    }
-
-    function moveFreddy(m){
-      playSound(120, 'sine', 0.12, 0.16);
-
-      if(state.ucn){
-        if(m.holdCam8){
-          if(Date.now() >= m.holdUntil){
-            m.holdCam8 = false;
-            m.pos = 0;
-            m.door = 'r';
-            scheduleAttack(m, 2500);
+          if(state.freddyDoor){
+            state.freddyDoor.active = false;
+            state.freddyDoor.attackAt = 0;
+            state.freddyDoor.source = '';
+            state.freddyDoor.startedAt = 0;
           }
+
+          if(f){
+                                    f.pos = 1; // siempre vuelve al Stage
+            f.inVent = false;
+            f.hidden = false;
+            f.atDoor = false;
+            f.door = null;
+            f.waitingDoor = false;
+            f.waitSide = null;
+            f.path = null;
+
+
+            const base = state.ucn ? 3600 : 4200;
+            f.cooldownUntil = Date.now() + Math.max(800, base + Math.random()*2600 + cooldownMs);
+          }
+};
+      }
+      if(typeof armFreddyDoorAttack !== 'function'){
+        window.armFreddyDoorAttack = function(m, side, source){
+          const t = Date.now();
+          state.freddyDoor = state.freddyDoor || { active:false, side:'l', attackAt:0, source:'', startedAt:0 };
+          state.freddyState = state.freddyState || { pendingKill:false, pendingAt:0, cooldownUntil:0, warning:false, warningUntil:0, killTimer:null };
+
+          state.freddyDoor.active = true;
+          state.freddyDoor.side = side;
+          state.freddyDoor.source = source || 'hall';
+          state.freddyDoor.startedAt = t;
+          state.freddyDoor.attackAt = t + (state.ucn ? (850 + Math.random()*320) : (1050 + Math.random()*480));
+
+          // (Fix v20 #1) asegurar bandera de puerta + advertencia para render en oficina
+          state.freddyState.warning = true;
+          state.freddyState.warningUntil = (state.freddyDoor.attackAt||t) + 80;
+
+          m.pos = (side === 'l') ? 5 : 8;
+          m.hidden = false;
+          m.atDoor = true;
+          m.door = side;
+          m.inVent = false;
+
+          
+  m.stingPlayed = false;
+// cue leve: "viene la presión"
+          playSound(62, 'sine', 0.05, 0.10);
+        };
+      }
+      if(typeof startFreddyVentSequence !== 'function'){
+        window.startFreddyVentSequence = function(m, mode, fromSide=null){
+          // Hide from normal cams while in vents
+          m.pos = -1;
+          m.inVent = true;
+          m.hidden = true;
+
+          state.freddyVent.active = true;
+          state.freddyVent.mode = mode || '';
+          state.freddyVent.fromSide = fromSide;
+          state.freddyVent.enteredAt = Date.now();
+          state.freddyVent.teleportSide = null;
+
+          if(mode === 'side'){
+            // CASO A: desde lateral => ROJO (warning) -> BLANCO (ataque)
+            state.freddyVent.stage = 'red';
+            state.freddyVent.stageUntil = Date.now() + (4500 + Math.random()*2500);
+            state.freddyVent.whiteUntil = 0;
+          } else {
+            // CASO B: directo desde CAM 2 => BLANCO (ataque) o MORADO (engaño / atajo)
+            const attackProb = clamp(0.52 + ai*0.012, 0.52, 0.78);
+            if(Math.random() < attackProb){
+              state.freddyVent.stage = 'white';
+              state.freddyVent.stageUntil = 0;
+              state.freddyVent.whiteUntil = Date.now() + (state.ucn ? (1750 + Math.random()*450) : (2100 + Math.random()*650));
+              playSound(980, 'sawtooth', 0.14, 0.10);
+            } else {
+              state.freddyVent.stage = 'purple';
+              state.freddyVent.stageUntil = Date.now() + (state.ucn ? (1050 + Math.random()*500) : (1300 + Math.random()*700));
+              state.freddyVent.whiteUntil = 0;
+              state.freddyVent.teleportSide = (Math.random() < 0.5) ? 'l' : 'r';
+              playSound(140, 'triangle', 0.10, 0.12);
+            }
+          }
+
+          startFreddyVentLoop();
+        };
+      }
+
+      // --- Vent sequence ---
+      if(state.freddyVent.active){
+        startFreddyVentLoop();
+
+        // SEMÁFORO: ROJO -> (BLANCO o MORADO)
+        if(state.freddyVent.stage === 'red' && now >= (state.freddyVent.stageUntil||0)){
+          const mode = state.freddyVent.mode || '';
+          if(mode === 'direct'){
+            // Resultado ya decidido al entrar (RNG fijo 50/50)
+            if(state.freddyVent.pendingOutcome === 'purple'){
+              state.freddyVent.stage = 'purple';
+              state.freddyVent.stageUntil = now + (state.ucn ? (1050 + Math.random()*500) : (1300 + Math.random()*700));
+              state.freddyVent.whiteUntil = 0;
+              playSound(140, 'triangle', 0.10, 0.12);
+            } else {
+              state.freddyVent.stage = 'white';
+              state.freddyVent.stageUntil = 0;
+              state.freddyVent.whiteUntil = now + (state.ucn ? (1750 + Math.random()*450) : (2100 + Math.random()*650));
+              playSound(520, 'square', 0.10, 0.06);
+              setTimeout(()=> playSound(980, 'sawtooth', 0.12, 0.08), 60);
+            }
+          } else {
+            // Laterales: ROJO -> BLANCO
+            state.freddyVent.stage = 'white';
+            state.freddyVent.whiteUntil = now + (state.ucn ? (1600 + Math.random()*450) : (1950 + Math.random()*650));
+            playSound(520, 'square', 0.10, 0.06);
+            setTimeout(()=> playSound(980, 'sawtooth', 0.12, 0.08), 60);
+          }
+        }
+
+        // MORADO (engaño): teleporta a CAM 5 / CAM 7 (anti-instakill) y obliga cooldown antes de acercarse a la puerta
+        if(state.freddyVent.stage === 'purple' && now >= (state.freddyVent.stageUntil||0)){
+          stopFreddyVentLoop();
+          state.freddyVent.active = false;
+
+          const side = state.freddyVent.teleportSide || (Math.random()<0.5?'l':'r');
+
+          state.freddyVent.stage = 'none';
+          state.freddyVent.mode = '';
+          state.freddyVent.stageUntil = 0;
+          state.freddyVent.whiteUntil = 0;
+          state.freddyVent.pendingOutcome = null;
+          state.freddyVent.enteredAt = 0;
+          state.freddyVent.teleportSide = null;
+
+          // (Fix v20 #2) NO armar ataque de puerta inmediatamente.
+          // Acción: mover a la cámara lateral y dar 5s obligatorios antes de poder avanzar hacia la puerta.
+          f.pos = (side === 'l') ? 5 : 7;
+          f.path = (side === 'l') ? 'L' : 'R';
+          f.inVent = false;
+          f.hidden = false;
+          f.atDoor = false;
+          f.door = null;
+          f.waitingDoor = false;
+          f.waitSide = null;
+          f.cooldownUntil = Date.now() + 5000;
+
+          // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
+      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
+        if(!state.glitchDocUntil && Math.random() < 0.001){
+          state.glitchDocUntil = now + 2200 + Math.random()*1800;
+        }
+      }
+      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
+
+      if(state.camOpen) renderCam(); // refresco inmediato para que se vea en cámaras
           return;
         }
 
-        if(m.pos === 1) m.pos = 2;
-        else if(m.pos === 2) m.pos = (Math.random() > 0.5 ? 6 : 3);
-        else if(m.pos === 3) m.pos = 6;
-        else if(m.pos === 6) m.pos = 7;
-        else if(m.pos === 7) m.pos = 8;
-        else if(m.pos === 8){
-          const holdMs = Math.max(1100, 4800 - (state.night * 580));
-          m.holdCam8 = true;
-          m.holdUntil = Date.now() + holdMs;
-        } else if(m.pos === 0){
-          if(state.doors.r){
-            if(!m.stalled){
-              m.stalled = true;
-              const thr = thresholdByNight();
-              m.stallTimer = setInterval(()=>{
-                if(state.time >= 6){ clearInterval(m.stallTimer); return; }
-                if(!state.doors.r){
-                  clearInterval(m.stallTimer);
-                  m.stallTimer = null;
-                  die('Grey');
-                  return;
-                }
-                if(rollDice(thr)){
-                  m.pos = 1;
-                  m.stalled = false;
-                  clearInterval(m.stallTimer);
-                  m.stallTimer = null;
-                }
-              }, 820);
-            }
+// BLANCO (ataque): si cierras ventilación lo bloqueas; si no, mueres por vent
+        if(state.freddyVent.stage === 'white'){
+          if(state.ventClosed){
+            // bloqueado => reinicio SIEMPRE al Stage
+            freddyResetToStage(400);
+            playSound(80, 'triangle', 0.10, 0.12);
+            return;
           }
+
+          if(now >= (state.freddyVent.whiteUntil||0)){
+            stopFreddyVentLoop();
+            die('Grey', { reason:'vent' });
+            return;
+          }
+        }
+        return;
+      } else {
+        stopFreddyVentLoop();
+      }
+
+      // --- Door strike sequence (teleport/hall) ---
+      if(state.freddyDoor && state.freddyDoor.active){
+        const side = state.freddyDoor.side || 'l';
+
+        // Si alguien más ocupa la puerta en el último instante, respeta la cola (Freddy no se "monta" encima)
+        if(isDoorOccupied(side)){
+          // espera invisible en el cam previo
+          f.pos = (side === 'l') ? 5 : 8;
+          f.hidden = true;
+          f.waitingDoor = true;
+          f.waitSide = side;
+          state.freddyDoor.active = false;
+          return;
+        }
+
+        if(now >= (state.freddyDoor.attackAt||0)){
+          state.doorAttackBusyUntil[side] = now + 1200;
+
+          if(state.doors[side]){
+            // bloqueado => reinicio SIEMPRE al Stage
+            playSound(62, 'triangle', 0.12, 0.10);
+            state.freddyDoor.active = false;
+            freddyResetToStage(600);
+            return;
+          } else {
+            // puerta abierta: mueres
+            state.freddyDoor.active = false;
+            die('Grey', { reason:'door', side, source: state.freddyDoor.source });
+            return;
+          }
+        }
+      }
+    }
+
+// ===== Freddy helpers (v17) =====
+function isDoorOccupied(side){
+  return state.monsters.some(mm=>{
+    if(mm.id!=='Purple' && mm.id!=='Yellow') return false;
+    if(mm.door !== side) return false;
+    return !!(mm.atDoor || mm.entering || mm.inOfficeArmed);
+  });
+}
+
+function freddyResetToStage(arg1, cooldownMs=0){
+  // Compat: permite llamadas antiguas freddyResetToStage(400) además de freddyResetToStage(f, 400)
+  let m = arg1;
+  if(typeof arg1 === 'number' || !arg1 || typeof arg1 !== 'object'){
+    cooldownMs = (typeof arg1 === 'number') ? arg1 : cooldownMs;
+    m = state.monsters.find(x => x.id === 'Grey');
+  }
+  if(!m) return;
+
+  stopFreddyVentLoop();
+  state.freddyVent.active = false;
+  state.freddyVent.stage = 'none';
+  state.freddyVent.mode = '';
+  state.freddyVent.fromSide = null;
+  state.freddyVent.pendingOutcome = null;
+  state.freddyVent.stageUntil = 0;
+  state.freddyVent.whiteUntil = 0;
+  state.freddyVent.teleportSide = null;
+  state.freddyVent.enteredAt = 0;
+
+  if(state.freddyDoor){
+    state.freddyDoor.active = false;
+    state.freddyDoor.attackAt = 0;
+    state.freddyDoor.source = '';
+    state.freddyDoor.startedAt = 0;
+  }
+  if(state.freddyState){
+    state.freddyState.pendingKill = false;
+    state.freddyState.warning = false;
+    state.freddyState.warningUntil = 0;
+  }
+
+  m.pos = 1;
+  m.inVent = false;
+  m.hidden = false;
+  m.atDoor = false;
+  m.door = null;
+  m.waitingDoor = false;
+  m.waitSide = null;
+  m.path = null;
+
+  const base = state.ucn ? 3600 : 4200;
+  m.cooldownUntil = Date.now() + Math.max(800, base + Math.random()*2600 + cooldownMs);
+
+  // (Fix v20) Forzar repintado inmediato para que Freddy no "desaparezca" tras repelerlo en ventilación
+  if(state.camOpen) renderCam();
+}
+
+function armFreddyDoorAttack(m, side, source){
+  const t = Date.now();
+  if(!state.freddyDoor) state.freddyDoor = { active:false, side:'l', attackAt:0, source:'', startedAt:0 };
+  if(!state.freddyState) state.freddyState = { pendingKill:false, pendingAt:0, cooldownUntil:0, warning:false, warningUntil:0, killTimer:null };
+
+  state.freddyDoor.active = true;
+  state.freddyDoor.side = side;
+  state.freddyDoor.source = source || 'hall';
+  state.freddyDoor.startedAt = t;
+  state.freddyDoor.attackAt = t + (state.ucn ? 2200 : 3000);
+
+  // (Fix v20 #1) Freddy debe verse asomado en la puerta al alumbrar: activa bandera de advertencia
+  state.freddyState.warning = true;
+  state.freddyState.warningUntil = (state.freddyDoor.attackAt||t) + 80;
+
+  m.pos = (side === 'l') ? 5 : 8;
+  m.hidden = false;
+  m.atDoor = true;
+  m.door = side;
+  m.inVent = false;
+
+  playSound(62, 'sine', 0.05, 0.10);
+}
+
+function startFreddyVentSequence(m, mode, fromSide=null){
+  const now = Date.now();
+  const ai = state.ucn ? getUcnAI('Grey') : getCampaignAI('Grey');
+
+  // Hide from normal cams while in vents
+  m.pos = -1;
+  m.inVent = true;
+  m.hidden = true;
+
+  state.freddyVent.active = true;
+  state.freddyVent.mode = mode || '';
+  state.freddyVent.fromSide = fromSide;
+  state.freddyVent.pendingOutcome = null;
+  state.freddyVent.enteredAt = now;
+  state.freddyVent.teleportSide = null;
+
+  if(mode === 'side'){
+    // CASO A: desde lateral => ROJO -> BLANCO
+    state.freddyVent.stage = 'red';
+    state.freddyVent.stageUntil = now + (4500 + Math.random()*2500);
+    state.freddyVent.whiteUntil = 0;
+  } else {
+    // CASO B: directo => SEMÁFORO: ROJO (espera) -> BLANCO (ataque) o MORADO (engaño/teleport)
+    // RNG FIJO 50/50 (no depende de la IA)
+    state.freddyVent.stage = 'red';
+    state.freddyVent.stageUntil = now + (4500 + Math.random()*2500);
+    state.freddyVent.whiteUntil = 0;
+    state.freddyVent.pendingOutcome = (Math.random() < 0.5) ? 'white' : 'purple';
+    if(state.freddyVent.pendingOutcome === 'purple'){
+      // decide el lado del teleport desde ya (RNG puro)
+      state.freddyVent.teleportSide = (Math.random() < 0.5) ? 'l' : 'r';
+    }
+  }
+
+  startFreddyVentLoop();
+}
+
+function moveFreddy(m){
+      if(state.powerOut) return;
+
+      const now = Date.now();
+      const ai = state.ucn ? getUcnAI('Grey') : getCampaignAI('Grey');
+      if(ai <= 0) return;
+
+      // While vent sequence or door strike is active, don't advance the route here
+      if(state.freddyVent.active) return;
+      if(state.freddyDoor && state.freddyDoor.active) return;
+
+      // If he's waiting for a door to free up (queue system), keep him hidden in CAM 5/8
+      if(m.waitingDoor){
+        const side = m.waitSide || 'l';
+        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
+        if(!busy){
+          m.waitingDoor = false;
+          m.hidden = false;
+          // Arm a door strike as soon as it becomes available
+          armFreddyDoorAttack(m, side, 'queue');
         }
         return;
       }
 
-      if(m.atDoor) return;
+      if(m.cooldownUntil == null) m.cooldownUntil = 0;
+      if(now < m.cooldownUntil) return;
 
-      if(m.pos === 1) m.pos = 2;
-      else if(m.pos === 2) m.pos = Math.random() > 0.5 ? 3 : 6;
-      else if(m.pos === 3) m.pos = 5;
-      else if(m.pos === 6) m.pos = 7;
-      else if(m.pos === 7) m.pos = 8;
-      else if(m.pos === 5 || m.pos === 8){
-        const prev = m.pos;
-        m.door = (prev === 5) ? 'l' : 'r';
-        m.atDoor = true;
-        m.doorArriveAt = Date.now();
-        m.leaveAt = m.doorArriveAt + Math.floor(HOUR_MS/2);
-        m.unwatchedMs = 0;
-        m.lastDoorTick = 0;
-        m.pos = prev;
-        playSound(90, 'sine', 0.08, 0.12);
+      // Cameras slow Freddy (not freeze). Watching his current cam slows more.
+      if(state.camOpen){
+        const watchingHim = (state.cam === m.pos) || (state.cam === 'V' && m.inVent);
+        const p = watchingHim ? 0.40 : 0.62;
+        if(Math.random() > p) return;
+      }
+
+      // ODM gate
+      if(!rollODM('Grey')) return;
+
+      // === ROUTE (v17) ===
+      // Inicio: 1 -> 2
+      if(m.pos === 1){
+        m.pos = 2;
+        m.path = null;
+        playSound(110, 'square', 0.02, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*700) : (1400 + Math.random()*900));
         return;
       }
+
+      // Desde CAM 2: izquierda (3->5), derecha (6->7->8) o directo a VENT
+      if(m.pos === 2){
+        const ventProb = clamp(0.18 + ai*0.010, 0.18, 0.32); // no spamear VENT
+        const r = Math.random();
+        if(r < ventProb){
+          startFreddyVentSequence(m, 'direct');
+          return;
+        }
+        if(r < ventProb + 0.44){
+          m.pos = 3; m.path = 'L';
+        } else {
+          m.pos = 6; m.path = 'R';
+        }
+        playSound(105, 'square', 0.02, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1200 + Math.random()*900) : (1500 + Math.random()*1100));
+        return;
+      }
+
+      // Left path
+      if(m.pos === 3){
+        m.pos = 5;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+      // Right path
+      if(m.pos === 6){
+        m.pos = 7;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+      if(m.pos === 7){
+        // (v21) Desde CAM 7 sí puede desviar a VENT. Desde CAM 8 es imposible.
+        const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
+        if(Math.random() < divertProb){
+          startFreddyVentSequence(m, 'side', 'r');
+          return;
+        }
+
+        m.pos = 8;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+
+      // At CAM 5 / CAM 8:
+      // - CAM 5: puede decidir atacar puerta IZQ o desviar a VENT (lateral).
+      // - CAM 8 (puerta DER): NO puede entrar a VENT. Desde ahí solo ataca o espera. (Fix v22 #1)
+      if(m.pos === 5 || m.pos === 8){
+        const side = (m.pos === 5) ? 'l' : 'r';
+
+        // Desvío a ventilación desde lateral (más raro) — SOLO válido desde CAM 5.
+        if(m.pos === 5){
+          const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
+          if(Math.random() < divertProb){
+            startFreddyVentSequence(m, 'side', side);
+            return;
+          }
+        }
+
+        // Sistema cola: si Bonnie/Chica ocupan la puerta, Freddy espera invisible en CAM 5/8
+        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
+        if(busy){
+          m.waitingDoor = true;
+          m.waitSide = side;
+          m.hidden = true; // invisible en la cámara mientras espera
+          m.cooldownUntil = now + 600;
+          return;
+        }
+
+        armFreddyDoorAttack(m, side, 'hall');
+        return;
+      }
+
+
+      // Re-anchor if off-route
+      m.pos = 2;
     }
 
-    function moveFoxy(m){
+
+
+
+
+
+function moveFoxy(m){
+      if(state.powerOut) return;
+
+      const now = Date.now();
+      const ai = state.ucn ? getUcnAI('Foxy') : getCampaignAI('Foxy');
+      if(ai <= 0) return;
+
+      // Freeze progression while watching CAM 4 (FNaF1-like), but do not stop an attack once started.
+      if(state.camOpen && state.cam === 4 && !m.attacking && m.phase < 4){
+        // Watching slows him down but doesn't fully freeze; in PHASE 4 he runs even if watched
+        if(Math.random() < 0.55) return;
+      }
+
+      if(m.cooldownUntil == null) m.cooldownUntil = 0;
+      if(!m.attacking && now < m.cooldownUntil) return;
+
+      // ODM roll (same system as others)
+      if(!rollODM('Foxy')) return;
+
+      // If already attacking, timers drive it
       if(m.attacking) return;
 
-      if(Math.random() < foxyStepChance()){
-        m.phase = Math.min(4, m.phase + 1);
-      }
-      if(m.phase === 0) m.phase = 1;
+      // Advance phases 0->4
+      m.phase = Math.min(4, m.phase + 1);
 
-      if(m.phase >= 1 && m.phase <= 3){
+      // Keep him in Pirate Cove until phase 4 triggers the run
+      if(m.phase < 4){
         m.pos = 4;
         return;
       }
 
-      if(m.phase === 4){
-        m.attacking = true;
-        const d = (Math.random() < 0.5) ? 1 : 2;
-        m.attackSide = d;
-        m.pos = (d === 2) ? 8 : 5;
+      // === Phase 4: Foxy RUN ===
+      m.attacking = true;
+      // Clear any previous Foxy timers to avoid cross-run glitches
+      if(!m.foxyTimers) m.foxyTimers = [];
+      m.foxyTimers.forEach(t=>{ try{ clearTimeout(t); }catch(e){} });
+      m.foxyTimers.length = 0;
+      const left = (Math.random() < 0.5);
+      m.attackSide = left ? 1 : 2; // 1=left, 2=right for UI
+      const telegraphMs = state.ucn ? 2500 : 3200;
 
-        playSound(310, 'sawtooth', 0.22, 0.25);
+      // He "leaves" Pirate Cove during the run (so watching CAM 4 you see him disappear)
+      m.foxyTimers.push(setTimeout(()=>{
+        m.pos = -1; // not visible on any cam while running
+      }, 380));
 
-        const hold = state.ucn ? Math.max(900, 2200 - state.night*180) : Math.max(1200, 3100 - state.night*260);
+      // === v24: 3D running cue (stereo) ===
+      m.foxyTimers.push(setTimeout(() => {
+        if(state.powerOut) return;
+        playFoxyRun(left ? 'L' : 'R');
+      }, Math.max(160, telegraphMs - 680)));
+      m.foxyTimers.push(setTimeout(() => {
+        if(state.powerOut) return;
 
-        m.phaseTimer = setTimeout(()=>{
-          m.phase = 5;
-          updateFoxyPhaseUI();
+        // Appears at the door camera (CAM 5 / CAM 8)
+        m.pos = left ? 5 : 8;
+        m.phase = 5;
 
-          const needDoor = (m.attackSide === 2) ? 'r' : 'l';
-          if(!state.doors[needDoor]){
-            die('Foxy');
-            return;
+        const holdMs = 500; // Espera corta en puerta (letal pero justo)
+        m.foxyTimers.push(setTimeout(() => {
+          if(state.powerOut) return;
+
+          const doorKey = left ? 'l' : 'r';
+
+          if(state.doors[doorKey]){
+            // Blocked: drain some power (capped)
+            const drain = Math.min(16, 1 + (m.drainCount||0) * 5);
+            m.drainCount = Math.min(4, (m.drainCount||0) + 1);
+            state.pwr = clamp(state.pwr - drain, 0, 99);
+            playSound(55, 'triangle', 0.10, 0.14);
+
+            // Return to Pirate Cove in phase 1 (v33: reset completo)
+            m.pos = 4;
+            m.phase = 1;
+            m.attacking = false;
+            m.attackSide = null;
+            // UI inmediata (cámara/mapa)
+            updateFoxyPhaseUI();
+
+            // Cooldown after a blocked run
+            m.cooldownUntil = Date.now() + (state.ucn ? 3600 : 5200);
+            m.attacking = false;
+          } else {
+            // Door open: he kills you
+            kill('Foxy');
+            m.attacking = false;
           }
-
-          m.attacking = false;
-          m.phase = 0;
-          m.attackSide = null;
-          m.pos = 4;
-          m.phaseTimer = null;
-          playSound(60, 'square', 0.32, 0.12);
-        }, hold);
-
-        return;
-      }
+        }, holdMs));
+      }, telegraphMs));
     }
 
     function updateFoxyPhaseUI(){
       const f = state.monsters.find(x => x.id === 'Foxy');
       if(!f || !ui.foxyPhase) return;
+
+      // v25: sync red alert blink on CAM 4 button in the map
+      const btn4 = document.querySelector('g[onclick="setCam(4)"] rect');
+      const isRunning = (f.phase >= 4);
+      if(btn4) btn4.classList.toggle('map-alert-blink', isRunning);
 
       const shouldShow = state.camOpen && state.cam === 4;
       ui.foxyPhase.style.display = shouldShow ? 'block' : 'none';
@@ -2067,7 +4356,9 @@ function runAction(action){
     }
 
     function toggleDoor(s, silent=false){
-      state.doors[s] = !state.doors[s];
+      if(Date.now() < (state.defenseLockedUntil||0)) return;
+      if(state.powerOut || Math.floor(state.pwr) <= 0) return;
+state.doors[s] = !state.doors[s];
       document.getElementById(`${s}-door-asset`).classList.toggle('closed');
       document.getElementById(`btn-d${s}`).classList.toggle('active-door');
       if(!silent) playSound(100, 'square', 0.1, 0.1);
@@ -2075,73 +4366,317 @@ function runAction(action){
       if(state.doors[s]){
         if(s === 'l'){ document.getElementById('m-office-l').style.display = 'none'; }
         if(s === 'r'){ document.getElementById('m-office-r').style.display = 'none'; }
+
+        // Safety: closing a door must cancel any pending slip-in / office-armed state on that side
+        const nowCancel = Date.now();
+        state.monsters.forEach(mm=>{
+          if((mm.id==='Purple' || mm.id==='Yellow') && mm.door===s){
+            // cancel wind-up
+            mm.entering = false;
+            mm.enterRemaining = 0;
+
+            // if somehow already armed in office on that side, force a clean retreat (prevents "phantom" kills)
+            if(mm.inOfficeArmed){
+              mm.inOfficeArmed = false;
+              mm.atDoor = false;
+              mm.pos = (mm.id === 'Purple') ? 3 : 7; // 1 camera before the door
+              mm.stalled = true;
+              if(mm.stallTimer){ clearTimeout(mm.stallTimer); }
+              mm.stallTimer = setTimeout(()=>{ mm.stalled=false; mm.stallTimer=null; }, 2500);
+              if(state.frontThreat && state.frontThreat.id === mm.id){ state.frontThreat = null; }
+            }
+          }
+        });
       }
     }
     window.toggleDoor = toggleDoor;
 
     function toggleLight(s){
-      if(state.powerOut) return;
-      state.lights[s] = !state.lights[s];
-      document.getElementById(`${s}-light-fx`).classList.toggle('on');
-      document.getElementById(`btn-l${s}`).classList.toggle('active-light');
-      playSound(800, 'sine', 0.02, 0.05);
+  if(state.dead || state.powerOut || state.inJumpscare) return;
+  if(state.camOpen) return; // Solo evita encender si la cámara está abierta
+
+  state.lights[s] = !state.lights[s];
+  const on = state.lights[s];
+
+  // v34: Sting one-shot al alumbrar (solo si hay animatrónico visible y la puerta está abierta)
+  if(on && !state.camOpen && !state.doors[s]){
+    const m = state.monsters.find(x => x.atDoor && x.door === s && !x.hidden && (x.id==='Purple' || x.id==='Yellow' || x.id==='Grey'));
+    if(m && !m.stingPlayed){
+      m.stingPlayed = true;
+      playSound(1180 + Math.random()*120, 'sawtooth', 0.09, 0.06);
     }
+  }
+
+  // Play SFX for light toggle
+  playSound(800 + Math.random()*120, 'square', 0.03, 0.03);
+
+  const fx = document.getElementById(s === 'l' ? 'l-light-fx' : 'r-light-fx');
+  if(fx) fx.classList.toggle('on', on);
+}
     window.toggleLight = toggleLight;
 
-    function toggleCams(){
+    
+    function toggleVent(){
       if(state.powerOut) return;
+      if(Date.now() < (state.defenseLockedUntil||0)) return;
+      state.ventClosed = !state.ventClosed;
+      const vs = document.getElementById('vent-status');
+      if(vs){
+        vs.textContent = state.ventClosed ? 'CLOSED' : 'OPEN';
+        vs.classList.toggle('closed', state.ventClosed);
+      }
+      const bv = document.getElementById('btn-vent');
+      if(bv) bv.classList.toggle('active-door', state.ventClosed);
+      const hatch = document.getElementById('vent-hatch');
+      if(hatch) hatch.classList.toggle('closed', state.ventClosed);
+      playSound(state.ventClosed ? 90 : 140, 'square', 0.09, 0.08);
+    }
+    window.toggleVent = toggleVent;
+
+
+function toggleCams(){
+      if(state.powerOut) return;
+
+      const wasOpen = state.camOpen;
       state.camOpen = !state.camOpen;
-      ui.camOverlay.style.display = state.camOpen ? 'block' : 'none';
+            state.camOpenSince = state.camOpen ? Date.now() : 0;
+ui.camOverlay.style.display = state.camOpen ? 'block' : 'none';
+      if(!state.camOpen){
+        const camScreenEl = document.getElementById('cam-screen');
+        if(camScreenEl) camScreenEl.classList.remove('cam-alert-red');
+      }
+
+      const _mapEl2 = document.getElementById('cam-map');
+      if(_mapEl2) _mapEl2.style.display = state.camOpen ? 'block' : 'none';
       playSound(400, 'sawtooth', 0.05, 0.05);
+
+      // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
+      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
+        if(!state.glitchDocUntil && Math.random() < 0.001){
+          state.glitchDocUntil = now + 2200 + Math.random()*1800;
+        }
+      }
+      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
+
       if(state.camOpen) renderCam();
       updateFoxyPhaseUI();
 
-      if(state.golden.active){
-        if(state.camOpen){
-          state.golden.camOpenedAt = Date.now();
-        } else {
-          const dt = Date.now() - (state.golden.camOpenedAt || 0);
+      // === Golden Freddy (rework justo) ===
+      // - Se activa SOLO mientras mirás cámaras (tickAI)
+      // - Al bajar monitor: aparece en oficina y te da ventana fácil para esquivarlo (reabrir monitor)
+      // - IA “letal” cap a 5; IA >10 solo sube frecuencia de apariciones
+      if(state.camOpen){
+        state.golden.camOpenedAt = Date.now();
+        // Si Golden ya manifestó y lo abriste a tiempo, lo esquivaste
+        if(state.golden.manifest){
+          const nowG = Date.now();
+          if(nowG <= (state.golden.evadeUntil||0)){
+            const aiNow = state.ucn ? (getUcnAI('Golden')||0) : getCampaignAI('Golden');
+            clearGolden();
+            state.golden.cooldownUntil = nowG + goldenCooldownMs(aiNow);
+            playSound(60, 'square', 0.28, 0.08);
+          }
+        }
+      } else {
+        // Cerrando monitor
+        if(state.golden.active && !state.golden.manifest){
+          const nowG = Date.now();
+          const dt = nowG - (state.golden.camOpenedAt || 0);
+          const aiNow = state.ucn ? (getUcnAI('Golden')||0) : getCampaignAI('Golden');
+
+          // Flip ultra-rápido también lo cancela (cuenta como esquiva)
           if(dt > 0 && dt <= state.golden.flipWindowMs){
-            state.golden.active = false;
-            state.golden.killScheduled = false;
-            state.golden.stareMs = 0;
-            ui.goldenOffice && (ui.goldenOffice.style.display = 'none');
-            playSound(60, 'square', 0.35, 0.08);
+            clearGolden();
+            state.golden.cooldownUntil = nowG + goldenCooldownMs(aiNow);
+            playSound(60, 'square', 0.28, 0.08);
+          } else {
+            // Manifiesta en oficina
+            state.golden.manifest = true;
+            state.golden.evadeUntil = nowG + state.golden.evadeWindowMs;
+
+            try{
+              if(ui.goldenOffice){
+                ui.goldenOffice.style.display = 'block';
+                ui.goldenOffice.innerHTML = renderEntity('Golden', 2.4);
+              }
+            }catch(e){}
+
+            // Programa muerte si no lo esquivás
+            if(state.golden.killTimer){ clearTimeout(state.golden.killTimer); state.golden.killTimer=null; }
+            state.golden.killTimer = setTimeout(()=>{
+              if(state.time >= 6) return;
+              if(state.powerOut) return;
+              if(state.cinematicLock) return;
+              if(!state.golden.manifest) return;
+              die('Golden', { reason:'golden' });
+            }, state.golden.evadeWindowMs);
           }
         }
       }
-    }
-    window.toggleCams = toggleCams;
 
-    function setCam(n){
+// === Bonnie/Chica: al BAJAR monitor, se revelan FRENTE al jugador antes del jumpscare ===
+      const armed = state.monsters.find(x => (x.id === 'Purple' || x.id === 'Yellow') && x.inOfficeArmed);
+      if(armed && wasOpen && !state.camOpen){
+        // “justicia”: si entró hace muy poquito, respeta el margen mínimo
+        const now2 = Date.now();
+        const dt = now2 - (armed.enteredAt || 0);
+        const minDelay = 1100;
+        const revealMs = 1400;
+        const delay = dt < minDelay ? (minDelay - dt) : 0;
+
+        setTimeout(()=>{
+          if(state.time >= 6) return;
+          if(state.powerOut) return;
+          if(state.cinematicLock) return;
+          if(!armed.inOfficeArmed) return;
+
+          // Si el jugador ya cerró la puerta, cancela (lo hace retroceder)
+          if(state.doors[armed.door]){
+            armed.inOfficeArmed = false;
+            armed.entering = false; armed.enterRemaining = 0;
+            armed.atDoor = false;
+            armed.pos = (armed.id === 'Purple') ? 3 : 7;
+            armed.stalled = true;
+            if(armed.stallTimer){ clearTimeout(armed.stallTimer); }
+            armed.stallTimer = setTimeout(()=>{ armed.stalled=false; armed.stallTimer=null; }, 2500);
+            playSound(120, 'square', 0.05, 0.06);
+            return;
+          }
+
+          // Mostrar frente al jugador (ventana para reaccionar y cerrar)
+          const until = Date.now() + revealMs;
+          state.frontThreat = { id: armed.id, side: armed.door, until };
+
+          const fNode = document.getElementById('m-office-front');
+          if(fNode){
+            fNode.style.display = 'block';
+            fNode.style.left = (armed.id === 'Purple') ? '46%' : '54%';
+            fNode.innerHTML = renderEntity(armed.id, 2.35);
+          }
+          playSound(70, 'sine', 0.10, 0.16);
+
+          state.powerOutTimers.push(setTimeout(()=>{
+            if(state.time >= 6) return;
+            if(state.powerOut) return;
+            if(state.cinematicLock) return;
+            if(!armed.inOfficeArmed) return;
+
+            // Si cerraste la puerta a tiempo, updateCore lo cancela; si no, mueres.
+            if(state.doors[armed.door]) return;
+
+            state.frontThreat = null;
+            if(fNode){ fNode.style.display = 'none'; fNode.innerHTML = ''; }
+            die(armed.id);
+          }, revealMs));
+        }, delay);
+
+        return;
+      }
+
+      // Freddy: grace 400ms al bajar monitor si estaba listo para atacar
+      const f = state.monsters.find(x => x.id === 'Grey');
+      const now = Date.now();
+      if(f && !state.camOpen && state.freddyState.pendingKill && now >= (state.freddyState.cooldownUntil||0)){
+        state.freddyState.pendingKill = false;
+        state.freddyState.warning = false;
+        setTimeout(()=>{
+          if(state.time >= 6) return;
+          if(state.powerOut) return;
+          if(state.cinematicLock) return;
+          if(!f.atDoor) return;
+          const side = f.door;
+          if(state.doors[side]) return; // puerta cerrada lo bloquea
+          die('Grey');
+        }, 400);
+      }
+    }
+
+function setCam(n){
       state.cam = n;
-      ui.camInfo.innerText = `CAM ${n}: ${CAM_NAMES[n]}`;
-      document.querySelectorAll('.cam-btn').forEach((b,i)=> b.classList.toggle('active', (i+1) === n));
+            // v34: Poster 'DESAPARECIDA' (1/400) al cambiar a CAM 2 o CAM 6
+      if(n === 2 || n === 6){ state.luciaPoster = (Math.random() < (1/400)); }
+      else { state.luciaPoster = false; }
+const name = CAM_NAMES[n] || "";
+      ui.camInfo.innerText = (n === 'V') ? `CAM VENT: ${name}` : `CAM ${n}: ${name}`;
+
+      // Active highlight without relying on index order (supports VENT node)
+      document.querySelectorAll('.cam-btn, .cam-btn-vent').forEach(el => el.classList.remove('active'));
+      if(n === 'V'){
+        document.getElementById('cam-vent-btn')?.classList.add('active');
+      } else {
+        const rect = document.querySelector(`g[onclick="setCam(${n})"] rect`);
+        rect && rect.classList.add('active');
+      }
+
+      if(state.camOpen) playSound(520, 'square', 0.02, 0.05);
       renderCam();
       updateFoxyPhaseUI();
     }
     window.setCam = setCam;
 
     function camPropsHTML(n){
+      if(n === 'V'){
+        return `<div class="cam-props">
+          <div class="prop table" style="left:10%; top:72%; width:38%; height:16%; opacity:0.35;"></div>
+          <div class="prop poster" style="left:62%; top:18%; width:22%; height:20%; opacity:0.25;"></div>
+        </div>`;
+      }
       if(n === 1){
         return `<div class="cam-props">
           <div class="prop poster" style="left:12%; top:18%; width:32%; height:22%;"></div>
           <div class="prop table" style="left:55%; top:55%; width:26%; height:16%;"></div>
         </div>`;
       }
-      if(n === 2){
-        return `<div class="cam-props">
-          <div class="prop table" style="left:10%; top:58%; width:32%; height:18%;"></div>
-          <div class="prop table" style="left:46%; top:50%; width:30%; height:16%;"></div>
-          <div class="prop poster" style="left:62%; top:20%; width:24%; height:18%;"></div>
-        </div>`;
-      }
-      if(n === 3 || n === 6){
-        return `<div class="cam-props">
-          <div class="prop door" style="left:74%; top:22%; width:14%; height:54%; border-radius:12px;"></div>
-          <div class="prop poster" style="left:10%; top:28%; width:22%; height:16%;"></div>
-        </div>`;
-      }
+if(n === 2){
+  const glitch = (state.glitchDocUntil && Date.now() < state.glitchDocUntil);
+  const posterHTML = glitch ? `
+    <div class="prop glitch-doc" style="left:62%; top:20%; width:26%; height:18%;">
+      <div class="glitch-title">SUJETO #04</div>
+      <div class="glitch-body">- ERROR DE<br>SIMPLIFICACIÓN -</div>
+    </div>
+  ` : (state.luciaPoster ? `
+    <div class="prop lucia-wanted" style="left:62%; top:18%; width:26%; height:22%;">
+      <div class="lw-top">DESAPARECIDA</div>
+      <div class="lw-photo"><span>?</span></div>
+      <div class="lw-bot">Lucía R. - 1999</div>
+    </div>
+  ` : `
+    <div class="prop poster" style="left:62%; top:20%; width:24%; height:18%;"></div>
+  `);
+
+  return `<div class="cam-props">
+    <div class="prop table" style="left:10%; top:58%; width:32%; height:18%;"></div>
+    <div class="prop table" style="left:46%; top:50%; width:30%; height:16%;"></div>
+    ${posterHTML}
+  </div>`;
+}
+if(n === 3 || n === 6){
+  const posterHTML = (n === 6 && state.luciaPoster) ? `
+    <div class="prop lucia-wanted" style="left:10%; top:28%; width:24%; height:22%;">
+      <div class="lw-top">DESAPARECIDA</div>
+      <div class="lw-photo"><span>?</span></div>
+      <div class="lw-bot">Lucía R. - 1999</div>
+    </div>
+  ` : `
+    <div class="prop poster" style="left:10%; top:28%; width:22%; height:16%;"></div>
+  `;
+  return `<div class="cam-props">
+    <div class="prop door" style="left:74%; top:22%; width:14%; height:54%; border-radius:12px;"></div>
+    ${posterHTML}
+  </div>`;
+}
+
+if(n === 7){
+  const revealed = !!state.cam7HatchRevealed;
+  return `<div class="cam-props">
+    <div class="prop table" style="left:18%; top:56%; width:28%; height:18%;"></div>
+    <div class="prop poster" style="left:58%; top:22%; width:26%; height:18%;"></div>
+    <div id="cam7-hatch" class="prop hatch ${revealed ? 'revealed' : ''}" style="left:32%; top:74%; width:34%; height:14%;">
+      <div class="hatch-label">SÓTANO SELLADO</div>
+    </div>
+  </div>`;
+}
+
       if(n === 4){
         return `<div class="cam-props">
           <div class="prop door" style="left:10%; top:18%; width:20%; height:66%; border-radius:18px; opacity:0.6;"></div>
@@ -2160,77 +4695,63 @@ function runAction(action){
     }
 
     function renderCam(){
-      const visible = state.monsters.filter(m => m.pos === state.cam);
-      const scene = CAM_SCENES[state.cam] || CAM_SCENES[1];
-      const monstersHTML = visible.map(m => renderEntity(m.id, 0.85)).join('');
+      const camId = state.cam;
+      const scene = CAM_SCENES[camId] || CAM_SCENES[1];
+      // v24: Foxy visual alarm — blink CAM 4 when he has left Pirate Cove (run/attack)
+      const camScreenEl = document.getElementById('cam-screen');
+      if(camScreenEl){
+        const foxy = state.monsters.find(x => x.id === 'Foxy');
+        const alert = (camId === 4 && !!foxy && (foxy.attacking || foxy.phase >= 4) && foxy.pos !== 4);
+        camScreenEl.classList.toggle('cam-alert-red', !!alert);
+      }
+
+
+      // Special VENT camera: shows ONLY Freddy eyes (red/white/purple) + industrial decor
+      if(camId === 'V'){
+        const active = !!state.freddyVent.active;
+        const stage = state.freddyVent.stage || 'none';
+                const eyesClass = (stage === 'white') ? 'white' : (stage === 'red' ? 'red' : (stage === 'purple' ? 'purple' : (stage === 'gold' ? 'gold' : 'gold')));
+        const eyesHTML = active ? `
+          <div class="vent-eyes ${eyesClass}">
+            <div class="vent-eye"></div>
+            <div class="vent-eye"></div>
+          </div>
+        ` : '';
+
+        ui.camRender.innerHTML = `
+          <div class="vent-scene"></div>
+          <div class="vent-pipe" style="left:8%; top:16%; width:72%; height:18%;"></div>
+          <div class="vent-pipe" style="left:18%; top:60%; width:56%; height:14%;"></div>
+          <div class="vent-pipe" style="left:70%; top:12%; width:16%; height:56%; transform: rotate(90deg);"></div>
+          <div class="vent-grate"></div>
+          ${eyesHTML}
+          <div class="cam-label">${scene.label}</div>
+        `;
+        ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
+        return;
+      }
+
+      // Normal cameras
+      const visible = state.monsters.filter(m => !m.hidden && (m.pos === camId || (camId===5 && m.id==='Purple' && (m.atDoor||m.entering)) || (camId===8 && m.id==='Yellow' && (m.atDoor||m.entering))));
+            const monstersHTML = visible.map(m => {
+        const opts = (m.id==='Foxy' && m.phase===5) ? { extraClass:'foxy-run' } : {};
+        return renderEntity(m.id, 0.9, opts);
+      }).join('');
 
       ui.camRender.innerHTML = `
-        <div class="cam-scene" style="background-image: url('https://cdn.pixabay.com/video/2024/09/26/233353_large.mp4'), ${scene.bg}; background-repeat: repeat, no-repeat; background-size: 420px 240px, cover;"></div>
-        ${camPropsHTML(state.cam)}
+        <div class="cam-scene" style="background-image: url('https://dummyimage.com/640x360/0b0b10/0b0b10&text='); background-repeat: repeat, no-repeat; background-size: 420px 240px, cover;"></div>
+        ${camPropsHTML(camId)}
         <div class="cam-label">${scene.label}</div>
         <div style="position:relative; z-index:10; display:flex; gap:18px;">${monstersHTML}</div>
       `;
       ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
     }
 
-    function goldenCheck(){
-      if(menu.style.display !== 'none') return;
-      if(state.powerOut) return;
-      if(state.cinematicLock) return;
-      if(state.golden.active) return;
-      if(state.time >= 6) return;
-
-      const hit = (Math.floor(Math.random() * 32768) === 0);
-      if(!hit) return;
-
-      state.golden.active = true;
-      state.golden.spawnedAt = Date.now();
-      state.golden.stareMs = 0;
-      state.golden.killScheduled = false;
-      state.golden.camOpenedAt = 0;
-
-      ui.goldenOffice.style.display = 'block';
-      ui.goldenOffice.innerHTML = renderEntity('Golden', 2.35);
-
-      playSound(30, 'sine', 0.25, 0.25);
-      playSound(90, 'square', 0.12, 0.18);
-    }
-
-    function goldenUpdate(stepMs){
-      if(!state.golden.active) return;
-      if(state.time >= 6){
-        state.golden.active = false;
-        ui.goldenOffice && (ui.goldenOffice.style.display = 'none');
-        return;
-      }
-      if(state.powerOut) return;
-
-      if(state.camOpen){
-        if(!state.golden.camOpenedAt) state.golden.camOpenedAt = Date.now();
-        const openFor = Date.now() - state.golden.camOpenedAt;
-        if(openFor > 900){
-          die('Golden');
-        }
-        return;
-      }
-
-      state.golden.stareMs += stepMs;
-
-      if(!state.golden.killScheduled && state.golden.stareMs >= state.golden.stareToLaughMs){
-        state.golden.killScheduled = true;
-        laugh();
-        ui.goldenOffice && (ui.goldenOffice.style.display = 'none');
-
-        setTimeout(()=>{
-          if(state.time >= 6) return;
-          die('Golden');
-        }, 650);
-      }
-    }
+    function goldenCheck(){ /* manejado por tickAI */ }
 
     function tipFor(killer, meta={}){
       const tips = {
-        "Grey": "¡Rayos! A Freddy no se le gana con puertas, se gana con los ojos. Revisa la cámara donde esté y no te confíes. Si dejas de vigilarlo, te va a dar una mala sorpresa.",
+        "Grey": "Freddy ataca por la VENTILACIÓN. Revísalo en la CAM VENT: OJOS DORADOS = no es inminente; OJOS BLANCOS = cierre la compuerta VENT ya. Ojo: cerrar defensas sube el CALOR y si llega a 100% todo se abre por 8s.",
         "Purple": "Bonnie es muy necio, siempre insiste por la izquierda. Echa un vistazo rápido a la puerta o cámara izquierda antes de que te atrape por sorpresa.",
         "Yellow": "Chica casi siempre se mueve por la ruta de la derecha. Si le das libertad, te va a llegar como visita inesperada. Mucho ojo con la derecha.",
         "Foxy": "Foxy es impredecible. Mantente atento a Pirate Cove (CAM 4) y fíjate bien si se mueve a la **CAM 5 o CAM 8**. Si te distraes, ya fuiste.",
@@ -2245,7 +4766,12 @@ function runAction(action){
       return tips[killer] || "Algo salió mal… pero el susto salió bien. ";
     }
 
-    function die(killer, meta={}){
+    function kill(k){ die(k); }
+
+function die(killer, meta={}){
+      state.dead = true;
+      try{ document.getElementById('lucia-overlay')?.classList.remove('active'); }catch(_){ }
+
       if(state.cinematicLock && killer !== 'Grey') return;
       if(state.time >= 6) return;
 
@@ -2265,15 +4791,18 @@ function runAction(action){
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(killer === 'Golden' ? 'Golden' : killer, 6);
       playSound(100, 'sawtooth', 0.8, 2);
-
-      jumpscareAudio.currentTime = 0;  // reinicia por si se corta un jumpscare anterior
-      jumpscareAudio.play().catch(() => {});  // reproduce el sonido real
-
-      setTimeout(()=>{
+      const jsAudio = document.getElementById('jumpscare-sound');
+      if(jsAudio){
+        try{ jsAudio.currentTime = 0; }catch(_){}
+        jsAudio.volume = 1.0;
+        jsAudio.play().catch(e => console.warn(e));
+      }
+      playJumpscareSfx();
+setTimeout(()=>{
         document.getElementById('jumpscare').style.display = 'none';
         ui.deathTip.style.display = 'flex';
         ui.deathTitle.innerText = "Te moriste 💀";
-        ui.deathKiller.innerText = (killer === 'Golden') ? "Golden Freddy" : killer;
+        ui.deathKiller.innerText = (killer === 'Golden') ? "Golden Freddy" : (killer === 'Grey' ? 'Freddy' : (killer === 'Purple' ? 'Bonnie' : (killer === 'Yellow' ? 'Chica' : killer)));
         ui.deathMessage.innerHTML = tipFor(killer, meta);
       }, 1500);
     }
@@ -2283,12 +4812,55 @@ function runAction(action){
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(id, 6);
       playSound(120, 'sawtooth', 0.35, 0.6);
-      jumpscareAudio.currentTime = 0;  // reinicia por si se corta un jumpscare anterior
-jumpscareAudio.play().catch(() => {});  // reproduce el sonido real
-      setTimeout(()=>{ document.getElementById('jumpscare').style.display = 'none'; }, 900);
+      const jsAudio = document.getElementById('jumpscare-sound');
+      if(jsAudio){
+        try{ jsAudio.currentTime = 0; }catch(_){}
+        jsAudio.volume = 1.0;
+        jsAudio.play().catch(e => console.warn(e));
+      }
+      playJumpscareSfx();
+setTimeout(()=>{ document.getElementById('jumpscare').style.display = 'none'; }, 900);
     }
 
-    function winCinematic(){
+    
+    function recordWinAndUnlock(){
+      progress = loadProgress();
+      // Campaign tracking
+      const dn = state.displayNight || state.night;
+      if(!state.ucn){
+        if(dn >= 1 && dn <= 5){
+          const key = String(dn);
+          if(progress.campaignActive && progress.campaignNext === dn){
+            progress.nightStars[key] = "purple";
+            progress.campaignNext = dn + 1;
+            if(dn === 5){ progress.campaignActive = false; }
+          }else{
+            // free play completion
+            if(progress.nightStars[key] !== "purple") progress.nightStars[key] = "yellow";
+          }
+        }
+      }else{
+        // UCN completion (Night 6 / 7)
+        const diff = ucnDifficulty(); // none|yellow|purple|red based on max/all20
+        // store best
+        const rank = { none:0, yellow:1, purple:2, red:3 };
+        if(rank[diff] > rank[progress.ucnStar]) progress.ucnStar = diff;
+
+        // Red2 requirement: night6 hard+ (yellow/purple/red)
+        if(diff === "yellow" || diff === "purple" || diff === "red"){
+          progress.red2 = true;
+        }
+        // Red3 requirement: 5/20 (night7)
+        if(diff === "red"){
+          progress.red3 = true;
+        }
+      }
+
+      unlockRedStarsIfNeeded();
+      saveProgress(progress);
+    }
+
+function winCinematic(){
       state.powerOutTimers.forEach(t=> clearTimeout(t));
       state.powerOutTimers = [];
       if(state.powerOutKill) clearInterval(state.powerOutKill);
@@ -2324,13 +4896,90 @@ jumpscareAudio.play().catch(() => {});  // reproduce el sonido real
           screen.appendChild(c);
         }
 
+        recordWinAndUnlock();
+        applyProgressUI();
+
         const saved = parseInt(localStorage.getItem('shape_nights_save') || "1", 10);
         localStorage.setItem('shape_nights_save', String(Math.max(saved, state.night + 1)));
 
         setTimeout(()=> location.reload(), 8000);
       }, 3000);
     }
-  
-  </script>
+
+
+    // ===================== GOLDEN FREDDY HELPERS =====================
+    
+    function goldenChanceCap(ai){ return Math.min(5, Math.max(0, ai|0)); }
+
+    function goldenAttemptIntervalMs(ai){
+      if(!state.ucn){
+        // Campaign: aparece poco y con ritmo estable
+        const base = 9800 - (state.night - 1) * 900; // N1 9800 → N5 6200
+        return clamp(base, 5200, 9800);
+      }
+      const a = clamp(ai, 0, 20);
+      let base = 7000 - Math.min(a,10)*350;  // 0..10 => 7000..3500
+      if(a > 10) base -= (a-10)*90;          // 11..20 => un poco más frecuente
+      return clamp(base, 2400, 7000);
+    }
+
+    function goldenCooldownMs(ai){
+      const a = clamp(ai, 0, 20);
+      const extra = Math.max(0, a-10);
+      // Cooldown largo e impredecible (y si la IA es alta, baja un poquito… pero sin sofocar)
+      let min = 7000 - extra*200;
+      let max = 18000 - extra*250;
+      min = clamp(min, 4500, 12000);
+      max = clamp(max, 9000, 24000);
+      if(max < min + 2200) max = min + 2200;
+      return min + Math.floor(Math.random()*(max-min));
+    }
+
+    function activateGolden(){
+      if(state.golden.active || state.golden.manifest) return;
+      if(state.powerOut || state.cinematicLock || state.time >= 6) return;
+
+      state.golden.active = true;   // “primed” desde cámaras
+      state.golden.manifest = false;
+      state.golden.camOpenedAt = Date.now();
+      playSound(130, 'triangle', 0.08, 0.10);
+    }
+
+    function clearGolden(){
+      state.golden.active = false;
+      state.golden.manifest = false;
+      if(state.golden.killTimer){ clearTimeout(state.golden.killTimer); state.golden.killTimer = null; }
+      try{ ui.goldenOffice && (ui.goldenOffice.style.display = 'none'); }catch(e){}
+    }
+
+function goldenUpdate(dtMs){
+      // Solo durante juego (Golden se maneja por tickAI + toggleCams)
+      if(state.menuActive) return;
+      if(state.powerOut) return;
+      if(state.cinematicLock) return;
+      if(state.time >= 6){
+        clearGolden();
+        return;
+      }
+      // no-op intencional
+    }
+
+  // Auto-start menu audio after first interaction (browser policy)
+window.addEventListener('pointerdown', ()=>{ try{ unlockAudio(); startMenuMusic(); }catch(e){} }, { once:true });
+window.addEventListener('keydown', ()=>{ try{ unlockAudio(); startMenuMusic(); }catch(e){} }, { once:true });
+    window.addEventListener('keyup', (e)=>{
+      _keysHeld.delete(e.code);
+      if(!_keysHeld.has('KeyJ') || !_keysHeld.has('Digit5')) _secretCineLatch = false;
+    });
+    window.addEventListener('blur', ()=>{
+      _keysHeld.clear();
+      _secretCineLatch = false;
+    });
+
+
+</script>
+    <div id="lucia-overlay" aria-hidden="true">
+      <div class="lucia-text">ESTOY ABAJO</div>
+    </div>
 </body>
 </html>

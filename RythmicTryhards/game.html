@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Vintara Games - Rythmic Noir</title>
+<style>
+:root {
+  --bg: #000;
+  --white: #fff;
+  --gray: #444;
+  --hold-glow: rgba(255, 255, 255, 0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; user-select: none; }
+body { background: var(--bg); color: var(--white); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+
+/* HEADER */
+header {
+  position: fixed; top: 0; width: 100%;
+  padding: 20px; border-bottom: 2px solid var(--white);
+  background: #000; z-index: 100; text-align: center;
+}
+header a { text-decoration: none; color: var(--white); font-weight: 800; letter-spacing: 5px; font-size: 1.2rem; }
+
+/* GAME WRAPPER */
+.game-wrapper {
+  width: 460px; height: 720px; margin: 90px auto 20px;
+  background: #000; border: 4px solid var(--white);
+  position: relative; overflow: hidden;
+}
+
+/* SCREENS */
+.screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; background: #000; position: absolute; }
+.screen.active { display: flex; }
+
+.menu-title { font-size: 2rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; }
+.menu-btn {
+  background: transparent; color: var(--white);
+  border: 2px solid var(--white); padding: 15px 40px; margin: 10px;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.2s; width: 250px;
+}
+.menu-btn:hover { background: var(--white); color: #000; }
+
+/* GAMEPLAY */
+.lanes { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
+.lane { flex: 1; border-right: 1px solid #222; position: relative; }
+.lane:last-child { border: none; }
+
+/* NOTAS */
+.note {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  width: 85%; background: var(--white); border-radius: 4px; z-index: 10;
+}
+.note.hold {
+  background: linear-gradient(to bottom, transparent, var(--white));
+  opacity: 0.6;
+}
+/* Brillo de la nota cuando se mantiene correctamente */
+.lane.active-hold::after {
+    content: ''; position: absolute; bottom: 130px; left: 0; width: 100%; height: 100px;
+    background: linear-gradient(to top, rgba(255,255,255,0.5), transparent);
+    animation: pulseGlow 0.5s infinite alternate; z-index: 2;
+}
+
+@keyframes pulseGlow { 
+    from { opacity: 0.3; } to { opacity: 0.8; transform: scaleY(1.2); } 
+}
+
+/* UI ELEMENTS */
+.judgment-line { position: absolute; bottom: 130px; width: 100%; height: 4px; background: var(--white); z-index: 5; }
+.key-hint {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  font-size: 1.5rem; font-weight: 800; color: var(--gray);
+  width: 55px; height: 55px; border: 3px solid var(--gray);
+  display: flex; align-items: center; justify-content: center; border-radius: 10px;
+}
+.lane.pressed .key-hint { border-color: var(--white); color: var(--white); background: #222; }
+
+#judgment-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 3rem; font-weight: 900; opacity: 0; z-index: 50; pointer-events: none;
+}
+
+.hud { position: absolute; top: 20px; width: 100%; padding: 0 30px; display: flex; justify-content: space-between; z-index: 60; font-family: monospace; font-size: 1.5rem; }
+
+/* PARTICULAS */
+.star {
+  position: absolute; background: white; width: 4px; height: 4px; border-radius: 50%;
+  pointer-events: none; z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<header><a href="/">VINTARA GAMES</a></header>
+
+<div class="game-wrapper">
+    <div id="main-menu" class="screen active">
+        <div class="menu-title">RYTHMIC TRYHARDS</div>
+        <button class="menu-btn" onclick="showScreen('song-menu')">INICIAR JUEGO</button>
+        <button class="menu-btn">OPCIONES</button>
+    </div>
+
+    <div id="song-menu" class="screen">
+        <div class="menu-title">SELECCIONAR TRACK</div>
+        <button class="menu-btn" onclick="startGame()">DESPACITO - 89 BPM</button>
+        <button class="menu-btn" onclick="showScreen('main-menu')">VOLVER</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="hud">
+            <div id="score">000000</div>
+            <div id="combo">x0</div>
+        </div>
+        <div id="judgment-text">PERFECT</div>
+        <div class="lanes">
+            <div class="lane" id="lane-0"><div class="key-hint">F</div></div>
+            <div class="lane" id="lane-1"><div class="key-hint">G</div></div>
+            <div class="lane" id="lane-2"><div class="key-hint">J</div></div>
+            <div class="lane" id="lane-3"><div class="key-hint">K</div></div>
+        </div>
+        <div class="judgment-line"></div>
+    </div>
+</div>
+
+<audio id="audio" src="audio/despacito.mp3"></audio>
+
+<script>
+const CONFIG = {
+    bpm: 89,
+    spawnY: -100, // Empiezan fuera arriba
+    judgmentY: 590, // Altura de impacto
+    approachTime: 1.5, // Segundos en caer
+    keys: { 'f':0, 'g':1, 'j':2, 'k':3 }
+};
+
+let state = {
+    isPlaying: false,
+    score: 0,
+    combo: 0,
+    activeNotes: [],
+    chart: [],
+    chartIndex: 0,
+    heldLanes: [false, false, false, false]
+};
+
+const audio = document.getElementById('audio');
+const speed = (CONFIG.judgmentY - CONFIG.spawnY) / CONFIG.approachTime;
+
+/* --- SISTEMA DE MENÚS --- */
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+/* --- GENERADOR DE RITMO --- */
+function generateChart() {
+    state.chart = [];
+    const beat = 60 / CONFIG.bpm;
+    
+    const add = (b, lane, dur = 0) => {
+        state.chart.push({ time: b * beat, lane, dur: dur * beat });
+    };
+
+    // INTRO (0-20s)
+    for(let b=0; b<32; b+=4) {
+        add(b, 0, 2);
+        add(b+2, 3, 2);
+    }
+
+    // VERSO "Sí, sabes que ya llevo un rato mirándote..."
+    for(let b=32; b<96; b++) {
+        if(b%2 === 0) add(b, 1);
+        if(b%4 === 3) add(b+0.5, 2);
+        if(b%8 === 0) add(b, 0, 1);
+    }
+
+    // "DES-PA-CI-TO"
+    for(let b=96; b<200; b+=4) {
+        add(b, 0, 1.5); // Hold largo en la vocal
+        add(b+1, 1);
+        add(b+2, 2);
+        add(b+3, 3);
+    }
+    state.chart.sort((a,b) => a.time - b.time);
+}
+
+/* --- MOTOR --- */
+function startGame() {
+    generateChart();
+    showScreen('game-screen');
+    state.score = 0; state.combo = 0; state.chartIndex = 0;
+    state.activeNotes = [];
+    audio.currentTime = 0;
+    audio.play();
+    state.isPlaying = true;
+    requestAnimationFrame(gameLoop);
+}
+
+function gameLoop() {
+    if(!state.isPlaying) return;
+    const t = audio.currentTime;
+
+    // Spawning
+    while(state.chart[state.chartIndex] && state.chart[state.chartIndex].time <= t + CONFIG.approachTime) {
+        spawnNote(state.chart[state.chartIndex]);
+        state.chartIndex++;
+    }
+
+    // Update
+    state.activeNotes.forEach((note, i) => {
+        const timeDiff = note.time - t;
+        const currentY = CONFIG.judgmentY - (timeDiff * speed);
+        
+        // Posicionamiento
+        note.el.style.top = (currentY - (note.isHold ? note.height : 0)) + "px";
+
+        // Lógica de Hold Note (Brillo mientras se mantiene)
+        if(note.isHold && note.hit && state.heldLanes[note.lane]) {
+            document.getElementById(`lane-${note.lane}`).classList.add('active-hold');
+            state.score += 1; // Puntos por mantener
+            updateHUD();
+        } else {
+            document.getElementById(`lane-${note.lane}`).classList.remove('active-hold');
+        }
+
+        // Miss
+        if(!note.hit && currentY > CONFIG.judgmentY + 60) {
+            note.el.remove();
+            state.activeNotes.splice(i, 1);
+            state.combo = 0;
+            showJudgment("MISS", "#555");
+            updateHUD();
+        } 
+        // Borrar nota larga al terminar
+        else if (note.hit && note.isHold && currentY > CONFIG.judgmentY + note.height + 50) {
+            note.el.remove();
+            state.activeNotes.splice(i, 1);
+        }
+    });
+
+    if(!audio.paused) requestAnimationFrame(gameLoop);
+}
+
+function spawnNote(data) {
+    const lane = document.getElementById(`lane-${data.lane}`);
+    const el = document.createElement('div');
+    const isHold = data.dur > 0;
+    const h = isHold ? (data.dur * speed) : 25;
+    
+    el.className = isHold ? 'note hold' : 'note';
+    el.style.height = h + "px";
+    el.style.top = "-200px"; // Aparece arriba
+    lane.appendChild(el);
+    
+    state.activeNotes.push({ el, time: data.time, lane: data.lane, isHold, height: h, hit: false });
+}
+
+/* --- INPUT --- */
+document.addEventListener('keydown', e => {
+    const key = e.key.toLowerCase();
+    if(CONFIG.keys.hasOwnProperty(key)) {
+        const l = CONFIG.keys[key];
+        state.heldLanes[l] = true;
+        document.getElementById(`lane-${l}`).classList.add('pressed');
+        checkHit(l);
+    }
+});
+
+document.addEventListener('keyup', e => {
+    const key = e.key.toLowerCase();
+    if(CONFIG.keys.hasOwnProperty(key)) {
+        const l = CONFIG.keys[key];
+        state.heldLanes[l] = false;
+        document.getElementById(`lane-${l}`).classList.remove('pressed');
+    }
+});
+
+function checkHit(laneIdx) {
+    const t = audio.currentTime;
+    const idx = state.activeNotes.findIndex(n => n.lane === laneIdx && !n.hit && Math.abs(n.time - t) < 0.2);
+
+    if(idx > -1) {
+        const n = state.activeNotes[idx];
+        const diff = Math.abs(n.time - t);
+        n.hit = true;
+        
+        let txt = "GOOD";
+        if(diff < 0.07) { txt = "PERFECT"; state.score += 300; createStars(laneIdx); }
+        else { state.score += 100; }
+        
+        state.combo++;
+        showJudgment(txt, "#fff");
+        updateHUD();
+
+        if(!n.isHold) {
+            n.el.remove();
+            state.activeNotes.splice(idx, 1);
+        }
+    }
+}
+
+/* --- EFECTOS --- */
+function createStars(laneIdx) {
+    const lane = document.getElementById(`lane-${laneIdx}`);
+    for(let i=0; i<10; i++){
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = '50%'; s.style.top = '590px';
+        lane.appendChild(s);
+        const tx = (Math.random()-0.5)*100, ty = (Math.random()-0.5)*100;
+        s.animate([
+            { transform: 'translate(0,0) scale(1)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+        ], 500).onfinish = () => s.remove();
+    }
+}
+
+function showJudgment(txt, color) {
+    const j = document.getElementById('judgment-text');
+    j.innerText = txt; j.style.color = color; j.style.opacity = 1;
+    setTimeout(() => j.style.opacity = 0, 400);
+}
+
+function updateHUD() {
+    document.getElementById('score').innerText = state.score.toString().padStart(6,'0');
+    document.getElementById('combo').innerText = 'x' + state.combo;
+}
+</script>
+</body>
+</html>
