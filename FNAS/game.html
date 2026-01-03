@@ -40,7 +40,6 @@
       z-index:-2;
       opacity:0.14;
       filter:saturate(0.9) contrast(1.05);
-          pointer-events:none;
     }
     #bg-vignette{
       position:fixed;
@@ -61,9 +60,6 @@
       height:100vh;
       padding: clamp(18px, 3vw, 48px);
       gap: clamp(18px, 3vw, 44px);
-          position: relative;
-          z-index: 10000;
-          pointer-events: auto;
     }
 
     .menu-left{
@@ -543,68 +539,20 @@
       position:relative;
     }
 
-    
     #yellow-plush{
       position:absolute;
-      /* Reubicado: más a la izquierda y más arriba para no tapar UI */
-      left: 25%;
-      bottom: 15%;
-      width: 64px;
-      height: 56px;
-      border-radius: 10px 10px 14px 14px;
-      background: #ffcc00; /* visible golden yellow */
-      box-shadow:
-        0 10px 24px rgba(0,0,0,0.45),
-        inset 0 -6px 0 rgba(0,0,0,0.12),
-        inset 0 6px 0 rgba(255,255,255,0.18);
-      opacity: 1;
-      pointer-events: auto;
-      cursor: pointer;
-      transition: transform 0.08s ease, filter 0.12s ease;
-      z-index: 30; /* encima del fondo del escritorio, debajo de la UI del monitor */
+      left: 15%;
+      bottom: 34px;
+      width:46px; height:46px;
+      border-radius: 10px;
+      background: rgba(255,220,60,0.35);
+      border: 1px solid rgba(255,220,60,0.22);
+      box-shadow: 0 0 20px rgba(255,220,60,0.10);
+      transform: rotate(-2deg);
+      pointer-events:none;
     }
-#yellow-plush:hover{
-  filter: brightness(1.06) saturate(1.05);
-}
-/* Minimal "8-bit/geometric" face using only ::before/::after */
-#yellow-plush::before{
-  content:"";
-  position:absolute;
-  left: 50%;
-  top: 20px;
-  width: 10px;
-  height: 10px;
-  background: #0b0b0b;
-  transform: translateX(-50%);
-  border-radius: 2px;
-  box-shadow: -16px 0 0 #0b0b0b, 16px 0 0 #0b0b0b; /* two eyes */
-  pointer-events: none;
-}
-#yellow-plush::after{
-  content:"";
-  position:absolute;
-  left: 50%;
-  top: 34px;
-  width: 8px;
-  height: 8px;
-  background: #0b0b0b; /* nose */
-  transform: translateX(-50%);
-  border-radius: 2px;
-  pointer-events: none;
-}
-/* Click squish */
-#yellow-plush.plush-press{
-  transform: scale(0.9);
-}
-#yellow-plush:hover{
-  filter: brightness(1.06) saturate(1.05);
-}
-/* Minimal "8-bit/geometric" face using only ::before/::after */
-/* Click squish */
-#yellow-plush.plush-press{
-  transform: scale(0.9);
-}
-.monitor-glow{
+
+    .monitor-glow{
       width:220px;
       height:140px;
       background:#020202;
@@ -641,7 +589,6 @@
     .door-block{
       position:absolute;
       inset:0;
-      z-index:2;
       background: repeating-linear-gradient(90deg, #222 0px, #222 25px, #111 25px, #111 50px);
       transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
       transform: translateY(-100%);
@@ -653,7 +600,6 @@
     .light-fx{
       position:absolute;
       inset:0;
-      z-index:5;
       background:transparent;
       transition: background 0.2s ease;
       pointer-events:none;
@@ -780,18 +726,6 @@
     }
     .cam-btn.active + .cam-t{ fill:#000; }
 
-    /* === v25: Map alert blink (CAM 4) === */
-    .map-alert-blink{
-      animation: mapAlertAnim 0.5s infinite steps(2, start);
-      fill: #ff0000 !important;
-      stroke: #ffaaaa !important;
-      stroke-width: 4px;
-    }
-    @keyframes mapAlertAnim{
-      0%{ opacity: 1; }
-      50%{ opacity: 0.3; }
-    }
-
     /* Monster render */
     .monster-box{
       display:flex;
@@ -877,7 +811,7 @@
       position:fixed;
       inset:0;
       background:#000;
-      z-index:20000;
+      z-index:1500;
       justify-content:center;
       align-items:center;
     }
@@ -1406,23 +1340,11 @@
     #usage-ind.is-4{ animation: usagePulse 0.9s ease-in-out infinite; }
     @keyframes usagePulse{ 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.25);} }
 
-    /* Make sure menu is clickable and above overlays (FORCE v29) */
-    #menu{
-      position: relative;
-      z-index: 10000;
-      pointer-events: auto;
-    }
-    /* Asegurar que el menú siempre gane en prioridad de clic */
-    .menu-item{
-      cursor: pointer;
-      pointer-events: auto;
-      z-index: 10001;
-    }
-    /* Evitar capas invisibles tragando clics */
-    #game, #blackout, #jumpscare, #victory-screen, #cam-overlay{
-      pointer-events: auto;
-    }
-/* Freddy warning eyes (pre-attack cue) */
+    /* Make sure menu is clickable and above overlays */
+    #menu{ position:relative; z-index:50; }
+
+
+    /* Freddy warning eyes (pre-attack cue) */
     .anim.eyes-alert .anim-eye .anim-pupil{
       background:#f3f6ff;
       box-shadow: 0 0 18px rgba(245,248,255,0.95), 0 0 38px rgba(255,255,255,0.60);
@@ -1439,6 +1361,22 @@
       color:rgba(255,255,255,0.85);
       text-transform:uppercase;
     }
+    .heat-bar{
+      width:140px;
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.14);
+      overflow:hidden;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.55);
+    }
+    #heat-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, rgba(255,215,0,0.9), rgba(255,80,80,0.95));
+      transition: width 0.12s linear;
+    }
+
     .vent-ctrl{
       position:absolute;
       right: 18%;
@@ -1571,281 +1509,6 @@
   100%{ transform: translate(0,-1px); }
 }
 
-
-    /* === v24: Foxy visual alarm on CAM 4 === */
-    @keyframes camAlertRedPulse{
-      0%   { opacity: 0.05; }
-      50%  { opacity: 0.28; }
-      100% { opacity: 0.10; }
-    }
-    #cam-screen.cam-alert-red::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: rgba(255,0,0,0.35);
-      opacity: 0.1;
-      animation: camAlertRedPulse 0.55s steps(2,end) infinite;
-      pointer-events:none;
-      z-index: 6;
-      mix-blend-mode: screen;
-    }
-    #cam-screen.cam-alert-red{
-      box-shadow: 0 0 0 2px rgba(255,0,0,0.25) inset, 0 0 28px rgba(255,0,0,0.20);
-    }
-
-
-/* ================= v34: EASTER EGGS (CSS-ONLY) ================= */
-.prop.lucia-wanted{
-  background:#eec;
-  border:2px solid rgba(0,0,0,0.35);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:6px 6px 4px;
-  gap:4px;
-  font-family: system-ui, Arial, sans-serif;
-}
-.prop.lucia-wanted .lw-top{
-  color:#5a0b0b;
-  font-weight:900;
-  font-size:12px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
-.prop.lucia-wanted .lw-photo{
-  width:70%;
-  height:52%;
-  background: linear-gradient(180deg, #999, #666);
-  border:2px solid rgba(0,0,0,0.25);
-  display:flex; align-items:center; justify-content:center;
-}
-.prop.lucia-wanted .lw-photo span{
-  color:#111;
-  font-size:26px;
-  font-weight:900;
-  opacity:0.85;
-  transform: translateY(-1px);
-}
-.prop.lucia-wanted .lw-bot{
-  color:#222;
-  font-size:10px;
-  opacity:0.85;
-}
-
-.prop.glitch-doc{
-  background:#050505;
-  border:2px solid #3cff7a;
-  box-shadow: 0 0 12px rgba(60,255,122,0.35);
-  font-family: "Courier New", monospace;
-  padding:6px;
-  color:#37ff7a;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:3px;
-  text-shadow: 0 0 8px rgba(55,255,122,0.25);
-}
-.prop.glitch-doc .glitch-title{
-  font-weight:900;
-  font-size:12px;
-  letter-spacing:0.5px;
-}
-.prop.glitch-doc .glitch-body{
-  font-size:10px;
-  opacity:0.9;
-  line-height:1.05;
-}
-
-.prop.hatch{
-  background: repeating-linear-gradient(45deg, #666 0 8px, #2f2f2f 8px 16px);
-  border:2px solid rgba(0,0,0,0.55);
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06), 0 10px 18px rgba(0,0,0,0.35);
-  opacity:0.10;
-  cursor: pointer;
-  pointer-events: auto;
-  position:absolute;
-}
-.prop.hatch.revealed{ opacity:1; }
-.prop.hatch .hatch-label{
-  position:absolute;
-  left:50%; top:-18px;
-  transform:translateX(-50%);
-  font-size:10px;
-  color:#eaeaea;
-  background: rgba(0,0,0,0.55);
-  padding:2px 6px;
-  border-radius:10px;
-  opacity:0;
-  transition:opacity 200ms ease;
-  pointer-events:none;
-  white-space:nowrap;
-}
-.prop.hatch.revealed .hatch-label{ opacity:1; }
-
-/* Lucia overlay (solo vivo) */
-#lucia-overlay{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index: 99999;
-  pointer-events:none;
-}
-#lucia-overlay.active{
-  display:flex;
-  animation: luciaFlash 120ms steps(2, start) infinite;
-}
-#lucia-overlay .lucia-text{
-  color:#b00000;
-  font-family: "Courier New", monospace;
-  font-weight:900;
-  letter-spacing: 3px;
-  font-size: 34px;
-  text-shadow: 0 0 18px rgba(176,0,0,0.55);
-}
-@keyframes luciaFlash{
-  0%{ opacity: 1; }
-  50%{ opacity: 0.15; }
-}
-
-
-
-/* ===================== v48: ARTHUR SECRET (terminal overlay) ===================== */
-#arthur-overlay{
-  position:fixed;
-  inset:0;
-  background: radial-gradient(circle at 50% 40%, rgba(70,0,0,0.98), rgba(0,0,0,0.98) 65%);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index: 99998;
-  pointer-events:none;
-}
-#arthur-overlay.active{
-  display:flex;
-  animation: arthurFlicker 90ms steps(2, start) infinite;
-}
-#arthur-overlay .arthur-terminal{
-  border: 1px solid rgba(255,80,80,0.55);
-  background: rgba(0,0,0,0.55);
-  padding: 18px 22px;
-  border-radius: 10px;
-  box-shadow: 0 0 40px rgba(255,0,0,0.18);
-  min-width: min(640px, 86vw);
-}
-#arthur-overlay .arthur-title{
-  color: rgba(255,120,120,0.92);
-  font-family: "Courier New", monospace;
-  font-weight: 900;
-  letter-spacing: 2px;
-  font-size: 18px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
-#arthur-overlay .arthur-body{
-  color: rgba(255,220,220,0.92);
-  font-family: "Courier New", monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
-  font-size: 20px;
-  line-height: 1.25;
-  text-shadow: 0 0 18px rgba(255,0,0,0.18);
-}
-#arthur-overlay .arthur-body .dim{
-  opacity: 0.72;
-  font-weight: 600;
-}
-@keyframes arthurFlicker{
-  0%{ opacity: 1; filter: contrast(1.05) saturate(1.1); }
-  50%{ opacity: 0.12; filter: contrast(1.25) saturate(1.2); }
-}
-    /* === v34 PATCH: Z-Index supremo para pantallas críticas === */
-    #jumpscare { z-index: 99999 !important; }
-    #cinematic { z-index: 99999 !important; }
-    #victory-screen { z-index: 99995 !important; }
-    #blackout { z-index: 99990 !important; }
-    #death-tip { z-index: 99998 !important; }
-
-  
-
-/* === Z-INDEX SUPREMO: pantallas críticas sobre el menú === */
-#jumpscare, #cinematic, #victory-screen { z-index: 99999 !important; }
-#blackout { z-index: 99990 !important; }
-#menu { z-index: 10000; } /* El menú queda abajo de los sustos */
-#death-tip { z-index: 99998 !important; }
-#cin-text { position: relative; z-index: 100000; text-shadow: 0 0 10px red; }
-
-/* ===================== v37: Start Screen (Click to Start) ===================== */
-#start-screen{
-  position: fixed; inset: 0;
-  background: #000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  z-index: 100000;
-  color: #fff;
-  text-align: center;
-}
-#start-screen .boot-title{
-  font-weight: 800;
-  letter-spacing: 2px;
-  font-size: 28px;
-  opacity: 0.95;
-}
-#start-screen .boot-sub{
-  font-size: 12px;
-  opacity: 0.75;
-  max-width: 520px;
-  line-height: 1.35;
-}
-#start-btn{
-  border: 2px solid rgba(255,255,255,0.85);
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  padding: 14px 22px;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
-}
-#start-btn:hover{
-  background: rgba(255,255,255,0.14);
-  box-shadow: 0 0 30px rgba(255,255,255,0.12);
-}
-#start-btn:active{ transform: scale(0.98); }
-
-/* Hide menu/game until booted */
-body:not(.booted) #menu{ display: none !important; }
-body:not(.booted) #game{ display: none !important; }
-
-/* ===================== v37: Phone Guy Mute Button ===================== */
-#mute-call{
-  position: absolute;
-  top: 100px;
-  right: 20px;
-  padding: 8px 12px;
-  border: 1px solid rgba(255,255,255,0.5);
-  background: rgba(0,0,0,0.5);
-  color: rgba(255,255,255,0.92);
-  font-size: 12px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  cursor: pointer;
-  user-select: none;
-  display: none;
-  z-index: 25000;
-  pointer-events: auto;
-}
-#mute-call:hover{ background: rgba(255,255,255,0.06); }
-
 </style>
 </head>
 
@@ -1854,25 +1517,10 @@ body:not(.booted) #game{ display: none !important; }
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="https://cdn.pixabay.com/video/2024/09/26/233353_large.mp4" type="video/mp4">
   </video>
-  
-<audio id="menu-bgm" loop preload="auto" style="display:none">
-  <source src="692008__zhr__horror-music-5.wav" type="audio/wav">
+  <audio id="jumpscare-sound" preload="auto">
+  <source src="jumpscare.mp3" type="audio/mpeg">
 </audio>
-<audio id="jumpscare-sound" preload="auto">
-  </audio>
-
-<audio id="phone-night1" preload="auto" style="display:none">
-  <source src="Noche 1 oficial oficial.mp3" type="audio/mpeg">
-</audio>
-
   <div id="bg-vignette"></div>
-  <!-- ===================== START SCREEN (Audio unlock) ===================== -->
-  <div id="start-screen" aria-label="Pantalla de inicio">
-    <div class="boot-title">SYSTEM BOOT</div>
-    <button id="start-btn" data-alt-id="btn-start-system" type="button">INICIAR SISTEMA</button>
-    <div class="boot-sub">Haz clic para desbloquear audio y cargar el sistema.</div>
-  </div>
-
 
   <!-- ===================== MENU ===================== -->
   <main id="menu" aria-label="Menú principal">
@@ -2078,8 +1726,8 @@ body:not(.booted) #game{ display: none !important; }
   <div id="game">
     <div id="hud-top">
       <div class="pwr-wrap" aria-label="Energía y consumo">
-        <div id="pwr-text">ENERGÍA: 100%</div>
-<div id="usage-ind" role="img" aria-label="Consumo de energía">
+        <div id="pwr-text">ENERGÍA: 99%</div>
+        <div id="usage-ind" role="img" aria-label="Consumo de energía">
           <span class="u-label">USO</span>
           <span class="u-bars" aria-hidden="true">
             <span class="u-bar"></span>
@@ -2091,13 +1739,12 @@ body:not(.booted) #game{ display: none !important; }
       </div>
       <div class="heat-wrap" aria-label="Calor">
         <div id="heat-text">CALOR: 0%</div>
-</div>
+        <div class="heat-bar" aria-hidden="true"><div id="heat-fill"></div></div>
+      </div>
       <div id="time-text">12 AM</div>
       <div id="night-text">NOCHE 1</div>
     </div>
 <div id="office-view">
-      <div id="mute-call" onclick="mutePhone()">MUTE CALL</div>
-
       <div id="office-ceiling-light"></div>
       <div id="back-wall">
         <div id="poster-big"></div>
@@ -2221,360 +1868,7 @@ body:not(.booted) #game{ display: none !important; }
   </div>
 
   <script>
-    // ===================== EARLY BOOT (v30) =====================
-    // Ensure core globals exist BEFORE any input handlers can fire.
-    const state = window.state || (window.state = { menuActive:true });
-    
-
-// --- FIX v38: RESTAURAR REFERENCIAS DE UI (Menú/UCN) ---
-const ui = {
-  camOverlay: document.getElementById('cam-overlay'),
-  camRender: document.getElementById('cam-render-area'),
-  camDetails: document.getElementById('cam-details'),
-  camInfo: document.getElementById('cam-info'),
-  foxyPhase: document.getElementById('foxy-phase'),
-  goldenOffice: document.getElementById('golden-office'),
-  poweroutFreddy: document.getElementById('powerout-freddy'),
-  blackout: document.getElementById('blackout'),
-  deathTip: document.getElementById('death-tip'),
-  deathTitle: document.getElementById('death-title'),
-  deathKiller: document.getElementById('death-killer'),
-  deathMessage: document.getElementById('death-message'),
-  btnRetry: document.getElementById('btn-retry'),
-  btnMenu: document.getElementById('btn-menu')
-};
-
-// --- v46 GAMEPLAY FIX: Defaults + Camera Labels (anti-undefined / anti-crash) ---
-const CAM_SCENES = {
-  1:{ Grey:1, Purple:2, Yellow:1, Foxy:1, Golden:0 },
-  2:{label:'CAM 2 - DINING'},
-  3:{label:'CAM 3 - HALL'},
-  4:{label:'CAM 4 - COVE'},
-  5:{label:'CAM 5 - LEFT HALL'},
-  6:{label:'CAM 6 - STORAGE'},
-  7:{label:'CAM 7 - SERVICE'},
-  8:{label:'CAM 8 - RIGHT HALL'},
-  V:{label:'CAM VENT'}
-};
-
-function camLabel(id){
-  const s = CAM_SCENES[id];
-  return (s && s.label) ? s.label : ('CAM ' + id);
-}
-// --- v47: Clock speed (missing constant) ---
-const HOUR_MS = 45000; // 45s per hour => ~4.5 minutes per night
-
-
-function ensureStateDefaults(){
-  // State root
-  if(!window.state || typeof window.state !== 'object') window.state = {};
-  try{ if(typeof state !== 'object' || !state) state = window.state; }catch(_e){}
-  const s = window.state;
-
-  // Basic flags
-  s.menuActive = !!s.menuActive;
-  s.dead = !!s.dead;
-  s.powerOut = !!s.powerOut;
-  s.inJumpscare = !!s.inJumpscare;
-  s.ucn = !!s.ucn;
-
-  // Containers
-  if(!s.doors || typeof s.doors !== 'object') s.doors = { l:false, r:false, vent:false };
-  s.doors.l = !!s.doors.l;
-  s.doors.r = !!s.doors.r;
-  if(typeof s.ventClosed !== 'boolean') s.ventClosed = false;
-
-  if(!s.lights || typeof s.lights !== 'object') s.lights = { l:false, r:false };
-  s.lights.l = !!s.lights.l;
-  s.lights.r = !!s.lights.r;
-
-  if(!s.officeArmed || typeof s.officeArmed !== 'object') s.officeArmed = { Purple:false, Yellow:false };
-  s.officeArmed.Purple = !!s.officeArmed.Purple;
-  s.officeArmed.Yellow = !!s.officeArmed.Yellow;
-
-  if(!Array.isArray(s.loops)) s.loops = [];
-  if(!Array.isArray(s.powerOutTimers)) s.powerOutTimers = [];
-  if(!Array.isArray(s.phoneTimers)) s.phoneTimers = [];
-
-  // Numbers
-  if(typeof s.pwr !== 'number' || !isFinite(s.pwr)) s.pwr = 100; console.log("ERROR DE BATERIA");
-  if(typeof s.heat !== 'number' || !isFinite(s.heat)) s.heat = 0; console.log("ERROR DE CALOR");
-  if(typeof s.time !== 'number' || !isFinite(s.time)) s.time = 0;
-  if(typeof s.night !== 'number' || !isFinite(s.night)) s.night = 1;
-  if(typeof s.displayNight !== 'number' || !isFinite(s.displayNight)) s.displayNight = s.night;
-
-  if(typeof s.cam === 'undefined' || s.cam === null) s.cam = 1;
-  if(typeof s.camOpen !== 'boolean') s.camOpen = false;
-
-  // AI / misc nested objects used elsewhere
-  s.golden = s.golden || { active:false, manifest:false, cooldownUntil:0 };
-  s.freddyState = s.freddyState || { warning:false, atDoor:false, cooldownUntil:0 };
-  s.freddyVent = s.freddyVent || { active:false, stage:'none', loop:null, mode:'', fromSide:null, pendingOutcome:null, stageUntil:0, whiteUntil:0, teleportSide:null, enteredAt:0 };
-  s.freddyDoor = s.freddyDoor || { active:false, side:null, attackAt:0 };
-
-  // ---- Monsters: normalize ALWAYS (prevents "se quedan quietos" por estados parciales) ----
-  const defaults = {
-    Grey:   { id:'Grey',   type:'freddy', pos:1, route:[1,2,3,5,6,7,8], door:null, atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, waitingDoor:false, waitSide:null, inVent:false, path:null, stallTimer:null },
-    Purple: { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5], atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, enterRemaining:0, knockPending:false, leaveAt:0 },
-    Yellow: { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8], atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, enterRemaining:0, knockPending:false, leaveAt:0 },
-    Foxy:   { id:'Foxy',   type:'foxy', pos:4, phase:0, attacking:false, attackSide:null, cooldownUntil:0, leaveAt:0, phaseTimer:null, foxyTimers:[] },
-    Golden: { id:'Golden', type:'golden', active:false, manifest:false, cooldownUntil:0 }
-  };
-
-  if(!Array.isArray(s.monsters)) s.monsters = [];
-  const byId = new Map(s.monsters.filter(Boolean).map(m=>[m.id, m]));
-  const normalized = [];
-  ['Grey','Purple','Yellow','Foxy','Golden'].forEach(id=>{
-    const base = JSON.parse(JSON.stringify(defaults[id]));
-    const cur = byId.get(id) || {};
-    const m = Object.assign(base, cur);
-
-    // hard requirements
-    if(id === 'Grey'){
-      if(!Array.isArray(m.route) || m.route.length<2) m.route = defaults.Grey.route.slice();
-      if(typeof m.pos !== 'number') m.pos = 1;
-      m.atDoor = !!m.atDoor;
-    }
-    if(id === 'Purple' || id === 'Yellow'){
-      if(!Array.isArray(m.route) || m.route.length<2) m.route = defaults[id].route.slice();
-      if(typeof m.pos !== 'number') m.pos = 1;
-      m.atDoor = !!m.atDoor;
-      m.entering = !!m.entering;
-      m.hidden = !!m.hidden;
-      if(typeof m.cooldownUntil !== 'number' || !isFinite(m.cooldownUntil)) m.cooldownUntil = 0;
-    }
-    if(id === 'Foxy'){
-      if(typeof m.phase !== 'number') m.phase = 0;
-      if(!Array.isArray(m.foxyTimers)) m.foxyTimers = [];
-      m.attacking = !!m.attacking;
-    }
-    normalized.push(m);
-  });
-
-  s.monsters = normalized;
-
-  // Planificador de ticks IA (4–5s por entidad)
-  if(!s.aiPlan || typeof s.aiPlan !== 'object') s.aiPlan = {};
-
-  // Freddy route base (según spec): 1 -> 2 -> 6 -> 7 -> 8
-  const fr = s.monsters.find(mm=>mm && mm.id==='Grey');
-  if(fr){
-    fr.route = [1,2,6,7,8];
-    if(typeof fr.pos !== 'number' || !isFinite(fr.pos)) fr.pos = 1;
-  }
-
-  // Foxy: contador de paciencia
-  const fx = s.monsters.find(mm=>mm && mm.id==='Foxy');
-  if(fx){
-    if(typeof fx.patience !== 'number' || !isFinite(fx.patience)) fx.patience = 100;
-    if(typeof fx.phase !== 'number' || !isFinite(fx.phase)) fx.phase = 0;
-    if(typeof fx.attacking !== 'boolean') fx.attacking = false;
-  }
-
-
-  // Keep local alias in sync if it exists
-  try{ state = window.state; }catch(_e){}
-}
-
-
-
-ensureStateDefaults();
-
-// ===================== v50: Night Watchdog (anti-freeze) =====================
-
-
-function stopMainLoops(){
-  try{ (state.loops||[]).forEach(id=>{ try{ clearInterval(id); }catch(_e){} }); }catch(_){}
-  try{ if(state.powerOutKill){ clearInterval(state.powerOutKill); state.powerOutKill = null; } }catch(_){}
-  try{ (state.powerOutTimers||[]).forEach(t=>{ try{ clearTimeout(t); }catch(_e){} }); }catch(_){}
-  try{ (state.phoneTimers||[]).forEach(t=>{ try{ clearTimeout(t); }catch(_e){} }); }catch(_){}
-  try{ if(state.loopWatchdog){ clearInterval(state.loopWatchdog); state.loopWatchdog = null; } }catch(_){}
-  state.loops = [];
-  state.powerOutTimers = [];
-  state.phoneTimers = [];
-}
-
-function startMainLoops(hourMs){
-  const hm = (typeof hourMs === 'number' && isFinite(hourMs) && hourMs > 1000) ? hourMs : 45000;
-
-  // Clear old loops first
-  stopMainLoops();
-
-  // Heartbeat timestamps
-  state.lastCoreAt = Date.now();
-  state.lastClockAt = Date.now();
-
-  // Core loops
-  state.loops.push(setInterval(()=>{ try{ tickAI(); }catch(e){ console.warn('tickAI:', e); } }, 180));
-  state.loops.push(setInterval(()=>{ try{ updateCore(); }catch(e){ console.warn('updateCore:', e); } }, 100));
-  state.loops.push(setInterval(()=>{ try{ ambientMusic(); }catch(e){} }, 2000));
-  state.loops.push(setInterval(()=>{ try{ clockTick(); }catch(e){} }, hm));
-
-  // Watchdog: if something stops the loops (softlock), restart them
-  state.loopWatchdog = setInterval(()=>{
-    try{
-      if(state.menuActive) return;
-      if(state.dead) return;
-      const now = Date.now();
-
-      // Core loop should tick many times per second
-      if(now - (state.lastCoreAt||0) > 1700){
-        console.warn('Watchdog: core loop stalled — restarting');
-        startMainLoops(hm);
-        return;
-      }
-
-      // Clock should tick at least once per hourMs (+margin)
-      if(now - (state.lastClockAt||0) > (hm + 2500)){
-        console.warn('Watchdog: clock stalled — restarting');
-        startMainLoops(hm);
-        return;
-      }
-    }catch(_e){}
-  }, 1000);
-}
-
-
-// expose UI references globally for safety
-try{ window.ui = ui; }catch(_e){}
-
-
-state.phoneBtnActive = false;
-    state.phoneTimers = [];
-
-    // Audio bootstrap (robust): never let audio break menu/UI.
-    let audioCtx = null;
-    let master = null;
-
-    function ensureAudio(){
-      if(audioCtx && master) return true;
-      try{
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if(!Ctx) return false;
-        audioCtx = new Ctx();
-        master = audioCtx.createGain();
-        master.gain.value = 0.55;
-        master.connect(audioCtx.destination);
-        return true;
-      }catch(e){
-        console.warn('Audio init failed:', e);
-        audioCtx = null;
-        master = null;
-        return false;
-      }
-    }
-
-
-// ---- v52: Noise buffer helper (for real metal/air impacts, not musical tones) ----
-const __noiseBufCache = {};
-function getNoiseBuffer(sec=0.12){
-  try{
-    ensureAudio();
-    if(!audioCtx) return null;
-    const key = String(Math.max(1, Math.round(sec*1000)));
-    if(__noiseBufCache[key]) return __noiseBufCache[key];
-    const sr = audioCtx.sampleRate || 44100;
-    const len = Math.max(1, Math.floor(sr * sec));
-    const buf = audioCtx.createBuffer(1, len, sr);
-    const data = buf.getChannelData(0);
-    for(let i=0;i<len;i++){
-      // Slightly colored-ish noise (more "air/metal" than pure white)
-      const w = (Math.random()*2 - 1);
-      data[i] = w * (0.85 - 0.25*(i/len));
-    }
-    __noiseBufCache[key] = buf;
-    return buf;
-  }catch(_e){
-    return null;
-  }
-}
-
-
-
-    // Create audio objects lazily; some browsers dislike early construction.
-    ensureAudio();
-
-    // Generic one-shot SFX helper (was missing in some builds)
-    function playSound(freq=440, type='sine', ms=100, vol=0.05){
-      try{
-        if(!ensureAudio() || !audioCtx || !master) return;
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = type;
-        o.frequency.value = freq;
-        const t0 = audioCtx.currentTime;
-        const dur = Math.max(0.01, ms/1000);
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol), t0 + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-        o.connect(g); g.connect(master);
-        o.start(t0);
-        o.stop(t0 + dur + 0.02);
-      }catch(e){ /* silent */ }
-    }
-
-    // Loud fallback jumpscare sfx (in case mp3 is blocked/missing)
-
-    // --- v42: Sonidos faltantes ---
-    function playFoxyRun(side){
-      // Pasos rápidos (running). side: 'l' o 'r'
-      let steps = 0;
-      const runInt = setInterval(()=>{
-        steps++;
-        try{
-          ensureAudio();
-          if(!audioCtx){ playSound(150,'sawtooth',0.05,0.18); }
-          else{
-            const ctx = audioCtx;
-            const o = ctx.createOscillator();
-            const g = ctx.createGain();
-            const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-            o.type = 'sawtooth';
-            const base = (side==='l') ? 170 : 150;
-            o.frequency.value = base + Math.random()*25;
-            g.gain.value = 0.18;
-            o.connect(g);
-            if(p){
-              p.pan.value = (side==='l') ? -1 : 1;
-              g.connect(p); p.connect(ctx.destination);
-            }else{
-              g.connect(ctx.destination);
-            }
-            o.start();
-            o.stop(ctx.currentTime + 0.055);
-          }
-        }catch(_){
-          playSound(150,'sawtooth',0.05,0.18);
-        }
-        if(steps >= 6) clearInterval(runInt);
-      }, 130);
-    }
-
-    function playPowerDownSfx(){
-      // Sonido de apagón descendente
-      try{
-        ensureAudio();
-        if(!audioCtx){ playSound(60,'sawtooth',1.8,0.25); return; }
-        const ctx = audioCtx;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sawtooth';
-        o.frequency.setValueAtTime(140, ctx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 1.8);
-        g.gain.setValueAtTime(0.22, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
-        o.connect(g); g.connect(ctx.destination);
-        o.start();
-        o.stop(ctx.currentTime + 1.85);
-      }catch(_){
-        playSound(60,'sawtooth',1.8,0.25);
-      }
-    }
-
-    function playJumpscareSfx(){ /* v38: disabled (use jumpscare.mp3 only) */ }
-        
-
-// ===================== MENU MANAGER (teclado + click) =====================
+    // ===================== MENU MANAGER (teclado + click) =====================
     const menu = document.getElementById('menu');
     const game = document.getElementById('game');
 
@@ -2666,29 +1960,17 @@ function getNoiseBuffer(sec=0.12){
       return menuItems[selectedIndex]?.dataset?.action;
     }
 
-    // Keep logical menuActive in sync with DOM visibility (defensive against focus/minimize edge-cases)
-    function syncMenuState(){
-      const menuVisible = !!(menu && menu.style.display !== 'none' && menu.offsetParent !== null);
-      if(menuVisible && !state.menuActive) state.menuActive = true;
-      if(!menuVisible && state.menuActive && game && game.style.display !== 'none') state.menuActive = false;
-    
-  stopMenuMusic();
-  try{ stopAmbient(); }catch(_e){}
-}
-    // Robust menu handling (delegación) — v29: click global SIMPLE (anti z-index / estados corruptos)
-    document.addEventListener('click', (e) => {
-      // Buscar el elemento clickeado o su padre
-      const btn = e.target.closest('.menu-item');
-      if (btn) {
-        // Forzar desbloqueo de audio
-        unlockAudio();
+    // Robust click handling (delegation) — works even if DOM changes
+    document.addEventListener('click', (e)=>{
+      if(!menu || menu.style.display === 'none') return;
 
-        // Marcar selección visual (si existe helper)
-        try{ setSelectedByElement(btn); }catch(_){}
-
-        // Ejecutar acción sin depender de estados complejos
-        const action = btn.getAttribute('data-action') || btn.dataset.action;
-        if (action) runAction(action);
+      const item = e.target.closest('.menu-item');
+      if(item){
+        // only if visible
+        if(item.offsetParent === null) return;
+        setSelectedByElement(item);
+        runAction(item.dataset.action);
+        return;
       }
     }, true);
 
@@ -2710,8 +1992,7 @@ function getNoiseBuffer(sec=0.12){
       _ucnHold.el = null;
     }
     document.addEventListener('pointerdown', (e)=>{
-      syncMenuState();
-      if(!menu || !state.menuActive) return;
+      if(!menu || menu.style.display === 'none') return;
       const btn = e.target.closest('[data-ucn]');
       if(!btn) return;
       unlockAudio();
@@ -2721,7 +2002,7 @@ function getNoiseBuffer(sec=0.12){
       _ucnHold.el = btn;
       _ucnHold.start = setTimeout(()=>{
         _ucnHold.t = setInterval(()=>{
-          if(!menu || !state.menuActive) return _stopUCNHold();
+          if(!menu || menu.style.display === 'none') return _stopUCNHold();
           _applyUCNDelta(btn);
         }, 90);
       }, 260);
@@ -2732,8 +2013,7 @@ function getNoiseBuffer(sec=0.12){
 
     // Hover selection
     document.addEventListener('mousemove', (e)=>{
-      syncMenuState();
-      if(!menu || !state.menuActive) return;
+      if(!menu || menu.style.display === 'none') return;
       // NOTE: No cambiar IA por hover. (Solo click/hold)
 
 
@@ -2743,8 +2023,7 @@ function getNoiseBuffer(sec=0.12){
     });
 
     window.addEventListener('keydown', (e)=>{
-      syncMenuState();
-      if(!menu || !state.menuActive) return;
+      if(!menu || menu.style.display === 'none') return;
 
       _keysHeld.add(e.code);
       const _cineUnlocked = !!(progress && progress.red1 && progress.red2 && progress.red3);
@@ -2761,6 +2040,10 @@ function getNoiseBuffer(sec=0.12){
         if(activeMenu === "jumps") setMenu("extra");
         else if(activeMenu === "anim") setMenu("extra");
         else if(activeMenu === "extra") setMenu("main");
+
+    // Unlock audio on first user gesture (browser autoplay policy)
+    document.addEventListener("pointerdown", unlockAudio, { once:true });
+    document.addEventListener("keydown", unlockAudio, { once:true });
 
       }
 
@@ -2856,901 +2139,354 @@ function runAction(action){
     window.runAction = runAction;
     window.setMenu = setMenu;
 
+
+    function bindMenuClicks(){
+      document.querySelectorAll('.menu-item').forEach(el=>{
+        el.style.pointerEvents = 'auto';
+        el.addEventListener('pointerup', (e)=>{
+          if(menu.style.display === 'none') return;
+          const action = el.getAttribute('data-action');
+          if(!action) return;
+          unlockAudio();
+          runAction(action);
+        });
+      });
+    }
+    bindMenuClicks();
+
+
+
     // ===================== GAME LOGIC =====================
-        // (v30) audioCtx is initialized in EARLY BOOT
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     // --- Audio unlock + simple synth music/SFX (no external files) ---
-    // (v30) master is initialized at top of script
+    const master = audioCtx.createGain();
+    master.gain.value = 0.55;
+    master.connect(audioCtx.destination);
+
     function unlockAudio(){
-      try{
-        // Lazy init + resume (user-gesture safe)
-        ensureAudio();
-        if(audioCtx && audioCtx.state === 'suspended'){
-          audioCtx.resume().catch(()=>{});
-        }
-      }catch(e){
-        console.warn('unlockAudio:', e);
+      if(audioCtx.state === 'suspended'){
+        audioCtx.resume().catch(()=>{});
       }
-      // Menu music is HTMLAudio-based; never let it crash input.
-      try{
-        if(state.menuActive) startMenuMusic();
-        else stopMenuMusic();
-      }catch(e){
-        console.warn('menu music toggle:', e);
-      }
+      // Start menu music if we're on menu and not playing yet
+      if(menu.style.display !== 'none') startMenuMusic();
     }
-
-
-// ================= v34: SECRET "LUCIA" (solo vivo, monitor ABAJO) =================
-function playWhiteNoise(ms=1100, vol=0.30){
-  try{
-    unlockAudio();
-    if(!audioCtx) return;
-    const sr = audioCtx.sampleRate || 44100;
-    const len = Math.max(1, Math.floor(sr * (ms/1000)));
-    const buf = audioCtx.createBuffer(1, len, sr);
-    const data = buf.getChannelData(0);
-    for(let i=0;i<len;i++){
-      data[i] = (Math.random()*2-1) * (0.7 + 0.3*Math.random());
-    }
-    const src = audioCtx.createBufferSource();
-    src.buffer = buf;
-    const g = audioCtx.createGain();
-    g.gain.value = vol;
-    src.connect(g); g.connect(master);
-    src.start();
-    src.stop(audioCtx.currentTime + (ms/1000));
-  }catch(e){}
-}
-
-// ===================== v48: "IRON" SFX PACK (procedural WebAudio) =====================
-function _rand(a,b){ return a + Math.random()*(b-a); }
-function _now(){ return (audioCtx && audioCtx.currentTime) ? audioCtx.currentTime : 0; }
-
-function _makeNoiseBuffer(seconds=0.12){
-  if(!ensureAudio() || !audioCtx) return null;
-  const sr = audioCtx.sampleRate || 44100;
-  const len = Math.max(1, Math.floor(sr*seconds));
-  const buf = audioCtx.createBuffer(1, len, sr);
-  const data = buf.getChannelData(0);
-  for(let i=0;i<len;i++){
-    // slightly colored noise (more low end)
-    const w = (i/len);
-    data[i] = (Math.random()*2-1) * (0.85 - 0.35*w);
-  }
-  return buf;
-}
-
-function playDoorSfx(closed){
-  try{
-    unlockAudio();
-    ensureAudio();
-    if(!audioCtx || !master){
-      // Fallback
-      playSound(closed ? 70 : 120, 'sine', 0.12, 0.10);
-      return;
-    }
-    const ctx = audioCtx;
-    const t0 = ctx.currentTime;
-
-    // master already limits overall volume; keep this subtle but punchy
-    const out = ctx.createGain();
-    out.gain.setValueAtTime(0.95, t0);
-    out.connect(master);
-
-    const noise = (sec)=> {
-      const b = getNoiseBuffer(sec);
-      if(!b) return null;
-      const s = ctx.createBufferSource();
-      s.buffer = b;
-      return s;
-    };
-
-    if(closed){
-      // === CLOSE: heavy iron thud + short metal ring ===
-
-      // Sub-bass weight (sine, not square)
-      const sub = ctx.createOscillator();
-      sub.type = 'sine';
-      const subG = ctx.createGain();
-      subG.gain.setValueAtTime(0.0001, t0);
-      sub.frequency.setValueAtTime(62, t0);
-      sub.frequency.exponentialRampToValueAtTime(20, t0 + 0.10);
-      subG.gain.exponentialRampToValueAtTime(0.55, t0 + 0.012);
-      subG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
-      sub.connect(subG); subG.connect(out);
-      sub.start(t0); sub.stop(t0 + 0.20);
-
-      // Impact "hit" (filtered noise)
-      const hit = noise(0.10);
-      if(hit){
-        const lp = ctx.createBiquadFilter();
-        lp.type = 'lowpass';
-        lp.frequency.setValueAtTime(520, t0);
-        lp.Q.setValueAtTime(0.7, t0);
-
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.85, t0 + 0.006);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.13);
-
-        hit.connect(lp); lp.connect(g); g.connect(out);
-        hit.start(t0); hit.stop(t0 + 0.12);
-      }
-
-      // Metallic ring (bandpass noise, very short)
-      const ring = noise(0.16);
-      if(ring){
-        const bp = ctx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(1450, t0);
-        bp.Q.setValueAtTime(10, t0);
-
-        const rg = ctx.createGain();
-        rg.gain.setValueAtTime(0.0001, t0);
-        rg.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
-        rg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.26);
-
-        ring.connect(bp); bp.connect(rg); rg.connect(out);
-        ring.start(t0 + 0.01); ring.stop(t0 + 0.30);
-      }
-    } else {
-      // === OPEN: pneumatic release + servo slide + small rattle ===
-
-      // Click (dry)
-      const click = noise(0.015);
-      if(click){
-        const hp = ctx.createBiquadFilter();
-        hp.type = 'highpass';
-        hp.frequency.setValueAtTime(1400, t0);
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.003);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.03);
-        click.connect(hp); hp.connect(g); g.connect(out);
-        click.start(t0); click.stop(t0 + 0.03);
-      }
-
-      // Air release (hiss)
-      const hiss = noise(0.30);
-      if(hiss){
-        const bp = ctx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(900, t0);
-        bp.Q.setValueAtTime(0.9, t0);
-
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.38, t0 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
-
-        hiss.connect(bp); bp.connect(g); g.connect(out);
-        hiss.start(t0 + 0.01); hiss.stop(t0 + 0.36);
-      }
-
-      // Servo/slide (subtle, sine so it doesn't sound musical)
-      const servo = ctx.createOscillator();
-      servo.type = 'sine';
-      const sg = ctx.createGain();
-      sg.gain.setValueAtTime(0.0001, t0);
-      servo.frequency.setValueAtTime(170, t0);
-      servo.frequency.exponentialRampToValueAtTime(85, t0 + 0.26);
-      sg.gain.exponentialRampToValueAtTime(0.10, t0 + 0.03);
-      sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.30);
-      servo.connect(sg); sg.connect(out);
-      servo.start(t0 + 0.01); servo.stop(t0 + 0.32);
-
-      // Little metal rattle bursts
-      for(let k=0;k<2;k++){
-        const rt = t0 + 0.06 + k*0.06;
-        const rat = noise(0.05);
-        if(rat){
-          const bp = ctx.createBiquadFilter();
-          bp.type = 'bandpass';
-          bp.frequency.setValueAtTime(1800 + k*300, rt);
-          bp.Q.setValueAtTime(7, rt);
-          const g = ctx.createGain();
-          g.gain.setValueAtTime(0.0001, rt);
-          g.gain.exponentialRampToValueAtTime(0.14, rt + 0.01);
-          g.gain.exponentialRampToValueAtTime(0.0001, rt + 0.09);
-          rat.connect(bp); bp.connect(g); g.connect(out);
-          rat.start(rt); rat.stop(rt + 0.10);
-        }
-      }
-    }
-  }catch(e){
-    try{ playSound(closed ? 70 : 120, 'sine', 0.12, 0.10); }catch(_){}
-  }
-}
-
-
-
-function playVentSfx(closed){
-  try{
-    unlockAudio();
-    if(!ensureAudio() || !audioCtx || !master) return;
-
-    const t0 = _now();
-    // Pneumatic hiss + lighter metal click (distinct from door)
-    const nb = _makeNoiseBuffer(0.20);
-    if(nb){
-      const ns = audioCtx.createBufferSource(); ns.buffer = nb;
-      const bp = audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=_rand(700,1100); bp.Q.value=0.9;
-      const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.0001, t0);
-      ng.gain.exponentialRampToValueAtTime(closed ? 0.26 : 0.20, t0+0.01);
-      ng.gain.exponentialRampToValueAtTime(0.0001, t0+0.19);
-      ns.connect(bp); bp.connect(ng); ng.connect(master);
-      ns.start(t0); ns.stop(t0+0.22);
-    }
-
-    const click = audioCtx.createOscillator();
-    click.type = 'square';
-    click.frequency.setValueAtTime(closed ? 180 : 220, t0);
-    const cg = audioCtx.createGain();
-    cg.gain.setValueAtTime(0.0001, t0);
-    cg.gain.exponentialRampToValueAtTime(0.14, t0+0.002);
-    cg.gain.exponentialRampToValueAtTime(0.0001, t0+0.05);
-    click.connect(cg); cg.connect(master);
-    click.start(t0); click.stop(t0+0.06);
-  }catch(_){}
-}
-
-function playLightSfx(on){
-  try{
-    unlockAudio();
-    if(!ensureAudio || !ensureAudio() || !audioCtx || !master) return;
-
-    const sr = audioCtx.sampleRate || 44100;
-    const makeWhiteNoise = (seconds)=>{
-      const len = Math.max(1, Math.floor(sr * seconds));
-      const b = audioCtx.createBuffer(1, len, sr);
-      const d = b.getChannelData(0);
-      for(let i=0;i<len;i++){ d[i] = (Math.random()*2 - 1); }
-      return b;
-    };
-
-    const t0 = audioCtx.currentTime + 0.001;
-
-    const out = audioCtx.createGain(); out.gain.value = 1.0;
-    out.connect(master);
-
-    // 1) Click seco (≈5ms): ruido blanco muy corto
-    const click = audioCtx.createBufferSource();
-    click.buffer = makeWhiteNoise(0.03);
-
-    const clickHP = audioCtx.createBiquadFilter();
-    clickHP.type = 'highpass';
-    clickHP.frequency.value = 1400;
-
-    const clickG = audioCtx.createGain();
-    clickG.gain.setValueAtTime(0.0001, t0);
-    clickG.gain.exponentialRampToValueAtTime(0.9, t0 + 0.002);
-    clickG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.007); // ~5ms tail
-
-    click.connect(clickHP);
-    clickHP.connect(clickG);
-    clickG.connect(out);
-
-    click.start(t0);
-    click.stop(t0 + 0.04);
-
-    // 2) Buzz eléctrico sutil: sawtooth MUY bajo + filtrado para que no suene musical
-    const buzz = audioCtx.createOscillator();
-    buzz.type = 'sawtooth';
-    buzz.frequency.setValueAtTime(50, t0);
-
-    const buzzHP = audioCtx.createBiquadFilter();
-    buzzHP.type = 'highpass';
-    buzzHP.frequency.value = 900; // quita el fundamental, deja armónicos "eléctricos"
-
-    const buzzLP = audioCtx.createBiquadFilter();
-    buzzLP.type = 'lowpass';
-    buzzLP.frequency.value = 4200;
-
-    const buzzG = audioCtx.createGain();
-    buzzG.gain.setValueAtTime(0.0001, t0);
-    buzzG.gain.exponentialRampToValueAtTime(on ? 0.045 : 0.035, t0 + 0.012);
-    buzzG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
-
-    buzz.connect(buzzHP);
-    buzzHP.connect(buzzLP);
-    buzzLP.connect(buzzG);
-    buzzG.connect(out);
-
-    buzz.start(t0);
-    buzz.stop(t0 + 0.18);
-
-    setTimeout(()=>{ try{ out.disconnect(); }catch(e){} }, 350);
-  }catch(e){}
-}
-
-function playCamSwitchSfx(){
-  try{
-    unlockAudio();
-    ensureAudio();
-    if(!audioCtx || !master){
-      playSound(950, 'sine', 0.05, 0.05);
-      return;
-    }
-    const ctx = audioCtx;
-    const t0 = ctx.currentTime;
-
-    const out = ctx.createGain();
-    out.gain.setValueAtTime(0.75, t0);
-    out.connect(master);
-
-    // Dry click (very short noise)
-    const click = ctx.createBufferSource();
-    click.buffer = getNoiseBuffer(0.012);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.setValueAtTime(1200, t0);
-    const cg = ctx.createGain();
-    cg.gain.setValueAtTime(0.0001, t0);
-    cg.gain.exponentialRampToValueAtTime(0.22, t0 + 0.002);
-    cg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.02);
-    click.connect(hp); hp.connect(cg); cg.connect(out);
-    click.start(t0); click.stop(t0 + 0.02);
-
-    // CRT static burst (bandpassed noise)
-    const st = ctx.createBufferSource();
-    st.buffer = getNoiseBuffer(0.10);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(2100, t0);
-    bp.Q.setValueAtTime(1.2, t0);
-
-    const sg = ctx.createGain();
-    sg.gain.setValueAtTime(0.0001, t0);
-    sg.gain.exponentialRampToValueAtTime(0.34, t0 + 0.01);
-    sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.13);
-    st.connect(bp); bp.connect(sg); sg.connect(out);
-    st.start(t0 + 0.003); st.stop(t0 + 0.14);
-
-    // Tiny chirp (subtle, not "beep")
-    const chirp = ctx.createOscillator();
-    chirp.type = 'sine';
-    const chg = ctx.createGain();
-    chg.gain.setValueAtTime(0.0001, t0);
-    chirp.frequency.setValueAtTime(1700, t0);
-    chirp.frequency.exponentialRampToValueAtTime(1150, t0 + 0.055);
-    chg.gain.exponentialRampToValueAtTime(0.08, t0 + 0.01);
-    chg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08);
-    chirp.connect(chg); chg.connect(out);
-    chirp.start(t0 + 0.01); chirp.stop(t0 + 0.09);
-  }catch(e){
-    try{ playSound(950, 'sine', 0.05, 0.05); }catch(_){}
-  }
-}
-
-let __ambStarted = false;
-let __ambNodes = null;
-
-function ambientMusic(){
-  // Start once per night; very low-volume "facility hum" ambience
-  if(__ambStarted) return;
-  if(state.menuActive || state.dead) return;
-  try{
-    ensureAudio();
-    if(!audioCtx || !master) return;
-    __ambStarted = true;
-
-    const ctx = audioCtx;
-    const t0 = ctx.currentTime;
-
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(0.14, t0 + 2.0); // fade-in
-    g.connect(master);
-
-    // Low rumble
-    const rum = ctx.createOscillator();
-    rum.type = 'sine';
-    rum.frequency.setValueAtTime(34, t0);
-    const rg = ctx.createGain();
-    rg.gain.setValueAtTime(0.18, t0);
-    rum.connect(rg); rg.connect(g);
-
-    // Air/room noise (looped)
-    const ns = ctx.createBufferSource();
-    ns.buffer = getNoiseBuffer(1.2) || getNoiseBuffer(0.8);
-    ns.loop = true;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(1800, t0);
-    lp.Q.setValueAtTime(0.6, t0);
-    const ng = ctx.createGain();
-    ng.gain.setValueAtTime(0.30, t0);
-    ns.connect(lp); lp.connect(ng); ng.connect(g);
-
-    // Subtle movement in the noise (slow LFO)
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(0.08, t0);
-    const lfg = ctx.createGain();
-    lfg.gain.setValueAtTime(280, t0);
-    lfo.connect(lfg); lfg.connect(lp.frequency);
-
-    rum.start(t0);
-    ns.start(t0);
-    lfo.start(t0);
-
-    __ambNodes = { g, rum, ns, lfo };
-
-    // Occasional tiny creaks (scheduled with JS timer)
-    if(!state.__ambCreakTimer){
-      state.__ambCreakTimer = setInterval(()=>{
-        try{
-          if(state.menuActive || state.dead || state.powerOut) return;
-          if(Math.random() < 0.42) return;
-          const t = audioCtx.currentTime;
-          const c = audioCtx.createBufferSource();
-          c.buffer = getNoiseBuffer(0.12);
-          const bp = audioCtx.createBiquadFilter();
-          bp.type='bandpass';
-          bp.frequency.setValueAtTime(700 + Math.random()*900, t);
-          bp.Q.setValueAtTime(6 + Math.random()*4, t);
-          const cg = audioCtx.createGain();
-          cg.gain.setValueAtTime(0.0001, t);
-          cg.gain.exponentialRampToValueAtTime(0.10 + Math.random()*0.06, t+0.02);
-          cg.gain.exponentialRampToValueAtTime(0.0001, t+0.25);
-          c.connect(bp); bp.connect(cg); cg.connect(master);
-          c.start(t); c.stop(t+0.28);
-        }catch(_e){}
-      }, 4200);
-    }
-  }catch(_e){}
-}
-
-function stopAmbient(){
-  try{
-    __ambStarted = false;
-    if(__ambNodes){
-      const n = __ambNodes;
-      try{ n.rum.stop(); }catch(_){}
-      try{ n.ns.stop(); }catch(_){}
-      try{ n.lfo.stop(); }catch(_){}
-      try{ n.g.disconnect(); }catch(_){}
-      __ambNodes = null;
-    }
-    if(state.__ambCreakTimer){
-      clearInterval(state.__ambCreakTimer);
-      state.__ambCreakTimer = null;
-    }
-  }catch(_e){}
-}
-
-
-
-
-
-function playFreddyMoveSfx(mode='step'){
-  try{
-    unlockAudio();
-    if(!ensureAudio() || !audioCtx || !master) return;
-
-    const t0 = _now();
-
-    if(mode === 'laugh'){
-      const o = audioCtx.createOscillator();
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(_rand(150,190), t0);
-      o.frequency.exponentialRampToValueAtTime(_rand(95,120), t0+0.45);
-      const g = audioCtx.createGain();
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.18, t0+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.55);
-      o.connect(g); g.connect(master);
-      o.start(t0); o.stop(t0+0.60);
-      // a little static tail
-      playWhiteNoise(160, 0.10);
-      return;
-    }
-
-    // Two heavy foot thuds (slow)
-    for(let k=0;k<2;k++){
-      const tk = t0 + k*0.085;
-      const o = audioCtx.createOscillator();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(_rand(38,52), tk);
-      o.frequency.exponentialRampToValueAtTime(_rand(24,34), tk+0.10);
-
-      const g = audioCtx.createGain();
-      g.gain.setValueAtTime(0.0001, tk);
-      g.gain.exponentialRampToValueAtTime(0.22, tk+0.004);
-      g.gain.exponentialRampToValueAtTime(0.0001, tk+0.13);
-
-      o.connect(g); g.connect(master);
-      o.start(tk); o.stop(tk+0.15);
-    }
-
-    // subtle metal shuffle
-    const nb = _makeNoiseBuffer(0.12);
-    if(nb){
-      const ns = audioCtx.createBufferSource(); ns.buffer = nb;
-      const bp = audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=_rand(500,850); bp.Q.value=1.4;
-      const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.0001, t0);
-      ng.gain.exponentialRampToValueAtTime(0.10, t0+0.01);
-      ng.gain.exponentialRampToValueAtTime(0.0001, t0+0.12);
-      ns.connect(bp); bp.connect(ng); ng.connect(master);
-      ns.start(t0); ns.stop(t0+0.16);
-    }
-  }catch(_){}
-}
-// =================== end v48 SFX PACK ===================
-
-
-
-function playTerrifyingScream() {
-  try {
-    // Lazy-init audio
-    try { ensureAudio(); } catch(_) {}
-    if (!audioCtx) return;
-
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(()=>{});
-    }
-
-    const t = audioCtx.currentTime;
-    const masterGain = audioCtx.createGain();
-    // Prefer global master bus if present
-    const out = (typeof master !== 'undefined' && master) ? master : audioCtx.destination;
-    masterGain.connect(out);
-
-    masterGain.gain.setValueAtTime(0.8, t);
-    masterGain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
-
-    // CAPA 1: "Rugido Metálico" (FM Synthesis)
-    const carrier = audioCtx.createOscillator();
-    carrier.type = 'sawtooth';
-    carrier.frequency.setValueAtTime(150, t);
-    carrier.frequency.linearRampToValueAtTime(100, t + 1.5);
-
-    const modulator = audioCtx.createOscillator();
-    modulator.type = 'square';
-    modulator.frequency.setValueAtTime(60, t);
-
-    const modGain = audioCtx.createGain();
-    modGain.gain.setValueAtTime(800, t);
-
-    modulator.connect(modGain);
-    modGain.connect(carrier.frequency); // FM
-    carrier.connect(masterGain);
-
-    modulator.start(t);
-    carrier.start(t);
-    modulator.stop(t + 2.0);
-    carrier.stop(t + 2.0);
-
-    // CAPA 2: "Chillido Digital" (Glitch agudo)
-    const screech = audioCtx.createOscillator();
-    screech.type = 'sawtooth';
-    screech.frequency.setValueAtTime(1200, t);
-    screech.frequency.exponentialRampToValueAtTime(400, t + 0.8);
-
-    const tremolo = audioCtx.createOscillator();
-    tremolo.type = 'square';
-    tremolo.frequency.setValueAtTime(40, t);
-
-    const tremoloGain = audioCtx.createGain();
-    tremoloGain.gain.setValueAtTime(0.5, t);
-
-    tremolo.connect(tremoloGain.gain);
-    screech.connect(tremoloGain);
-    tremoloGain.connect(masterGain);
-
-    screech.start(t);
-    tremolo.start(t);
-    screech.stop(t + 1.8);
-    tremolo.stop(t + 1.8);
-
-  } catch (e) {
-    console.error("Error en screamer mecánico:", e);
-  }
-}
-
-
-
-function triggerLuciaSecret(){
-  if(state.menuActive || state.dead) return;
-  if(state.camOpen) return; // sorpresa total
-  const now = Date.now();
-  state.luciaOverlayUntil = now + 900;
-  const el = document.getElementById('lucia-overlay');
-  if(el){
-    el.classList.add('active');
-    setTimeout(()=>{ try{ if(Date.now() >= state.luciaOverlayUntil) el.classList.remove('active'); }catch(_){} }, 920);
-  }
-  playWhiteNoise(1200, 0.35);
-}
-
-(function(){
-  const seq = ['L','U','C','I','A'];
-  window.addEventListener('keydown', (e)=>{
-    if(state.menuActive || state.dead) return;
-    if(state.camOpen) return;
-    const k = (e.key || '').toUpperCase();
-    if(!k) return;
-    const idx = state.luciaSeqIdx||0;
-    if(k === seq[idx]){
-      state.luciaSeqIdx = idx + 1;
-      if(state.luciaSeqIdx >= seq.length){
-        state.luciaSeqIdx = 0;
-        triggerLuciaSecret();
-      }
-    } else {
-      state.luciaSeqIdx = (k === 'L') ? 1 : 0;
-    }
-  }, true);
-})();
-
-// ===================== v48: ARTHUR SECRET (A-R-T-H-U-R) =====================
-function triggerArthurSecret(){
-  if(state.menuActive || state.dead) return;
-  if(state.camOpen) return; // keep the surprise like LUCIA
-  const now = Date.now();
-  state.arthurOverlayUntil = now + 1600;
-
-  const el = document.getElementById('arthur-overlay');
-  if(el){
-    el.classList.add('active');
-    setTimeout(()=>{ try{ if(Date.now() >= (state.arthurOverlayUntil||0)) el.classList.remove('active'); }catch(_){} }, 1650);
-  }
-
-  // darker, heavier noise + a low laugh hint
-  try{ playWhiteNoise(900, 0.30); }catch(_){}
-  try{ playFreddyMoveSfx('laugh'); }catch(_){}
-}
-
-(function(){
-  const seq = ['A','R','T','H','U','R'];
-  window.addEventListener('keydown', (e)=>{
-    if(state.menuActive || state.dead) return;
-    if(state.camOpen) return;
-    const k = (e.key || '').toUpperCase();
-    if(!k) return;
-
-    const idx = state.arthurSeqIdx||0;
-    if(k === seq[idx]){
-      state.arthurSeqIdx = idx + 1;
-      if(state.arthurSeqIdx >= seq.length){
-        state.arthurSeqIdx = 0;
-        triggerArthurSecret();
-      }
-    } else {
-      state.arthurSeqIdx = (k === 'A') ? 1 : 0;
-    }
-  }, true);
-})();
-
-// v34: Nariz del peluche (honk normal vs grave/distorsionado por noche)
-function playPlushHonk(){
-  try{
-    unlockAudio();
-    const n = state.displayNight || state.night || 1;
-    const low = (n >= 4);
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = low ? 'sawtooth' : 'square';
-    o.frequency.value = low ? 360 : 880;
-    g.gain.value = 0.0;
-    o.connect(g);
-    if(low){
-      const ws = audioCtx.createWaveShaper();
-      const curve = new Float32Array(256);
-      for(let i=0;i<curve.length;i++){
-        const x = (i/(curve.length-1))*2-1;
-        curve[i] = Math.tanh(3.2*x);
-      }
-      ws.curve = curve;
-      ws.oversample = '2x';
-      g.connect(ws); ws.connect(master);
-    } else {
-      g.connect(master);
-    }
-    const t = audioCtx.currentTime;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(low ? 0.22 : 0.16, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + (low ? 0.22 : 0.14));
-    o.start(t);
-    o.stop(t + (low ? 0.25 : 0.16));
-  }catch(e){}
-}
-
-document.addEventListener('click', (e)=>{
-  const plush = e.target.closest('#yellow-plush');
-  if(!plush) return;
-  if(state.menuActive || state.dead) return;
-    // Tiny squish animation feedback
-  plush.classList.add('plush-press');
-  setTimeout(()=>{ try{ plush.classList.remove('plush-press'); }catch(_e){} }, 120);
-  playPlushHonk();
-}, true);
-
-
-
-    
-// ===================== v37: Click-to-Start boot screen (prevents menu freeze) =====================
-(function initBootScreen(){
-  try{
-    document.body.classList.remove('booted');
-    const startScreen = document.getElementById('start-screen');
-    const startBtn = document.getElementById('btn-start-system') || document.getElementById('start-btn');
-    const menuEl = document.getElementById('menu');
-
-    // At load: show ONLY start screen
-    if(menuEl) menuEl.style.display = 'none';
-    if(startScreen) startScreen.style.display = 'flex';
-
-    function enterMenu(){
-      // PRIORIDAD VISUAL: siempre entrar al menú aunque el audio falle
-      try{ document.body.classList.add('booted'); }catch(_e){}
-      try{ if(startScreen) startScreen.style.display = 'none'; }catch(_e){}
-      try{ if(menuEl) menuEl.style.display = 'flex'; }catch(_e){}
-      try{ state.menuActive = true; }catch(_e){}
-    }
-
-    function bootAudio(){
-      // AUDIO SAFE: lazy init + resume + música (sin romper UI)
-      try{
-        try{ ensureAudio(); }catch(_e){}
-        try{ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{}); }catch(_e){}
-        try{ startMenuMusic(); }catch(_e){}
-      }catch(e){
-        console.log('boot audio unlock failed:', e);
-      }
-    }
-
-    if(startBtn){
-      startBtn.addEventListener('click', ()=>{
-        enterMenu();
-        bootAudio();
-      }, { once: true });
-    }else{
-      // Fallback: si no existe el botón, al menos mostrar menú
-      enterMenu();
-      bootAudio();
-    }
-  }catch(e){
-    console.warn('initBootScreen:', e);
-    try{ document.body.classList.add('booted'); }catch(_e){}
-    try{ const menuEl = document.getElementById('menu'); if(menuEl) menuEl.style.display='flex'; }catch(_e){}
-  }
-})();
-
-// Arm unlock on first user gesture (autoplay policy) — and re-arm after focus
-    function armAudioUnlock(){
-      document.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
-      document.addEventListener("keydown", unlockAudio, { once:true });
-    }
-    armAudioUnlock();
-
-    // Robust focus/minimize behavior:
-    // - Try to suspend on blur to save CPU
-    // - On focus, re-arm unlock and try resume (if blocked, next gesture will unlock)
-    window.addEventListener('blur', () => {
-      try{
-        if(audioCtx && audioCtx.state === 'running'){
-          audioCtx.suspend().catch(()=>{});
-        }
-      }catch(e){ console.warn(e); }
-    });
-
-    window.addEventListener('focus', () => {
-      try{
-        armAudioUnlock();
-        ensureAudio();
-        if(audioCtx && audioCtx.state === 'suspended'){
-          audioCtx.resume().catch(()=>{});
-        }
-        if(state.menuActive) startMenuMusic();
-      }catch(e){ console.warn(e); }
-    });
-
-
-
 
     let _menuMusic = null;
     function startMenuMusic(){
-  if(!state.menuActive) return;
-  try{
-    const bgm = document.getElementById('menu-bgm');
-    if(!bgm) return;
-    // Only start if not already playing
-    if(bgm.paused){
-      bgm.volume = 0.6;
-      // Don't hard reset every time; just start.
-      const p = bgm.play();
-      if(p && typeof p.catch === 'function'){
-        p.catch(e => console.log("Esperando interacción para audio...", e));
+      if(_menuMusic) return;
+      const g = audioCtx.createGain();
+      g.gain.value = 0.10;
+      g.connect(master);
+
+      const o = audioCtx.createOscillator();
+      o.type = 'triangle';
+      const lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      const lfoGain = audioCtx.createGain();
+      lfo.frequency.value = 0.12;
+      lfoGain.gain.value = 18; // mild vibrato
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(o.frequency);
+
+      o.connect(g);
+      o.start();
+      lfo.start();
+
+      const notes = [196, 220, 196, 174, 196, 220, 247, 220]; // eerie loop
+      let i = 0;
+      const step = () => {
+        if(!_menuMusic) return;
+        const t = audioCtx.currentTime;
+        const f = notes[i % notes.length];
+        o.frequency.setTargetAtTime(f, t, 0.04);
+        // tiny "music box" click
+        const click = audioCtx.createOscillator();
+        const cg = audioCtx.createGain();
+        click.type = 'square';
+        click.frequency.value = 1200 + Math.random()*120;
+        cg.gain.value = 0.015;
+        click.connect(cg); cg.connect(master);
+        click.start(t);
+        click.stop(t + 0.03);
+
+        i++;
+        _menuMusic.timer = setTimeout(step, 520);
+      };
+
+      _menuMusic = { o, lfo, g, timer: null };
+      step();
+    }
+
+    function stopMenuMusic(){
+      if(!_menuMusic) return;
+      try{ clearTimeout(_menuMusic.timer); }catch(e){}
+      try{ _menuMusic.o.stop(); }catch(e){}
+      try{ _menuMusic.lfo.stop(); }catch(e){}
+      try{ _menuMusic.g.disconnect(); }catch(e){}
+      _menuMusic = null;
+    }
+
+    let _poweroutMusic = null;
+    function startPoweroutMusic(){
+      if(_poweroutMusic) return;
+      const g = audioCtx.createGain();
+      g.gain.value = 0.16;
+      g.connect(master);
+
+      const o = audioCtx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = 330;
+
+      const trem = audioCtx.createOscillator();
+      trem.type = 'sine';
+      trem.frequency.value = 6.0;
+      const tremGain = audioCtx.createGain();
+      tremGain.gain.value = 0.08;
+
+      trem.connect(tremGain);
+      tremGain.connect(g.gain);
+
+      o.connect(g);
+      o.start();
+      trem.start();
+
+      // little melody drift
+      const seq = [330, 294, 262, 294];
+      let si = 0;
+      const step = () => {
+        if(!_poweroutMusic) return;
+        const t = audioCtx.currentTime;
+        o.frequency.setTargetAtTime(seq[si % seq.length], t, 0.06);
+        si++;
+        _poweroutMusic.timer = setTimeout(step, 650);
+      };
+
+      _poweroutMusic = { o, trem, g, timer:null };
+      step();
+    }
+
+    function stopPoweroutMusic(){
+      if(!_poweroutMusic) return;
+      try{ clearTimeout(_poweroutMusic.timer); }catch(e){}
+      try{ _poweroutMusic.o.stop(); }catch(e){}
+      try{ _poweroutMusic.trem.stop(); }catch(e){}
+      try{ _poweroutMusic.g.disconnect(); }catch(e){}
+      _poweroutMusic = null;
+    }
+
+    function playJumpscareSfx(){
+      // harsh burst + noise-ish hit
+      const t = audioCtx.currentTime;
+      const o1 = audioCtx.createOscillator();
+      const o2 = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      g.connect(master);
+
+      o1.type = 'sawtooth';
+      o2.type = 'square';
+      o1.frequency.setValueAtTime(220, t);
+      o1.frequency.exponentialRampToValueAtTime(55, t + 0.28);
+      o2.frequency.setValueAtTime(880, t);
+      o2.frequency.exponentialRampToValueAtTime(110, t + 0.18);
+
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+
+      o1.connect(g); o2.connect(g);
+      o1.start(t); o2.start(t);
+      o1.stop(t + 0.6); o2.stop(t + 0.6);
+    }
+
+    const CAM_NAMES = { 1: "ESCENARIO", 2: "COMEDOR", 3: "PASILLO OESTE", 4: "CUEVA PIRATA", 5: "PUERTA IZQ", 6: "PASILLO ESTE", 7: "ZONA SERVICIO", 8: "PUERTA DER", V: "VENTILACIÓN" };
+
+    const CAM_SCENES = {
+      1: { bg: "radial-gradient(circle at 50% 20%, rgba(120,200,255,0.16) 0%, transparent 50%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Stage Feed" },
+      2: { bg: "radial-gradient(circle at 40% 25%, rgba(255,180,80,0.10) 0%, transparent 55%), linear-gradient(to bottom, #0b0b10, #050508)", label: "Dining Area" },
+      3: { bg: "radial-gradient(circle at 60% 20%, rgba(200,120,255,0.10) 0%, transparent 52%), linear-gradient(to bottom, #0a0a0f, #030305)", label: "West Hall" },
+      4: { bg: "radial-gradient(circle at 50% 18%, rgba(255,60,60,0.10) 0%, transparent 55%), linear-gradient(to bottom, #08080c, #020203)", label: "Pirate Cove" },
+      5: { bg: "radial-gradient(circle at 55% 20%, rgba(255,255,120,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Left Door" },
+      6: { bg: "radial-gradient(circle at 45% 20%, rgba(120,255,180,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #030305)", label: "East Hall" },
+      7: { bg: "radial-gradient(circle at 50% 22%, rgba(80,160,255,0.10) 0%, transparent 55%), linear-gradient(to bottom, #09090e, #020203)", label: "Service Zone" },
+      8: { bg: "radial-gradient(circle at 50% 22%, rgba(255,255,120,0.08) 0%, transparent 55%), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Right Door" },
+      V: { bg: "radial-gradient(circle at 55% 28%, rgba(140,220,255,0.08) 0%, transparent 55%), repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 14px), linear-gradient(to bottom, #0a0a0f, #040406)", label: "Vent Duct" }
+    };
+
+    function playSound(f, type, vol, dur){
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    }
+    function playPowerDownSfx(){
+      // FNaF-ish "power-out" thunk + fading noise
+      if(!audioCtx) return;
+      playSound(52, 'square', 0.12, 0.18);
+      setTimeout(()=>playSound(34, 'triangle', 0.10, 0.35), 80);
+
+      const dur = 0.35;
+      const buffer = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * dur), audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++){
+        const t = i / data.length;
+        data[i] = (Math.random()*2-1) * 0.22 * (1 - t);
       }
+      const src = audioCtx.createBufferSource(); src.buffer = buffer;
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.14, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+      src.connect(g); g.connect(audioCtx.destination);
+      src.start(); src.stop(audioCtx.currentTime + dur);
     }
-  }catch(e){
-    console.warn('startMenuMusic:', e);
-  }
-}
 
-function stopMenuMusic(){
-  try{
-    const bgm = document.getElementById('menu-bgm');
-    if(!bgm) return;
-    bgm.pause();
-    bgm.currentTime = 0;
-  }catch(e){
-    console.warn('stopMenuMusic:', e);
-  }
-}
 
-// ===================== v37: Phone Guy (Noche 1) =====================
-function stopPhoneCall(){
-  try{
-    if(state && Array.isArray(state.phoneTimers)){
-      state.phoneTimers.forEach(t=>{ try{ clearTimeout(t); }catch(_e){} });
-    }
-    if(state) state.phoneTimers = [];
-    const phone = document.getElementById('phone-night1');
-    if(phone){ try{ phone.pause(); phone.currentTime = 0; }catch(_e){} }
-    const btn = document.getElementById('mute-call');
-    if(btn) btn.style.display = 'none';
-    if(state) state.phoneBtnActive = false;
-  }catch(e){
-    console.warn('stopPhoneCall:', e);
-  }
-}
+    // ===== Freddy Vent audio loop (tries MP3, falls back to synth) =====
+    let freddyVentAudio = null;
+    let freddyVentSynthTimer = null;
 
-function startPhoneCall(){
-  try{
-    if(!state || state.menuActive || state.dead || state.powerOut) return;
-    if(state.ucn) return;
-    if(state.night !== 1) return;
+    function startFreddyVentLoop(){
+      if(state.powerOut) return;
+      if(!state.freddyVent || !state.freddyVent.active) return;
 
-    const phone = document.getElementById('phone-night1');
-    const btn = document.getElementById('mute-call');
-    if(!phone || !btn) return;
-
-    stopPhoneCall();
-    try{ phone.volume = 1.0; }catch(_e){}
-
-    const t1 = setTimeout(()=>{
+      // Try MP3
       try{
-        unlockAudio();
-        const p = phone.play();
-        if(p && typeof p.catch === 'function') p.catch(e=>console.log('phone-night1 play blocked:', e));
-      }catch(e){
-        console.log('phone-night1 play error:', e);
+        if(!freddyVentAudio){
+          freddyVentAudio = new Audio('freddy_vent_loop.mp3');
+          freddyVentAudio.loop = true;
+          freddyVentAudio.volume = 0.35;
+        }
+        if(freddyVentAudio.paused){
+          const p = freddyVentAudio.play();
+          // ignore autoplay promise errors
+          if(p && typeof p.catch === 'function') p.catch(()=>{});
+        }
+      } catch(e){ /* ignore */ }
+
+      // Fallback synth if audio can't play
+      if((!freddyVentAudio || freddyVentAudio.paused) && !freddyVentSynthTimer){
+        freddyVentSynthTimer = setInterval(()=>{
+          if(state.powerOut || !state.freddyVent.active){ stopFreddyVentLoop(); return; }
+          // low stalking pulse
+          playSound(62 + Math.random()*6, 'sine', 0.05, 0.20);
+          if(Math.random() < 0.20) playSound(98, 'triangle', 0.02, 0.08);
+        }, 520);
       }
+    }
 
-      const t2 = setTimeout(()=>{
-        try{
-          if(state.dead || state.powerOut || state.menuActive) return;
-          state.phoneBtnActive = true;
-          btn.style.display = state.camOpen ? 'none' : 'block';
-        }catch(_e){}
-        const t3 = setTimeout(()=>{ try{ btn.style.display = 'none'; }catch(_e){} }, 15000);
-        state.phoneTimers.push(t3);
-      }, 8000);
-
-      state.phoneTimers.push(t2);
-    }, 3000);
-
-    state.phoneTimers.push(t1);
-  }catch(e){
-    console.warn('startPhoneCall:', e);
-  }
-}
-
-function mutePhone(){
-  try{
-    const phone = document.getElementById('phone-night1');
-    if(phone) phone.pause();
-  }catch(_e){}
-  try{
-    const btn = document.getElementById('mute-call');
-    if(btn) btn.style.display = 'none';
-  }catch(_e){}
-  try{ state.phoneBtnActive = false; }catch(_e){}
-}
+    function stopFreddyVentLoop(){
+      if(freddyVentSynthTimer){ clearInterval(freddyVentSynthTimer); freddyVentSynthTimer = null; }
+      try{
+        if(freddyVentAudio && !freddyVentAudio.paused){
+          freddyVentAudio.pause();
+          freddyVentAudio.currentTime = 0;
+        }
+      } catch(e){ /* ignore */ }
+    }
 
 
+    function laugh(){
+      playSound(220, 'sawtooth', 0.18, 0.25);
+      setTimeout(()=> playSound(180, 'sawtooth', 0.14, 0.18), 90);
+      setTimeout(()=> playSound(260, 'square', 0.12, 0.22), 180);
+    }
+    function ambientMusic(){ if(state.powerOut) return; playSound(52 + Math.random()*16, 'sine', 0.05, 2); }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function roll10(){ return Math.floor(Math.random()*10)+1; }
+    function rollDice(th){ return roll10() >= th; }
+    function thresholdByNight(){ return Math.max(2, 7 - state.night); }
+
+    function aiTickMs(){
+      if(state.ucn) return 5000;
+      return clamp(15000 - (state.night - 1) * 2500, 5000, 15000);
+    }
+    function moveChance(){
+      if(state.ucn) return 0.92;
+      return clamp(0.58 + (state.night - 1) * 0.09, 0.58, 0.94);
+    }
+    function attackDelayMs(){
+      if(state.ucn) return 2500;
+      return clamp(5200 - (state.night - 1) * 650, 2600, 5200);
+    }
+    function foxyStepChance(){
+      if(state.ucn) return 0.85;
+      return clamp(0.50 + (state.night - 1) * 0.08, 0.50, 0.82);
+    }
+
+    const HOUR_MS = 70000; // shorter night (70s per hour) // ~8:55 total night like FNaF1
+
+    const state = {
+      night: 1,
+      pwr: 99,
+      time: 0,
+      cam: 1,
+      camOpen: false,
+            camOpenSince: 0,
+doors: {l:false, r:false},
+      lights: {l:false, r:false},
+      ventClosed: false,
+      heat: 0,
+      lastHeatTick: 0,
+      defenseLockedUntil: 0,
+      freddyVent: { active:false, stage:'none', mode:'', fromSide:null, pendingOutcome:null, stageUntil:0, whiteUntil:0, teleportSide:null, enteredAt:0 },
+      freddyDoor: { active:false, side:'l', attackAt:0, source:'', startedAt:0 },
+      powerOut: false,
+      powerOutKill: null,
+      powerOutTimers: [],
+      powerOutSide: 'l',
+      foxyDrainCount: 0,
+      fanMs: 0,
+      ucn: false,
+      loops: [],
+      cinematicLock: false,
+      doorAttackBusyUntil: { l: 0, r: 0 },
+      frontThreat: null,
+      aiClock: { Grey:0, Purple:0, Yellow:0, Foxy:0, Golden:0 },
+      aiGraceUntil: 0,
+      officeArmed: { Purple:false, Yellow:false },
+      freddyState: { pendingKill:false, pendingAt:0, cooldownUntil:0, warning:false, warningUntil:0, killTimer:null },
+      golden: {
+        // Golden Freddy rework:
+        // - IA “letal” cap a 5 (no se vuelve injusto)
+        // - IA > 10 solo aumenta frecuencia de intentos (más apariciones), no velocidad de muerte
+        // - Tras esquivarlo, entra en cooldown largo e impredecible
+        active:false,           // primed (se activó desde cámaras)
+        manifest:false,         // ya se mostró en oficina
+        camOpenedAt:0,
+        flipWindowMs: 650,      // “flip rápido” para cancelarlo (cuando aún no manifestó)
+        evadeWindowMs: 1200,    // ventana para esquivar cuando manifiesta (fijo, fácil)
+        killTimer:null,
+        cooldownUntil:0,
+        lastRollAt:0
+      },
+      monsters: [
+        { id:'Purple', pos:1, route:[1,2,3,5,0], door:'l', color:'#6a0dad', stalled:false, stallTimer:null, atDoor:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, entering:false, enterRemaining:0 },
+        { id:'Yellow', pos:1, route:[1,2,6,7,8,0], door:'r', color:'#d4af37', stalled:false, stallTimer:null, atDoor:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, entering:false, enterRemaining:0 },
+        { id:'Grey', pos:1, type:'freddy', color:'#444', stalled:false, holdCam8:false, holdUntil:0, door:'r', stallTimer:null, atDoor:false, cooldownUntil:0, inVent:false , hidden:false, waitingDoor:false, waitSide:null, path:null },
+        { id:'Foxy', pos:4, type:'foxy', color:'#800', phase:0, attacking:false, attackSide:null, phaseTimer:null }
+      ]
+    };
+
+    const ui = {
+      camOverlay: document.getElementById('cam-overlay'),
+      camInfo: document.getElementById('cam-info'),
+      camDetails: document.getElementById('cam-details'),
+      camRender: document.getElementById('cam-render-area'),
+      foxyPhase: document.getElementById('foxy-phase'),
+      goldenOffice: document.getElementById('golden-office'),
+      poweroutFreddy: document.getElementById('powerout-freddy'),
+      blackout: document.getElementById('blackout'),
+      deathTip: document.getElementById('death-tip'),
+      deathTitle: document.getElementById('death-title'),
+      deathKiller: document.getElementById('death-killer'),
+      deathMessage: document.getElementById('death-message'),
+      btnRetry: document.getElementById('btn-retry'),
+      btnMenu: document.getElementById('btn-menu')
+    };
 
     // ===================== PROGRESS / STARS =====================
     const PROG_KEY = "shape_nights_progress_v2";
@@ -3818,7 +2554,7 @@ function mutePhone(){
       // 3 AM: Bonnie/Chica/Foxy +1
       // 4 AM: Bonnie/Chica/Foxy +1
       // Freddy NO cambia durante la noche.
-      1:{ Grey:0, Purple:1, Yellow:0, Foxy:0, Golden:0 },
+      1:{ Grey:0, Purple:0, Yellow:0, Foxy:0, Golden:0 },
       2:{ Grey:0, Purple:3, Yellow:1, Foxy:1, Golden:0 },
       3:{ Grey:1, Purple:0, Yellow:5, Foxy:2, Golden:1 },
       4:{ Grey:null, Purple:2, Yellow:4, Foxy:6, Golden:3 }, // Grey null => 50/50 entre 1 o 2
@@ -3992,9 +2728,8 @@ function renderUCN(){
           clearInterval(iv);
           // final scare flash
           box.innerHTML = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">${renderEntity("Grey", 3.2)}</div>`;
-          // REEMPLAZO: Reproducir MP3 real en la cinemática
-      playTerrifyingScream();
-playSound(140, "sawtooth", 0.35, 0.55);
+          playJumpscareSfx();
+          playSound(140, "sawtooth", 0.35, 0.55);
           setTimeout(()=>{
             if(_stopCine) _stopCine();
             layer.style.display="none";
@@ -4014,7 +2749,7 @@ playSound(140, "sawtooth", 0.35, 0.55);
     // Secret key combo (MENU): J + 5
     let _cineKeys = { j:false, five:false, fired:false };
     function _cineDown(e){
-      if(!menu || !state.menuActive) return;
+      if(!menu || menu.style.display === "none") return;
       const k = (e.key || "").toLowerCase();
       if(k === "j") _cineKeys.j = true;
       if(k === "5") _cineKeys.five = true;
@@ -4036,20 +2771,8 @@ playSound(140, "sawtooth", 0.35, 0.55);
     applyProgressUI();
     
 
-    ui.btnRetry && (ui.btnRetry.onclick = () => {
-      // Ocultar pantallas de muerte
-      ui.deathTip.style.display = 'none';
-      document.getElementById('jumpscare').style.display = 'none';
-      ui.blackout.style.display = 'none';
-      // Reiniciar
-      startGame(state.displayNight);
-    });
-ui.btnMenu?.addEventListener('click', ()=>{
-      try{ stopPhoneCall(); }catch(_e){}
-      try{ stopAmbient(); }catch(_e){}
-
-      state.menuActive = true;
-    startMenuMusic();
+    ui.btnRetry?.addEventListener('click', ()=> location.reload());
+    ui.btnMenu?.addEventListener('click', ()=>{
       ui.deathTip.style.display = 'none';
       document.getElementById('jumpscare').style.display = 'none';
       document.getElementById('victory-screen').style.display = 'none';
@@ -4058,98 +2781,15 @@ ui.btnMenu?.addEventListener('click', ()=>{
       game.style.display = 'none';
       menu.style.display = 'flex';
       stopPoweroutMusic();
-      unlockAudio();
+      startMenuMusic();
       setMenu("main");
     });
 
     function startGame(n){
-  // --- v46 GAMEPLAY FIX: always ensure defaults before using state/UI ---
-  ensureStateDefaults();
-  // --- v48 ANTI-FREEZE: make hour duration always defined (safe even if const missing) ---
-  const hourMs = (typeof HOUR_MS === 'number' ? HOUR_MS : (window.HOUR_MS || 45000));
-
-  let _loopsStarted = false;
-  try{
-
-  // --- v48 ANTI-FREEZE: critical state containers MUST exist before any access ---
-  if(!state.officeArmed || typeof state.officeArmed !== 'object') state.officeArmed = { Purple:false, Yellow:false };
-  if(typeof state.officeArmed.Purple !== 'boolean') state.officeArmed.Purple = false;
-  if(typeof state.officeArmed.Yellow !== 'boolean') state.officeArmed.Yellow = false;
-
-  if(!Array.isArray(state.loops)) state.loops = [];
-  if(!Array.isArray(state.powerOutTimers)) state.powerOutTimers = [];
-  if(!Array.isArray(state.phoneTimers)) state.phoneTimers = [];
-
-  // Ensure WebAudio is unlocked on the same click that starts the night
-  try{ unlockAudio(); }catch(_e){} 
-
-  // Ensure UI refs exist (some builds lost references)
-  if(!ui || !ui.camOverlay){
-    // (fallback) try to refresh the cached references
-    try{
-      ui.camOverlay = document.getElementById('cam-overlay');
-      ui.camRender  = document.getElementById('cam-render-area');
-      ui.camDetails = document.getElementById('cam-details');
-      ui.camInfo    = document.getElementById('cam-info');
-      ui.foxyPhase  = document.getElementById('foxy-phase');
-      ui.blackout   = document.getElementById('blackout');
-      ui.deathTip   = document.getElementById('death-tip');
-      ui.deathTitle = document.getElementById('death-title');
-      ui.deathKiller= document.getElementById('death-killer');
-      ui.deathMessage=document.getElementById('death-message');
-      ui.btnRetry   = document.getElementById('btn-retry');
-      ui.btnMenu    = document.getElementById('btn-menu');
-    }catch(_){}
-  }
-
-  // Ensure monsters exist so doors/lights/cams work
-  if(!state.monsters || state.monsters.length === 0){
-    state.monsters = [
-      { id:'Grey', type:'freddy', pos:1, route:[1,2,3,5,6,7,8], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
-      { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
-      { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
-      { id:'Foxy', type:'foxy', pos:4, phase:1, attacking:false, attackSide:null, cooldownUntil:0, hidden:false }
-    ];
-  }
-
-  // --- v46 SAFETY INIT: evitar crasheos por estados faltantes ---
-  state.golden = state.golden || { active:false, manifest:false, cooldownUntil:0 };
-  state.freddyState = state.freddyState || { warning:false };
-  state.freddyVent  = state.freddyVent  || { active:false, stage:'none', loop:null };
-  state.freddyDoor  = state.freddyDoor  || { active:false, side:null, attackAt:0 };
-
-  // Inicializar monstruos si no existen (evita freeze en renderCam / tickAI)
-  if(!Array.isArray(state.monsters) || state.monsters.length === 0){
-    state.monsters = [
-      { id:'Grey',   type:'freddy',   pos:1, route:[1,2,3,5,6,7,8], door:null, atDoor:false, entering:false, hidden:false, cooldownUntil:0 },
-      { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5],       atDoor:false, entering:false, hidden:false, cooldownUntil:0, knockPending:false, leaveAt:0 },
-      { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8],     atDoor:false, entering:false, hidden:false, cooldownUntil:0, knockPending:false, leaveAt:0 },
-      { id:'Foxy',   type:'foxy',     pos:4, phase:1, attacking:false, attackSide:null, cooldownUntil:0, leaveAt:0 }
-    ];
-  }
-
-      // FIX v42: Inicializar objetos antes de usarlos (evita crash)
-      state.golden = state.golden || { active:false, manifest:false, cooldownUntil:0 };
-      state.freddyState = state.freddyState || { warning:false };
-      state.freddyVent = state.freddyVent || { active:false, loop:null };
-      state.freddyDoor = state.freddyDoor || { active:false };
-      state.phone = state.phone || { active:false };
-      // --- FIX v45: al iniciar partida, ocultar menú y mostrar juego (antes el menú quedaba encima y parecía que "no iniciaba") ---
-      try{
-        if(menu) menu.style.display = 'none';
-        if(game) game.style.display = 'block';
-        const ss = document.getElementById('start-screen');
-        if(ss) ss.style.display = 'none';
-      }catch(_e){}
-
-
-      state.menuActive = false;
       unlockAudio();
       stopMenuMusic();
 
-      
-      try{ stopPhoneCall(); }catch(_e){}
-if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
+      if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
 
       state.displayNight = n;
       state.night = (n === 7 ? 6 : n);
@@ -4159,17 +2799,8 @@ if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
       if(state.ucn){
         try{ state.ucnAI = JSON.parse(localStorage.getItem('shape_nights_ucn_ai')||'null'); }catch(e){ state.ucnAI=null; }
       }
-      state.pwr = 100;
+      state.pwr = 99;
       state.time = 0;
-      state.dead = false;
-      state.luciaSeqIdx = 0;
-      state.luciaOverlayUntil = 0;
-      state.arthurSeqIdx = 0;
-      state.arthurOverlayUntil = 0;
-      state.glitchDocUntil = 0;
-      state.luciaPoster = false;
-      state.cam7HatchClicks = 0;
-      state.cam7HatchRevealed = false;
       state.cam = 1;
       state.camOpen = false;
       state.ventClosed = false;
@@ -4207,7 +2838,6 @@ if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
       state.monsters.forEach(m=>{
         if(m.stallTimer){ clearInterval(m.stallTimer); m.stallTimer=null; }
         if(m.phaseTimer){ clearTimeout(m.phaseTimer); m.phaseTimer=null; }
-        if(m.foxyTimers){ m.foxyTimers.forEach(t=>{ try{ clearTimeout(t); }catch(e){} }); m.foxyTimers.length=0; }
 
         if(m.id==='Purple' || m.id==='Yellow'){
           m.pos=1; m.stalled=false; m.atDoor=false; m.doorArriveAt=0; m.inOfficeArmed=false; m.enteredAt=0; m.entering=false; m.enterRemaining=0;
@@ -4251,63 +2881,33 @@ state.freddyVent.enteredAt = 0;
 
       document.getElementById('night-text').innerText = state.ucn ? "UCN" : ("NOCHE " + n);
       document.getElementById('time-text').innerText = "12 AM";
-      
-      // v37: Phone Guy (Noche 1)
-      try{ startPhoneCall(); }catch(_e){}
-ui.camOverlay.style.display = 'none';
+      ui.camOverlay.style.display = 'none';
       ui.foxyPhase.style.display = 'none';
       // restore camera map in case a previous blackout hid it
       const _mapEl = document.getElementById('cam-map');
       if(_mapEl) _mapEl.style.display = 'block';
 
-      stopMainLoops();
-      try{ mutePhone(); }catch(_){}
+      state.loops.forEach(l=> clearInterval(l));
+      state.loops = [];
+      state.powerOutTimers.forEach(t=> clearTimeout(t));
+      state.powerOutTimers = [];
+      state.powerOutSide = 'l';
+      state.foxyDrainCount = 0;
+      state.fanMs = 0;
+      if(state.powerOutKill) clearInterval(state.powerOutKill);
 
             const _nowAI = Date.now();
       state.aiGraceUntil = _nowAI + (state.ucn ? 4500 : 3500); // early grace so UCN/campaign don't insta-move
       state.aiClock = { Grey:_nowAI, Purple:_nowAI, Yellow:_nowAI, Foxy:_nowAI, Golden:_nowAI };
 
-_loopsStarted = true;
-      startMainLoops(hourMs);
-
-      // v48: Phone Guy (Night 1)
-      try{ mutePhone(); }catch(_e){}
-      if(n === 1){
-        const tPlay = setTimeout(()=>{ 
-          try{
-            const phone = document.getElementById('phone-night1');
-            if(phone){
-              phone.currentTime = 0;
-              const p = phone.play();
-              if(p && typeof p.catch === 'function') p.catch(()=>{});
-            }
-          }catch(_){}
-        }, 3000);
-        const tBtn = setTimeout(()=>{ 
-          try{
-            const btn = document.getElementById('mute-call');
-            if(btn){
-              btn.style.display = 'block';
-              btn.style.zIndex = '25000';
-            }
-            state.phoneBtnActive = true;
-          }catch(_){}
-        }, 11000); // 3s + 8s
-        state.phoneTimers.push(tPlay, tBtn);
-      }
-
+state.loops.push(setInterval(tickAI, 180));
+      state.loops.push(setInterval(updateCore, 100));
+      state.loops.push(setInterval(ambientMusic, 2000));
+      state.loops.push(setInterval(clockTick, HOUR_MS));
       // goldenCheck se maneja desde tickAI (ODM) + goldenUpdate
-  }catch(e){
-    console.warn('startGame init error:', e);
-  }finally{
-    if(!_loopsStarted){
-      try{ startMainLoops(hourMs); }catch(_e){}
-    }
-  }
     }
 
     function clockTick(){
-      state.lastClockAt = Date.now();
       state.time++;
       document.getElementById('time-text').innerText = (state.time === 0 ? 12 : state.time) + " AM";
       if(state.time >= 6) winCinematic();
@@ -4355,7 +2955,7 @@ _loopsStarted = true;
       playPowerDownSfx();
 
       // Freddy aparece en una puerta (50/50) cuando empiece su melodía
-      state.powerOutSide = 'l';
+      state.powerOutSide = (Math.random() < 0.5) ? 'l' : 'r';
       ui.poweroutFreddy.innerHTML = renderEntity('Grey', 2.2);
 
       const placeFreddy = ()=>{
@@ -4416,8 +3016,6 @@ _loopsStarted = true;
 
     
     // ===================== POWER / BATERÍA =====================
-
-
     function calcUsageBars(){
       let bars = 1; // consumo base siempre
       if(state.camOpen) bars += 1;
@@ -4428,21 +3026,18 @@ _loopsStarted = true;
     }
 
     function calcPowerDrainPerSec(bars){
-      // Más visible y "FNaF feel": al mínimo se nota bajar, y con uso alto se vuelve peligroso.
-      // - 6 horas por noche (HOUR_MS) ≈ 4.5 min si HOUR_MS=45000.
-      // - Queremos que con USO 1 termines con margen, pero que USO 3-4 te mate si abusas.
-      const base = state.ucn ? 0.165 : (0.145 + (state.night - 1) * 0.018); // % por segundo
-
-      const mult = (bars === 1) ? 1.0 : (bars === 2) ? 1.65 : (bars === 3) ? 2.55 : 3.65;
+      // Ajuste solicitado: más batería / consumo más justo (la noche también es más corta).
+      // Mantiene el feeling FNaF (puertas cuestan más que luces), pero sin vaciarse “patéticamente” rápido.
+      const base = state.ucn ? 0.090 : (0.060 + (state.night - 1) * 0.010);
+      const mult = (bars === 1) ? 1.0 : (bars === 2) ? 1.55 : (bars === 3) ? 2.25 : 3.15;
 
       let extra = 0;
-      // Extras (pequeños) para que se sienta el "costo" de cada acción
-      if(state.camOpen) extra += 0.030;
-      if(state.lights.l) extra += 0.020;
-      if(state.lights.r) extra += 0.020;
-      if(state.doors.l) extra += 0.060;
-      if(state.doors.r) extra += 0.060;
-      if(state.doors.l && state.doors.r) extra += 0.080;
+      if(state.camOpen) extra += 0.020;
+      if(state.lights.l) extra += 0.014;
+      if(state.lights.r) extra += 0.014;
+      if(state.doors.l) extra += 0.040;
+      if(state.doors.r) extra += 0.040;
+      if(state.doors.l && state.doors.r) extra += 0.055;
 
       return (base * mult) + extra;
     }
@@ -4457,49 +3052,50 @@ _loopsStarted = true;
 
     
     function updateHeat(){
-  const now = Date.now();
-  if(!state.lastHeatTick) state.lastHeatTick = now;
-  const dt = Math.min(0.25, Math.max(0, (now - state.lastHeatTick) / 1000));
-  state.lastHeatTick = now;
+      const now = Date.now();
+      if(!state.lastHeatTick) state.lastHeatTick = now;
+      const dt = Math.min(0.25, Math.max(0, (now - state.lastHeatTick) / 1000));
+      state.lastHeatTick = now;
 
-  if(state.powerOut){
-    state.heat = clamp(state.heat - 0.8 * dt, 0, 100);
-    updateHeatUI();
-    return;
-  }
+      // When power is out, heat slowly drifts down but defenses are irrelevant
+      if(state.powerOut){
+        state.heat = clamp(state.heat - 0.6 * dt, 0, 100);
+        updateHeatUI();
+        return;
+      }
 
-  // Base system warmth (always a tiny drift up so it never feels "stuck")
-  let net = 0.06; // +0.06%/sec
+      // Fuente de calor: SOLO cuando la ventilación está cerrada.
+      if(state.ventClosed){
+        // Base (vent cerrada) + multiplicador fuerte si además cierras puertas laterales
+        let inc = 5; // +5% / sec
+        if(state.doors.l) inc += 4; // +4% / sec extra
+        if(state.doors.r) inc += 4; // +4% / sec extra
+        state.heat += inc * dt;
+      } else {
+        // Enfriamiento: al abrir la ventilación, baja LENTAMENTE (penalización),
+        // y si además cierras puertas, enfría todavía más lento.
+        let dec = 0.55; // -0.55% / sec
+        if(state.doors.l || state.doors.r) dec = 0.30; // penalización por puertas cerradas
+        state.heat -= dec * dt;
+      }
 
-  if(state.ventClosed){
-    // Vent CLOSED: heats up fast (main mechanic)
-    net = 2.6;               // +2.6%/sec
-    if(state.doors.l) net += 1.6;
-    if(state.doors.r) net += 1.6;
-  } else {
-    // Vent OPEN: cools down if you already have heat; otherwise keep a tiny living drift
-    let cool = 0.40;         // -0.40%/sec
-    if(state.doors.l || state.doors.r) cool = 0.25; // less airflow with doors closed
-    if(state.heat > 1.2) net = net - cool;          // cool only when there's something to cool
-  }
+      state.heat = clamp(state.heat, 0, 100);
 
-  state.heat = clamp(state.heat + net * dt, 0, 100);
+      // Overheat: force-open all defenses for 8 seconds
+      if(state.heat >= 100 && Date.now() >= (state.defenseLockedUntil||0)){
+        forceOpenAll('overheat');
+        state.defenseLockedUntil = Date.now() + 8000;
+      }
 
-  // Overheat: force-open defenses briefly
-  if(state.heat >= 100 && Date.now() >= (state.defenseLockedUntil||0)){
-    forceOpenAll('overheat');
-    state.defenseLockedUntil = Date.now() + 8000;
-  }
+      updateHeatUI();
+    }
 
-  updateHeatUI();
-}
-
-function updateHeatUI(){
-  const ht = document.getElementById('heat-text');
-  if(ht) ht.textContent = `CALOR: ${Math.round(state.heat)}%`;
-}
-
-
+    function updateHeatUI(){
+      const ht = document.getElementById('heat-text');
+      const hf = document.getElementById('heat-fill');
+      if(ht) ht.textContent = `CALOR: ${Math.round(state.heat)}%`;
+      if(hf) hf.style.width = `${clamp(state.heat,0,100)}%`;
+    }
 
     function forceOpenAll(reason='overheat'){
       // Doors
@@ -4535,42 +3131,124 @@ function updateHeatUI(){
 
     function updateCore(){
 
-          state.lastCoreAt = Date.now();
-          updateHeat();
+      updateHeat();
 
-          const bars = calcUsageBars();
-          updateUsageUI(bars);
+      const bars = calcUsageBars();
+      const drainPerSec = calcPowerDrainPerSec(bars);
+      if(!state.powerOut) state.pwr -= drainPerSec/10;
+        state.pwr = clamp(state.pwr, 0, 99);
 
-          const drainPerSec = calcPowerDrainPerSec(bars);
-
-          // Este loop corre cada 100ms => /10
-          if(!state.powerOut) state.pwr -= drainPerSec/10;
-          state.pwr = clamp(state.pwr, 0, 100);
-
-          // Fan drain (FNaF1-style): from Night 2+, extra pequeño cada N segundos
-          if(!state.powerOut){
-            if(state.night >= 2){
-              state.fanMs += 100;
-              const per = (state.night===2 ? 7000 : (state.night===3 ? 6000 : (state.night===4 ? 5000 : 4000)));
-              while(state.fanMs >= per){
-                state.fanMs -= per;
-                state.pwr = clamp(state.pwr - 0.07, 0, 100);
-              }
-            } else {
-              state.fanMs = 0;
-            }
+      // Fan drain (FNaF1-style): from Night 2+, extra -0.1% every N seconds
+      if(!state.powerOut){
+        if(state.night >= 2){
+          state.fanMs += 100;
+          const per = (state.night===2 ? 7000 : (state.night===3 ? 6000 : (state.night===4 ? 5000 : 4000)));
+          while(state.fanMs >= per){
+            state.fanMs -= per;
+            state.pwr = clamp(state.pwr - 0.07, 0, 99);
           }
+        } else {
+          state.fanMs = 0;
+        }
+      }
 
-          // UI texto energía
-          const pwrShown = Math.max(0, Math.floor(state.pwr));
-          const pwrText = document.getElementById('pwr-text');
-          if(pwrText) pwrText.innerText = `ENERGÍA: ${pwrShown}%`;
+      const pwrShown = Math.max(0, Math.floor(state.pwr));
+      document.getElementById('pwr-text').innerText = `ENERGÍA: ${pwrShown}%`;
+      updateUsageUI(bars);
+      if(pwrShown <= 0 && !state.powerOut) startPowerOut();
 
-          // Powerout trigger real
-          if(!state.powerOut && state.pwr <= 0.01){
-            startPowerOut();
+
+      handleFreddyDoor();
+      goldenUpdate(100);
+      // Bonnie/Chica: finalizan entrada SOLO con monitor abajo, con margen justo para reaccionar
+      const nowDoor = Date.now();
+      const dtStep = 100;
+      state.monsters.forEach(mm=>{
+        if((mm.id==='Purple' || mm.id==='Yellow') && mm.entering && !mm.inOfficeArmed){
+          if(state.camOpen) return; // NO cuentan mientras estás viendo cámaras
+          if(state.doors[mm.door]){ mm.entering=false; mm.enterRemaining=0; return; }
+
+          // El “tiempo de colarse” solo corre con monitor ABAJO,
+          // así al bajar cámaras el jugador SIEMPRE tiene ventana para alumbrar/cerrar.
+          mm.enterRemaining = (mm.enterRemaining || 0) - dtStep;
+          if(mm.enterRemaining <= 0){
+            mm.pos = 0;
+            mm.inOfficeArmed = true;
+            mm.enteredAt = nowDoor;
+            mm.entering = false;
+            mm.enterRemaining = 0;
+            mm.atDoor = false;
+            state.officeArmed[mm.id] = true;
+            playSound(70, 'sine', 0.09, 0.14);
           }
         }
+      });
+
+const ml = state.monsters.find(m => m.id==='Purple' && (m.atDoor || m.entering) && m.door === 'l' && m.pos === 5);
+      const mr = state.monsters.find(m => m.id==='Yellow' && (m.atDoor || m.entering) && m.door === 'r' && m.pos === 8);
+
+      // Freddy “ojos blancos” cuando está por atacar (solo si lo alumbras y la puerta está abierta)
+      const mfL = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'l' && m.pos === 5);
+      const mfR = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'r' && m.pos === 8);
+
+      // (Fix v20 #1) La advertencia de Freddy ahora se arma al iniciar el ataque de puerta
+      const freddyWarn = !!(state.freddyState && state.freddyState.warning && Date.now() < (state.freddyState.warningUntil||0));
+      const freddyDoorL = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'l' && Date.now() < (state.freddyDoor.attackAt||0));
+      const freddyDoorR = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'r' && Date.now() < (state.freddyDoor.attackAt||0));
+
+      const lNode = document.getElementById('m-office-l');
+      const rNode = document.getElementById('m-office-r');
+
+      const showLeft = ml && state.lights.l && !state.doors.l && !state.camOpen;
+      const showRight = mr && state.lights.r && !state.doors.r && !state.camOpen;
+
+      const showFreddyLeft = !showLeft && mfL && state.lights.l && !state.doors.l && !state.camOpen && (freddyWarn || freddyDoorL);
+      const showFreddyRight = !showRight && mfR && state.lights.r && !state.doors.r && !state.camOpen && (freddyWarn || freddyDoorR);
+
+      // Solo se ve al animatrónico en la puerta cuando ALUMBRÁS (sin siluetas en oscuridad)
+      lNode.style.display = (showLeft || showFreddyLeft) ? 'block' : 'none';
+      lNode.style.opacity = '1';
+      lNode.innerHTML = showLeft ? renderEntity(ml.id, 1.5) : (showFreddyLeft ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
+
+      rNode.style.display = (showRight || showFreddyRight) ? 'block' : 'none';
+      rNode.style.opacity = '1';
+      rNode.innerHTML = showRight ? renderEntity(mr.id, 1.5) : (showFreddyRight ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
+
+      // === Front reveal (Bonnie/Chica): aparecen FRENTE al jugador antes del jumpscare ===
+      const fNode = document.getElementById('m-office-front');
+      if(fNode){
+        const ft = state.frontThreat;
+        const nowFT = Date.now();
+
+        // Si el jugador cerró la puerta durante la ventana, cancela el ataque y los hace retroceder
+        if(ft && state.doors[ft.side]){
+          const mm = state.monsters.find(x => x.id === ft.id);
+          state.frontThreat = null;
+          fNode.style.display = 'none';
+          fNode.innerHTML = '';
+          if(mm && mm.inOfficeArmed){
+            mm.inOfficeArmed = false;
+            mm.entering = false; mm.enterRemaining = 0;
+            mm.atDoor = false;
+            mm.pos = (mm.id === 'Purple') ? 3 : 7; // 1 cámara antes
+            mm.stalled = true;
+            if(mm.stallTimer){ clearTimeout(mm.stallTimer); }
+            mm.stallTimer = setTimeout(()=>{ mm.stalled=false; mm.stallTimer=null; }, 2500);
+            playSound(120, 'square', 0.05, 0.06);
+          }
+        }
+
+        const active = ft && !state.camOpen && !state.powerOut && nowFT < ft.until;
+        if(active){
+          fNode.style.display = 'block';
+          fNode.style.left = (ft.id === 'Purple') ? '46%' : '54%';
+          fNode.innerHTML = renderEntity(ft.id, 2.35);
+        } else {
+          fNode.style.display = 'none';
+          fNode.innerHTML = '';
+        }
+      }
+    }
 
     function ucnStallAtDoor(monster, side){
       if(!state.doors[side]) toggleDoor(side, true);
@@ -4647,188 +3325,191 @@ function tickAI(){
 
       if(state.aiGraceUntil && now < state.aiGraceUntil) return;
 
-      // ------------------------------------------------------------
-      // GOLDEN FREDDY (fantasma) — check por segundo (según noche)
-      // N1-3: 0.1% / seg  |  N4+: 5% / seg
-      // Salvación: subir monitor (camOpen=true) => desaparece
-      // ------------------------------------------------------------
-      if(!state.golden) state.golden = { active:false, manifest:false, cooldownUntil:0, killTimer:null, lastCheck:0 };
-      if(!state.golden.lastCheck) state.golden.lastCheck = now;
+      // === Golden Freddy (rework justo) ===
+      // - IA “letal” cap a 5 (no se vuelve injusto aunque lo pongás en 20)
+      // - IA > 10 SOLO aumenta frecuencia de intentos (más apariciones), no la ventana de esquive
+      // - Se activa SOLO si estás mirando cámaras (como FNaF)
+      const aiG = state.ucn ? (getUcnAI('Golden')||0) : getCampaignAI('Golden');
+      const capG = goldenChanceCap(aiG);
+      const intervalG = goldenAttemptIntervalMs(aiG);
+      const minCamForGolden = 550;
 
-      if(now - state.golden.lastCheck >= 1000){
-        state.golden.lastCheck = now;
+      if(now >= (state.golden.cooldownUntil||0) && now - (state.aiClock.Golden||0) >= intervalG){
+        state.aiClock.Golden = now;
 
-        if(!state.menuActive && !state.dead && state.time < 6 && !state.golden.active && now >= (state.golden.cooldownUntil||0)){
-          const p = (state.night >= 4) ? 0.05 : 0.001;
-          if(Math.random() < p){
-            state.golden.active = true;
-            state.golden.manifest = true;
-
-            try{
-              if(ui.goldenOffice){
-                ui.goldenOffice.style.display = 'block';
-                ui.goldenOffice.innerHTML = renderEntity('Golden', 2.4);
-              }
-            }catch(e){}
-
-            if(state.golden.killTimer){ clearTimeout(state.golden.killTimer); state.golden.killTimer = null; }
-            state.golden.killTimer = setTimeout(()=>{
-              if(state.time >= 6) return;
-              if(state.powerOut) return;
-              if(state.cinematicLock) return;
-              if(!state.golden.manifest) return;
-              die('Golden', { reason:'golden' });
-            }, 3000);
+        if(!state.golden.active){
+          const camOpenFor = state.camOpen ? (Date.now() - (state.camOpenSince || Date.now())) : 0;
+          if(state.camOpen && camOpenFor >= minCamForGolden){
+            if(capG > 0){
+              const r = 1 + Math.floor(Math.random()*20);
+              if(r <= capG) activateGolden();
+            }
           }
         }
       }
 
-      // Si aparece y subís monitor => se va
-      if(state.golden && state.golden.manifest && state.camOpen){
-        clearGolden();
-        state.golden.cooldownUntil = now + 9000;
-      }
 
-      // ------------------------------------------------------------
-      // TICK DE MOVIMIENTO (4–5s) por animatrónico
-      // ------------------------------------------------------------
-      if(!state.aiPlan || typeof state.aiPlan !== 'object') state.aiPlan = {};
-      if(!Array.isArray(state.monsters)) return;
-
+      // === Animatrónicos principales (ODM por tick dedicado) ===
       state.monsters.forEach(m=>{
-        if(!m || m.id === 'Golden' || m.type === 'golden') return;
+        if(state.ucn && m.stalled) return;
 
-        // Planificador por ID
-        if(!state.aiPlan[m.id]) state.aiPlan[m.id] = { next: now + (4000 + Math.random()*1000) };
-        if(now < state.aiPlan[m.id].next) return;
-        state.aiPlan[m.id].next = now + (4000 + Math.random()*1000);
+        const interval = (m.id === 'Grey') ? 2700 : 4600;
+        if(now - (state.aiClock[m.id]||0) < interval) return;
+        state.aiClock[m.id] = now;
 
-        // Ejecuta movimiento (cada función maneja su RNG interno según reglas)
         if(m.type === 'freddy') { moveFreddy(m); return; }
         if(m.type === 'foxy') { moveFoxy(m); return; }
         moveStandard(m);
       });
 
-      // Render dinámico mientras mirás cámaras
       if(state.camOpen) renderCam();
       updateFoxyPhaseUI();
     }
 
     function moveStandard(m){
+      // Bonnie (Purple) / Chica (Yellow)
+      if(state.powerOut) return;
+      if(m.inOfficeArmed) return;
 
-  if(!rollODM(m.id)) return;
+      // ODM
+      if(!rollODM(m.id)) return;
 
-  const now = Date.now();
-  const doorCam = (m.door === 'l') ? 5 : 8;
-  const doorIdx = m.route.indexOf(doorCam);
-  let idx = m.route.indexOf(m.pos);
-  if(idx < 0) idx = 0;
+      const now = Date.now();
+      const doorCam = (m.door === 'l') ? 5 : 8;
+      const doorIdx = m.route.indexOf(doorCam);
+      let idx = m.route.indexOf(m.pos);
+      if(idx < 0) idx = 0;
 
-  if(m.atDoor){
-    if(m.leaveAt == null) m.leaveAt = 0;
-    if(m.knockPending == null) m.knockPending = false;
+      // En la cámara de la puerta (CAM 5 / CAM 8) todavía se ve en CCTV.
+      // Solo al acertar OTRA ODM pasa al marco de la puerta (atDoor) y ahí ya se confirma con la LUZ.
+      if(m.atDoor){
+        // Aseguramos campo para retirarse
+        if(m.leaveAt == null) m.leaveAt = 0;
 
-    // v34: Retirada natural si la puerta está cerrada
-    if(state.doors[m.door]){
-      if(!m.leaveAt){
-        m.leaveAt = now + (600 + Math.random()*600);
-      }
-      if(now < m.leaveAt){
-        if(Math.random() < 0.03) playSound(52, 'square', 0.015, 0.05);
-        return;
-      }
-      playSound(95, 'square', 0.12, 0.07); // door_thump
-      m.atDoor = false;
-      m.doorArriveAt = 0;
-      m.leaveAt = 0;
-      m.knockPending = false;
-      m.fakeUsed = false;
-      m.entering = false; m.enterRemaining = 0;
-      m.blockStreak = 0;
-      m.backtrackStreak = 0;
-      m.pos = 1; // stage
-      m.stalled = true;
-      if(m.stallTimer){ clearTimeout(m.stallTimer); }
-      m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 1600 + Math.random()*700);
-      return;
-    }
+        const waited = now - (m.doorArriveAt || now);
 
-    // Puerta abierta: ventana de reacción
-    const waited = now - (m.doorArriveAt || now);
-    const minWait = (state.ucn ? 600 : 800);
-    if(waited < minWait){
-      if(Math.random() < 0.18) playSound(55, 'square', 0.02, 0.05);
-      return;
-    }
+        // Ventana de reacción (más FNaF1): primero se queda en puerta un rato para que el jugador alumbre/reaccione.
+        const minWait = state.ucn ? 1100 : 1600;
+        if(waited < minWait){
+          if(Math.random() < 0.18) playSound(55, 'square', 0.02, 0.05);
+          return;
+        }
 
-    // Puerta abierta: wind-up (se resuelve en updateCore con monitor ABAJO)
+        // Puerta ABIERTA: intenta colarse con un "wind-up". El conteo real ocurre solo con monitor ABAJO (ver updateCore).
+        if(!state.doors[m.door]){
+          m.leaveAt = 0;
+          m.knockPending = false;
+          m.fakeKnockStreak = 0;
+          m.blockStreak = 0; // si lo dejaste pasar, resetea bloqueos seguidos
+          if(!m.entering){
+            m.entering = true;
+            m.enterRemaining = (state.ucn ? 1700 : 2300);
+            playSound(68, 'square', 0.03, 0.06);
+          }
+          return;
+        }
+
+        // Puerta CERRADA: golpe rápido + decisión real/falso en el 1er golpe (más fluido)
+// - 75%: Golpe real => se retira al Stage al instante.
+// - 25%: Golpe falso => espera 1 golpe extra.
+// - Máximo 1 golpe falso.
+if(m.entering){ m.entering=false; m.enterRemaining=0; }
+
+if(m.knockPending == null) m.knockPending = false;
+
+// Programa el primer golpe (casi inmediato)
+if(!m.knockPending){
+  m.knockPending = true;
+  const quick = 100 + Math.random()*200;
+m.leaveAt = now + quick;
+}
+
+if(now >= m.leaveAt){
+  // golpe
+  playSound(95, 'square', 0.10, 0.06);
+
+  const canFake = !(m.fakeUsed === true);
+  const realHit = canFake ? (Math.random() < 0.75) : true;
+
+  if(realHit){
+    m.atDoor = false;
+    m.doorArriveAt = 0;
     m.leaveAt = 0;
     m.knockPending = false;
     m.fakeUsed = false;
-    m.fakeKnockStreak = 0;
     m.blockStreak = 0;
-    if(!m.entering){
-      m.entering = true;
-      m.enterRemaining = (state.ucn ? 1700 : 2300);
-      playSound(68, 'square', 0.03, 0.06);
-    }
-    return;
-  }
-
-  // En CAM de puerta (CCTV) -> al acertar otra ODM pasa a puerta real
-  if(m.pos === doorCam){
-    m.atDoor = true;
-    m.doorArriveAt = now;
-    m.leaveAt = 0;
-    m.knockPending = false;
-    m.fakeUsed = false;
-    // v34: One-shot sting
-    m.stingPlayed = false;
-    playSound(90, 'sine', 0.06, 0.10);
-    return;
-  }
-
-  // Backtrack control
-  if(m.backtrackCooldownUntil == null) m.backtrackCooldownUntil = 0;
-  if(m.backtrackStreak == null) m.backtrackStreak = 0;
-  if(m.blockStreak == null) m.blockStreak = 0;
-
-  const canBack = (idx > 0 && idx < doorIdx && m.pos !== doorCam && m.pos !== 1);
-  const backChance = state.ucn ? 0.10 : 0.08;
-  if(canBack && now >= m.backtrackCooldownUntil && Math.random() < backChance){
-    m.backtrackStreak += 1;
-    m.backtrackCooldownUntil = now + 2200;
-
-    if(m.backtrackStreak >= 2){
-      m.pos = 1;
-      m.atDoor = false;
-      m.doorArriveAt = 0;
-      m.leaveAt = 0;
-      m.entering = false; m.enterRemaining = 0;
-      m.backtrackStreak = 0;
-      m.blockStreak = 0;
-      m.stalled = true;
-      if(m.stallTimer){ clearTimeout(m.stallTimer); }
-      m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 2800);
-      playSound(70, 'square', 0.02, 0.07);
-      return;
-    } else {
-      m.pos = m.route[Math.max(0, idx - 1)];
-      playSound(85, 'sine', 0.02, 0.05);
-      return;
-    }
-  }
-
-  // Avanza 1 cámara hacia la puerta
-  let nextIdx = Math.min(idx + 1, doorIdx);
-  if(nextIdx >= doorIdx) nextIdx = doorIdx;
-  m.pos = m.route[nextIdx];
-  m.backtrackStreak = 0;
-
-  if(m.pos === doorCam){
-    m.doorArriveAt = now;
+    m.backtrackStreak = 0;
+    m.pos = 1; // stage
+    m.stalled = true;
+    if(m.stallTimer){ clearTimeout(m.stallTimer); }
+    m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 2400);
+  } else {
+    // falso: se queda y reprograma UN segundo golpe (forzado real)
+    m.fakeUsed = true;
+    m.leaveAt = now + (state.ucn ? (900 + Math.random()*350) : (1050 + Math.random()*450));
+    m.knockPending = true;
   }
 }
+
+
+        return;
+      }
+
+      // Está en la cámara de la puerta: se ve en CCTV.
+      // Si acierta ODM aquí, recién pasa a la puerta (atDoor) y lo confirmás con la LUZ.
+      if(m.pos === doorCam){
+        m.atDoor = true;
+        m.doorArriveAt = now;
+        m.fakeUsed = false; // allow at most one fake per siege
+        playSound(90, 'sine', 0.06, 0.10);
+        return;
+      }
+
+      // Probabilidad de retroceder 1 cámara (sin abusar).
+      // Si retrocede 2 veces seguidas, reinicia al escenario y retoma su ruta normal.
+      if(m.backtrackCooldownUntil == null) m.backtrackCooldownUntil = 0;
+      if(m.backtrackStreak == null) m.backtrackStreak = 0;
+      if(m.blockStreak == null) m.blockStreak = 0;
+
+      const canBack = (idx > 0 && idx < doorIdx && m.pos !== doorCam && m.pos !== 1);
+      const backChance = state.ucn ? 0.10 : 0.08; // sutil, no molesto
+      if(canBack && now >= m.backtrackCooldownUntil && Math.random() < backChance){
+        m.backtrackStreak += 1;
+        m.backtrackCooldownUntil = now + 2200;
+
+        if(m.backtrackStreak >= 2){
+          // 2 seguidas => vuelve al escenario para evitar “puerta spam”
+          m.pos = 1;
+          m.atDoor = false;
+          m.doorArriveAt = 0;
+          m.leaveAt = 0;
+          m.entering = false; m.enterRemaining = 0;
+          m.backtrackStreak = 0;
+          m.blockStreak = 0;
+          m.stalled = true;
+          if(m.stallTimer){ clearTimeout(m.stallTimer); }
+          m.stallTimer = setTimeout(()=>{ m.stalled=false; m.stallTimer=null; }, 2800);
+          playSound(70, 'square', 0.02, 0.07);
+          return;
+        } else {
+          m.pos = m.route[Math.max(0, idx - 1)];
+          playSound(85, 'sine', 0.02, 0.05);
+          return;
+        }
+      }
+
+      // Avanza 1 cámara hacia la puerta
+      let step = 1;
+      let nextIdx = Math.min(idx + step, doorIdx);
+      if(nextIdx >= doorIdx) nextIdx = doorIdx;
+      m.pos = m.route[nextIdx];
+      m.backtrackStreak = 0; // avanzar resetea racha
+
+      if(m.pos === doorCam){
+        // Llegó a la cámara de la puerta: aún se ve en CCTV. No pasa a puerta (atDoor) hasta acertar OTRA ODM.
+        m.doorArriveAt = now;
+      }
+    }
 
     function freddyDoorAllowedMs(isDoorClosed){
       const base = Math.max(2800, 7200 - (state.night - 1) * 1050);
@@ -4851,29 +3532,6 @@ function handleFreddyDoor(){
       if(!f) { stopFreddyVentLoop(); return; }
 
       const now = Date.now();
-      // Fail-safe (v55): si Freddy entra a VENT y NO cerrás en 10s => Jumpscare (según spec)
-      if(state.freddyVent && state.freddyVent.active && state.freddyVent.enteredAt){
-        const dtVent = now - state.freddyVent.enteredAt;
-        if(dtVent >= 10000){
-          stopFreddyVentLoop();
-          state.freddyVent.active = false;
-          state.freddyVent.stage = 'none';
-          state.freddyVent.mode = '';
-          state.freddyVent.stageUntil = 0;
-          state.freddyVent.whiteUntil = 0;
-
-          if(!state.ventClosed){
-            // Vent abierto => muerte
-            die('Grey', { reason:'vent_timeout' });
-            return;
-          } else {
-            // Vent cerrado a tiempo => vuelve a Stage
-            freddyResetToStage(800);
-            return;
-          }
-        }
-      }
-
 
       // --- Helpers (scope global) ---
       // Start/Reset/Attack helpers are defined below if missing (compat)
@@ -4947,9 +3605,7 @@ state.freddyVent.enteredAt = 0;
           m.door = side;
           m.inVent = false;
 
-          
-  m.stingPlayed = false;
-// cue leve: "viene la presión"
+          // cue leve: "viene la presión"
           playSound(62, 'sine', 0.05, 0.10);
         };
       }
@@ -5049,15 +3705,7 @@ state.freddyVent.enteredAt = 0;
           f.waitSide = null;
           f.cooldownUntil = Date.now() + 5000;
 
-          // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
-      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
-        if(!state.glitchDocUntil && Math.random() < 0.001){
-          state.glitchDocUntil = now + 2200 + Math.random()*1800;
-        }
-      }
-      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
-
-      if(state.camOpen) renderCam(); // refresco inmediato para que se vea en cámaras
+          if(state.camOpen) renderCam(); // refresco inmediato para que se vea en cámaras
           return;
         }
 
@@ -5116,8 +3764,6 @@ state.freddyVent.enteredAt = 0;
     }
 
 // ===== Freddy helpers (v17) =====
-
-
 function isDoorOccupied(side){
   return state.monsters.some(mm=>{
     if(mm.id!=='Purple' && mm.id!=='Yellow') return false;
@@ -5183,7 +3829,7 @@ function armFreddyDoorAttack(m, side, source){
   state.freddyDoor.side = side;
   state.freddyDoor.source = source || 'hall';
   state.freddyDoor.startedAt = t;
-  state.freddyDoor.attackAt = t + (state.ucn ? 2200 : 3000);
+  state.freddyDoor.attackAt = t + (state.ucn ? (850 + Math.random()*320) : (1050 + Math.random()*480));
 
   // (Fix v20 #1) Freddy debe verse asomado en la puerta al alumbrar: activa bandera de advertencia
   state.freddyState.warning = true;
@@ -5242,61 +3888,132 @@ function moveFreddy(m){
       const ai = state.ucn ? getUcnAI('Grey') : getCampaignAI('Grey');
       if(ai <= 0) return;
 
-      // Si está en secuencia VENT o strike de puerta, no avanzar ruta acá
-      if(state.freddyVent && state.freddyVent.active) return;
+      // While vent sequence or door strike is active, don't advance the route here
+      if(state.freddyVent.active) return;
       if(state.freddyDoor && state.freddyDoor.active) return;
 
-      // Freddy NO se mueve por "ruta libre"; pasa por chequeo RNG del tick
-      const ok = state.ucn ? ucnRoll('Grey') : campaignRoll('Grey');
-      if(!ok) return;
+      // If he's waiting for a door to free up (queue system), keep him hidden in CAM 5/8
+      if(m.waitingDoor){
+        const side = m.waitSide || 'l';
+        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
+        if(!busy){
+          m.waitingDoor = false;
+          m.hidden = false;
+          // Arm a door strike as soon as it becomes available
+          armFreddyDoorAttack(m, side, 'queue');
+        }
+        return;
+      }
 
-      // Ruta base: 1 -> 2 -> (CRUCE) -> 6 -> 7 -> 8 -> ataque
+      if(m.cooldownUntil == null) m.cooldownUntil = 0;
+      if(now < m.cooldownUntil) return;
+
+      // Cameras slow Freddy (not freeze). Watching his current cam slows more.
+      if(state.camOpen){
+        const watchingHim = (state.cam === m.pos) || (state.cam === 'V' && m.inVent);
+        const p = watchingHim ? 0.40 : 0.62;
+        if(Math.random() > p) return;
+      }
+
+      // ODM gate
+      if(!rollODM('Grey')) return;
+
+      // === ROUTE (v17) ===
+      // Inicio: 1 -> 2
       if(m.pos === 1){
         m.pos = 2;
-        playFreddyMoveSfx('step');
+        m.path = null;
+        playSound(110, 'square', 0.02, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*700) : (1400 + Math.random()*900));
         return;
       }
 
-      // Cruce (CAM 2)
+      // Desde CAM 2: izquierda (3->5), derecha (6->7->8) o directo a VENT
       if(m.pos === 2){
+        const ventProb = clamp(0.18 + ai*0.010, 0.18, 0.32); // no spamear VENT
         const r = Math.random();
-        if(r < 0.30){
-          // 30%: VENT
+        if(r < ventProb){
           startFreddyVentSequence(m, 'direct');
-          // Fail-safe de 10s (lo aplica handleFreddyDoor)
-          if(state.freddyVent) state.freddyVent.enteredAt = now;
-          playFreddyMoveSfx('laugh');
-          return;
-        } else {
-          // 70%: ruta cocina
-          m.pos = 6;
-          playFreddyMoveSfx('step');
           return;
         }
-      }
-
-      if(m.pos === 6){ m.pos = 7; playFreddyMoveSfx('step'); return; }
-      if(m.pos === 7){ m.pos = 8; playFreddyMoveSfx('step'); return; }
-
-      // Ataque desde la esquina derecha (CAM 8) => strike a puerta derecha
-      if(m.pos === 8){
-        if(!state.freddyDoor) state.freddyDoor = { active:false, side:null, attackAt:0, source:'', startedAt:0 };
-        state.freddyDoor.active = true;
-        state.freddyDoor.side = 'r';
-        state.freddyDoor.source = 'cam8';
-        state.freddyDoor.startedAt = now;
-        state.freddyDoor.attackAt = now + (1100 + Math.random()*900);
-
-        // Mientras prepara strike, queda oculto de las cámaras
-        m.hidden = true;
-        playFreddyMoveSfx('laugh');
+        if(r < ventProb + 0.44){
+          m.pos = 3; m.path = 'L';
+        } else {
+          m.pos = 6; m.path = 'R';
+        }
+        playSound(105, 'square', 0.02, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1200 + Math.random()*900) : (1500 + Math.random()*1100));
         return;
       }
 
-      // Si se desincronizó, lo devolvemos
-      m.pos = 1;
-      m.hidden = false;
+      // Left path
+      if(m.pos === 3){
+        m.pos = 5;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+      // Right path
+      if(m.pos === 6){
+        m.pos = 7;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+      if(m.pos === 7){
+        // (v21) Desde CAM 7 sí puede desviar a VENT. Desde CAM 8 es imposible.
+        const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
+        if(Math.random() < divertProb){
+          startFreddyVentSequence(m, 'side', 'r');
+          return;
+        }
+
+        m.pos = 8;
+        playSound(95, 'square', 0.018, 0.05);
+        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+        return;
+      }
+
+
+      // At CAM 5 / CAM 8:
+      // - CAM 5: puede decidir atacar puerta IZQ o desviar a VENT (lateral).
+      // - CAM 8 (puerta DER): NO puede entrar a VENT. Desde ahí solo ataca o espera. (Fix v22 #1)
+      if(m.pos === 5 || m.pos === 8){
+        const side = (m.pos === 5) ? 'l' : 'r';
+
+        // Desvío a ventilación desde lateral (más raro) — SOLO válido desde CAM 5.
+        if(m.pos === 5){
+          const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
+          if(Math.random() < divertProb){
+            startFreddyVentSequence(m, 'side', side);
+            return;
+          }
+        }
+
+        // Sistema cola: si Bonnie/Chica ocupan la puerta, Freddy espera invisible en CAM 5/8
+        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
+        if(busy){
+          m.waitingDoor = true;
+          m.waitSide = side;
+          m.hidden = true; // invisible en la cámara mientras espera
+          m.cooldownUntil = now + 600;
+          return;
+        }
+
+        armFreddyDoorAttack(m, side, 'hall');
+        return;
+      }
+
+
+      // Re-anchor if off-route
+      m.pos = 2;
     }
+
+
+
+
 
 function moveFoxy(m){
       if(state.powerOut) return;
@@ -5305,97 +4022,110 @@ function moveFoxy(m){
       const ai = state.ucn ? getUcnAI('Foxy') : getCampaignAI('Foxy');
       if(ai <= 0) return;
 
-      // Inicializa contador de paciencia
-      if(typeof m.patience !== 'number' || !isFinite(m.patience)) m.patience = 100;
-      if(typeof m.phase !== 'number' || !isFinite(m.phase)) m.phase = 0;
-      if(typeof m.lastPatienceAt !== 'number' || !isFinite(m.lastPatienceAt)) m.lastPatienceAt = now;
+      // Freeze phase progression while cameras are up (FNaF1-like),
+      // but don't stop an attack once it has started.
+      if(state.camOpen && state.cam === 4 && !m.attacking && m.phase < 4){
+        // Mirarlo en CAM 4 lo ralentiza, pero NO lo congela; y en FASE 4 corre aunque lo estés mirando
+        if(Math.random() < 0.55) return;
+      }
 
-      // Actualiza paciencia con dt (segundos)
-      const dt = Math.min(0.40, Math.max(0, (now - m.lastPatienceAt)/1000));
-      m.lastPatienceAt = now;
+      if(m.cooldownUntil == null) m.cooldownUntil = 0;
+      if(!m.attacking && now < m.cooldownUntil) return;
 
-      // Velocidades base (más agresivo con más AI)
-      const mult = 1 + (ai / 20); // 1.05..2.0 aprox
-      const fastDown = 9.0 * mult;   // sin cámaras (baja rápido)
-      const slowDown = 2.0 * mult;   // mirando otras cams
-      const lookUp   = 2.2;          // mirando CAM 4 (sube leve)
+      // ODM roll (same system as others)
+      if(!rollODM('Foxy')) return;
 
-      if(m.attacking){
-        // Ataque en curso: no "regenera"
-        if(now >= (m.attackAt||0)){
-          // Impacto: puerta izquierda por defecto (FNaF1 feel)
-          const side = 'l';
-          if(state.doors[side]){
-            // Bloqueado => drena 10% y resetea
-            state.pwr = clamp(state.pwr - 10, 0, 100);
-            playSound(70, 'triangle', 0.10, 0.12); // golpe seco
-            m.attacking = false;
-            m.attackAt = 0;
-            m.patience = 100;
-            m.pos = 4;
-          } else {
-            m.attacking = false;
-            m.attackAt = 0;
-            die('Foxy', { reason:'foxy_run', side });
-          }
-        }
+      // If already attacking, do nothing here (timers drive it)
+      if(m.attacking) return;
+
+      // Advance phases 0->4
+      m.phase = Math.min(4, m.phase + 1);
+
+      // Keep him in Pirate Cove until phase 4 triggers the run
+      if(m.phase < 4){
+        m.pos = 4;
         return;
       }
 
-      // Progresión / regresión de paciencia según cámaras
-      if(state.camOpen){
-        if(state.cam === 4){
-          m.patience = clamp(m.patience + lookUp*dt, 0, 100);
+      // === Phase 4: Foxy RUN ===
+      m.attacking = true;
+
+      const left = (Math.random() < 0.5);
+m.attackSide = left ? 1 : 2; // 1=left, 2=right for UI
+      const telegraphMs = state.ucn ? 1500 : 1950;
+
+      // He "leaves" Pirate Cove during the run (so watching CAM 4 you see him disappear)
+      setTimeout(()=>{
+        if(state.powerOut) return;
+        m.pos = -1; // not visible on any cam while running
+      }, 380);
+
+      // Distinct audio cue
+      setTimeout(() => {
+        if(state.powerOut) return;
+        if(left){
+          playSound(70, 'square', 0.10, 0.08);
         } else {
-          m.patience = clamp(m.patience - slowDown*dt, 0, 100);
+          playSound(140, 'sawtooth', 0.08, 0.12);
         }
-      } else {
-        m.patience = clamp(m.patience - fastDown*dt, 0, 100);
-      }
+      }, Math.max(160, telegraphMs - 680));
 
-      // Fases por umbrales
-      if(m.patience >= 75) m.phase = 0;
-      else if(m.patience >= 50) m.phase = 1;
-      else if(m.patience >= 25) m.phase = 2;
-      else m.phase = 3;
+      setTimeout(() => {
+        if(state.powerOut) return;
 
-      // Cuando llega a 0 => corre
-      if(m.patience <= 0.001){
-        m.attacking = true;
-        m.attackAt = now + (650 + Math.random()*450);
-        // Oculta en cams mientras corre
-        m.pos = -1;
-        // SFX de carrera (usa función existente si está, sino fallback)
-        try{
-          if(typeof playFoxyRun === 'function') playFoxyRun('L');
-          else playCamSwitchSfx && playCamSwitchSfx();
-        }catch(_e){}
-      }
+        // Appears at the door camera (CAM 5 / CAM 8)
+        m.pos = left ? 5 : 8;
+        m.phase = 5;
+
+        const holdMs = state.ucn ? 2100 : 2600;
+
+        setTimeout(() => {
+          if(state.powerOut) return;
+
+          const doorKey = left ? 'l' : 'r';
+
+          if(state.doors[doorKey]){
+            // Blocked: drain some power (capped)
+            const drain = Math.min(16, 1 + (m.drainCount||0) * 5);
+            m.drainCount = Math.min(4, (m.drainCount||0) + 1);
+            state.pwr = clamp(state.pwr - drain, 0, 99);
+            playSound(55, 'triangle', 0.10, 0.14);
+
+            // Return to Pirate Cove in phase 1–2
+            m.pos = 4;
+            m.phase = 1;
+          } else {
+            // Door open: kill
+            die('Foxy');
+          }
+
+          // Cooldown to avoid unfair repeats
+          m.attacking = false;
+          m.cooldownUntil = Date.now() + (state.ucn ? (3600 + Math.random()*3800) : (5600 + Math.random()*5000));
+        }, holdMs);
+      }, telegraphMs);
     }
 
-    function updateFoxyPhaseUI(){
-          const f = state.monsters.find(x => x.id === 'Foxy');
-          if(!f || !ui.foxyPhase) return;
 
-          // Sync blink on CAM 4 button in the map
-          const btn4 = document.querySelector('g[onclick="setCam(4)"] rect');
-          const isRunning = !!f.attacking;
-          if(btn4) btn4.classList.toggle('map-alert-blink', isRunning);
 
-          const shouldShow = state.camOpen && state.cam === 4;
-          ui.foxyPhase.style.display = shouldShow ? 'block' : 'none';
-          if(!shouldShow) return;
+function updateFoxyPhaseUI(
+){
+      const f = state.monsters.find(x => x.id === 'Foxy');
+      if(!f || !ui.foxyPhase) return;
 
-          const pct = (typeof f.patience === 'number') ? Math.round(f.patience) : 100;
-          const label =
-            (f.phase === 0) ? "FASE 0 (CORTINA)" :
-            (f.phase === 1) ? "FASE 1 (ASOMA)" :
-            (f.phase === 2) ? "FASE 2 (FUERA)" :
-            (f.phase === 3) ? (f.attacking ? "CORRIENDO" : "FASE 3 (LISTO)") :
-            "—";
+      const shouldShow = state.camOpen && state.cam === 4;
+      ui.foxyPhase.style.display = shouldShow ? 'block' : 'none';
+      if(!shouldShow) return;
 
-          ui.foxyPhase.innerHTML = `${label}<br><span class="dim">PACIENCIA: ${pct}</span>`;
-        }
+      let extra = "";
+      if(f.phase === 4){
+        extra = f.attackSide === 2 ? " (DER → CAM 8)" : (f.attackSide === 1 ? " (IZQ → CAM 5)" : "");
+      }
+      if(f.phase === 5){
+        extra = f.attackSide === 2 ? " (CIERRA DER!)" : " (CIERRA IZQ!)";
+      }
+      ui.foxyPhase.innerText = `FOXY: FASE ${Math.min(5, Math.max(0, f.phase))}${extra}`;
+    }
 
     function scheduleAttack(m, overrideDelay=null){
       if(state.powerOut) return;
@@ -5439,14 +4169,12 @@ function moveFoxy(m){
     }
 
     function toggleDoor(s, silent=false){
-  ensureStateDefaults();
-
       if(Date.now() < (state.defenseLockedUntil||0)) return;
       if(state.powerOut || Math.floor(state.pwr) <= 0) return;
 state.doors[s] = !state.doors[s];
       document.getElementById(`${s}-door-asset`).classList.toggle('closed');
       document.getElementById(`btn-d${s}`).classList.toggle('active-door');
-      if(!silent) playDoorSfx(state.doors[s]);
+      if(!silent) playSound(100, 'square', 0.1, 0.1);
 
       if(state.doors[s]){
         if(s === 'l'){ document.getElementById('m-office-l').style.display = 'none'; }
@@ -5477,35 +4205,17 @@ state.doors[s] = !state.doors[s];
     window.toggleDoor = toggleDoor;
 
     function toggleLight(s){
-  ensureStateDefaults();
-
-  if(state.dead || state.powerOut || state.inJumpscare) return;
-  if(state.camOpen) return; // Solo evita encender si la cámara está abierta
-
-  state.lights[s] = !state.lights[s];
-  const on = state.lights[s];
-
-  // v34: Sting one-shot al alumbrar (solo si hay animatrónico visible y la puerta está abierta)
-  if(on && !state.camOpen && !state.doors[s]){
-    const m = state.monsters.find(x => x.atDoor && x.door === s && !x.hidden && (x.id==='Purple' || x.id==='Yellow' || x.id==='Grey'));
-    if(m && !m.stingPlayed){
-      m.stingPlayed = true;
-      playSound(1180 + Math.random()*120, 'sawtooth', 0.09, 0.06);
+      if(Date.now() < (state.defenseLockedUntil||0)) return;
+      if(state.powerOut || Math.floor(state.pwr) <= 0) return;
+      state.lights[s] = !state.lights[s];
+      document.getElementById(`${s}-light-fx`).classList.toggle('on');
+      document.getElementById(`btn-l${s}`).classList.toggle('active-light');
+      playSound(800, 'sine', 0.02, 0.05);
     }
-  }
-
-  // Play SFX for light toggle
-  playLightSfx(on);
-
-  const fx = document.getElementById(s === 'l' ? 'l-light-fx' : 'r-light-fx');
-  if(fx) fx.classList.toggle('on', on);
-}
     window.toggleLight = toggleLight;
 
     
     function toggleVent(){
-  ensureStateDefaults();
-
       if(state.powerOut) return;
       if(Date.now() < (state.defenseLockedUntil||0)) return;
       state.ventClosed = !state.ventClosed;
@@ -5518,45 +4228,21 @@ state.doors[s] = !state.doors[s];
       if(bv) bv.classList.toggle('active-door', state.ventClosed);
       const hatch = document.getElementById('vent-hatch');
       if(hatch) hatch.classList.toggle('closed', state.ventClosed);
-      playVentSfx(state.ventClosed);
+      playSound(state.ventClosed ? 90 : 140, 'square', 0.09, 0.08);
     }
     window.toggleVent = toggleVent;
 
 
 function toggleCams(){
-  ensureStateDefaults();
-
       if(state.powerOut) return;
 
       const wasOpen = state.camOpen;
       state.camOpen = !state.camOpen;
             state.camOpenSince = state.camOpen ? Date.now() : 0;
 ui.camOverlay.style.display = state.camOpen ? 'block' : 'none';
-      
-      // v37: Hide/show Phone Guy mute button with monitor
-      try{
-        const _mute = document.getElementById('mute-call');
-        if(_mute){
-          if(state.camOpen) _mute.style.display = 'none';
-          else if(state.phoneBtnActive) _mute.style.display = 'block';
-        }
-      }catch(_e){}
-if(!state.camOpen){
-        const camScreenEl = document.getElementById('cam-screen');
-        if(camScreenEl) camScreenEl.classList.remove('cam-alert-red');
-      }
-
       const _mapEl2 = document.getElementById('cam-map');
       if(_mapEl2) _mapEl2.style.display = state.camOpen ? 'block' : 'none';
-      playCamSwitchSfx();
-
-      // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
-      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
-        if(!state.glitchDocUntil && Math.random() < 0.001){
-          state.glitchDocUntil = now + 2200 + Math.random()*1800;
-        }
-      }
-      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
+      playSound(400, 'sawtooth', 0.05, 0.05);
 
       if(state.camOpen) renderCam();
       updateFoxyPhaseUI();
@@ -5692,13 +4378,8 @@ if(!state.camOpen){
     }
 
 function setCam(n){
-  ensureStateDefaults();
-
       state.cam = n;
-            // v34: Poster 'DESAPARECIDA' (1/400) al cambiar a CAM 2 o CAM 6
-      if(n === 2 || n === 6){ state.luciaPoster = (Math.random() < (1/400)); }
-      else { state.luciaPoster = false; }
-const name = camLabel(n) || "";
+      const name = CAM_NAMES[n] || "";
       ui.camInfo.innerText = (n === 'V') ? `CAM VENT: ${name}` : `CAM ${n}: ${name}`;
 
       // Active highlight without relying on index order (supports VENT node)
@@ -5710,7 +4391,7 @@ const name = camLabel(n) || "";
         rect && rect.classList.add('active');
       }
 
-      if(state.camOpen) playCamSwitchSfx();
+      if(state.camOpen) playSound(520, 'square', 0.02, 0.05);
       renderCam();
       updateFoxyPhaseUI();
     }
@@ -5729,56 +4410,19 @@ const name = camLabel(n) || "";
           <div class="prop table" style="left:55%; top:55%; width:26%; height:16%;"></div>
         </div>`;
       }
-if(n === 2){
-  const glitch = (state.glitchDocUntil && Date.now() < state.glitchDocUntil);
-  const posterHTML = glitch ? `
-    <div class="prop glitch-doc" style="left:62%; top:20%; width:26%; height:18%;">
-      <div class="glitch-title">SUJETO #04</div>
-      <div class="glitch-body">- ERROR DE<br>SIMPLIFICACIÓN -</div>
-    </div>
-  ` : (state.luciaPoster ? `
-    <div class="prop lucia-wanted" style="left:62%; top:18%; width:26%; height:22%;">
-      <div class="lw-top">DESAPARECIDA</div>
-      <div class="lw-photo"><span>?</span></div>
-      <div class="lw-bot">Lucía R. - 1999</div>
-    </div>
-  ` : `
-    <div class="prop poster" style="left:62%; top:20%; width:24%; height:18%;"></div>
-  `);
-
-  return `<div class="cam-props">
-    <div class="prop table" style="left:10%; top:58%; width:32%; height:18%;"></div>
-    <div class="prop table" style="left:46%; top:50%; width:30%; height:16%;"></div>
-    ${posterHTML}
-  </div>`;
-}
-if(n === 3 || n === 6){
-  const posterHTML = (n === 6 && state.luciaPoster) ? `
-    <div class="prop lucia-wanted" style="left:10%; top:28%; width:24%; height:22%;">
-      <div class="lw-top">DESAPARECIDA</div>
-      <div class="lw-photo"><span>?</span></div>
-      <div class="lw-bot">Lucía R. - 1999</div>
-    </div>
-  ` : `
-    <div class="prop poster" style="left:10%; top:28%; width:22%; height:16%;"></div>
-  `;
-  return `<div class="cam-props">
-    <div class="prop door" style="left:74%; top:22%; width:14%; height:54%; border-radius:12px;"></div>
-    ${posterHTML}
-  </div>`;
-}
-
-if(n === 7){
-  const revealed = !!state.cam7HatchRevealed;
-  return `<div class="cam-props">
-    <div class="prop table" style="left:18%; top:56%; width:28%; height:18%;"></div>
-    <div class="prop poster" style="left:58%; top:22%; width:26%; height:18%;"></div>
-    <div id="cam7-hatch" class="prop hatch ${revealed ? 'revealed' : ''}" style="left:32%; top:74%; width:34%; height:14%;">
-      <div class="hatch-label">SÓTANO SELLADO</div>
-    </div>
-  </div>`;
-}
-
+      if(n === 2){
+        return `<div class="cam-props">
+          <div class="prop table" style="left:10%; top:58%; width:32%; height:18%;"></div>
+          <div class="prop table" style="left:46%; top:50%; width:30%; height:16%;"></div>
+          <div class="prop poster" style="left:62%; top:20%; width:24%; height:18%;"></div>
+        </div>`;
+      }
+      if(n === 3 || n === 6){
+        return `<div class="cam-props">
+          <div class="prop door" style="left:74%; top:22%; width:14%; height:54%; border-radius:12px;"></div>
+          <div class="prop poster" style="left:10%; top:28%; width:22%; height:16%;"></div>
+        </div>`;
+      }
       if(n === 4){
         return `<div class="cam-props">
           <div class="prop door" style="left:10%; top:18%; width:20%; height:66%; border-radius:18px; opacity:0.6;"></div>
@@ -5797,67 +4441,49 @@ if(n === 7){
     }
 
     function renderCam(){
-  const camId = state.cam;
-  const scene = (typeof CAM_SCENES !== 'undefined' && CAM_SCENES[camId]) ? CAM_SCENES[camId] : { label: 'CAM ' + camId };
+      const camId = state.cam;
+      const scene = CAM_SCENES[camId] || CAM_SCENES[1];
 
-  // Fondo base con gradiente (sin imágenes externas para evitar errores)
-  const bgStyle = `background: radial-gradient(circle at 50% 30%, #1a1a20 0%, #050505 80%); box-shadow: inset 0 0 80px #000;`;
+      // Special VENT camera: shows ONLY Freddy eyes (red/white/purple) + industrial decor
+      if(camId === 'V'){
+        const active = !!state.freddyVent.active;
+        const stage = state.freddyVent.stage || 'none';
+                const eyesClass = (stage === 'white') ? 'white' : (stage === 'red' ? 'red' : (stage === 'purple' ? 'purple' : (stage === 'gold' ? 'gold' : 'gold')));
+        const eyesHTML = active ? `
+          <div class="vent-eyes ${eyesClass}">
+            <div class="vent-eye"></div>
+            <div class="vent-eye"></div>
+          </div>
+        ` : '';
 
-  // Renderizar monstruos visibles (y casos especiales de puertas)
-  const list = Array.isArray(state.monsters) ? state.monsters : [];
-  const visible = list.filter(m =>
-    m && !m.hidden && (
-      m.pos === camId ||
-      (camId===5 && m.id==='Purple' && (m.atDoor||m.entering)) ||
-      (camId===8 && m.id==='Yellow' && (m.atDoor||m.entering))
-    )
-  );
+        ui.camRender.innerHTML = `
+          <div class="vent-scene"></div>
+          <div class="vent-pipe" style="left:8%; top:16%; width:72%; height:18%;"></div>
+          <div class="vent-pipe" style="left:18%; top:60%; width:56%; height:14%;"></div>
+          <div class="vent-pipe" style="left:70%; top:12%; width:16%; height:56%; transform: rotate(90deg);"></div>
+          <div class="vent-grate"></div>
+          ${eyesHTML}
+          <div class="cam-label">${scene.label}</div>
+        `;
+        ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
+        return;
+      }
 
-  const monstersHTML = visible.map(m => {
-    const opts = (m.id==='Foxy' && m.phase===5) ? { extraClass:'foxy-run' } : {};
-    return (typeof renderEntity === 'function') ? renderEntity(m.id, 0.9, opts) : '';
-  }).join('');
+      // Normal cameras
+      const visible = state.monsters.filter(m => !m.hidden && (m.pos === camId || (camId===5 && m.id==='Purple' && (m.atDoor||m.entering)) || (camId===8 && m.id==='Yellow' && (m.atDoor||m.entering))));
+            const monstersHTML = visible.map(m => {
+        const opts = (m.id==='Foxy' && m.phase===5) ? { extraClass:'foxy-run' } : {};
+        return renderEntity(m.id, 0.9, opts);
+      }).join('');
 
-  // Props/decoración por cámara (si existe helper)
-  const props = (typeof camPropsHTML === 'function') ? camPropsHTML(camId) : '';
-
-  // Alerta visual de Foxy (parpadeo rojo) en CAM 4
-  const camScreenEl = document.getElementById('cam-screen');
-  if(camScreenEl){
-    const foxy = list.find(x => x && x.id === 'Foxy');
-    const alert = (camId === 4 && !!foxy && (foxy.attacking || foxy.phase >= 4) && foxy.pos !== 4);
-    camScreenEl.classList.toggle('cam-alert-red', !!alert);
-  }
-
-  // Render especial VENTILACIÓN (CAM V)
-  if(camId === 'V'){
-    const fv = state.freddyVent || (state.freddyVent = { active:false, stage:'none' });
-    const active = !!fv.active;
-    const stage = fv.stage || 'none';
-    const eyesClass = (stage === 'white') ? 'white' : (stage === 'red' ? 'red' : (stage === 'purple' ? 'purple' : 'gold'));
-
-    ui.camRender.innerHTML = `
-      <div class="vent-scene"></div>
-      <div class="vent-pipe" style="left:10%; top:20%; width:80%; height:20%;"></div>
-      <div class="vent-grate"></div>
-      ${active ? `<div class="vent-eyes ${eyesClass}"><div class="vent-eye"></div><div class="vent-eye"></div></div>` : ''}
-      <div class="cam-label">CAM VENT</div>
-    `;
-    ui.camDetails.innerText = "SYSTEM: ONLINE";
-    return;
-  }
-
-  // Render CÁMARAS NORMALES
-  ui.camRender.innerHTML = `
-    <div class="cam-scene" style="${bgStyle}"></div>
-    ${props}
-    <div class="cam-label">${camLabel(camId)}</div>
-    <div style="position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; gap:20px; pointer-events:none;">
-      ${monstersHTML}
-    </div>
-  `;
-  ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
-}
+      ui.camRender.innerHTML = `
+        <div class="cam-scene" style="background-image: url('https://dummyimage.com/640x360/0b0b10/0b0b10&text='); background-repeat: repeat, no-repeat; background-size: 420px 240px, cover;"></div>
+        ${camPropsHTML(camId)}
+        <div class="cam-label">${scene.label}</div>
+        <div style="position:relative; z-index:10; display:flex; gap:18px;">${monstersHTML}</div>
+      `;
+      ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
+    }
 
     function goldenCheck(){ /* manejado por tickAI */ }
 
@@ -5881,11 +4507,6 @@ if(n === 7){
     function kill(k){ die(k); }
 
 function die(killer, meta={}){
-  try{ stopPhoneCall(); }catch(_e){}
-
-      state.dead = true;
-      try{ document.getElementById('lucia-overlay')?.classList.remove('active'); }catch(_){ }
-
       if(state.cinematicLock && killer !== 'Grey') return;
       if(state.time >= 6) return;
 
@@ -5904,14 +4525,14 @@ function die(killer, meta={}){
 
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(killer === 'Golden' ? 'Golden' : killer, 6);
-      
-      playTerrifyingScream();
-playSound(100, 'sawtooth', 0.8, 2);
+      playSound(100, 'sawtooth', 0.8, 2);
+      playJumpscareSfx();
+
       setTimeout(()=>{
         document.getElementById('jumpscare').style.display = 'none';
         ui.deathTip.style.display = 'flex';
         ui.deathTitle.innerText = "Te moriste 💀";
-        ui.deathKiller.innerText = (killer === 'Golden') ? 'Golden Freddy' : (killer === 'Purple' ? 'Bonnie' : (killer === 'Yellow' ? 'Chica' : killer));
+        ui.deathKiller.innerText = (killer === 'Golden') ? "Golden Freddy" : (killer === 'Grey' ? 'Freddy' : (killer === 'Purple' ? 'Bonnie' : (killer === 'Yellow' ? 'Chica' : killer)));
         ui.deathMessage.innerHTML = tipFor(killer, meta);
       }, 1500);
     }
@@ -5920,9 +4541,8 @@ playSound(100, 'sawtooth', 0.8, 2);
       const id = who === "Golden" ? "Golden" : who;
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(id, 6);
-      
-  playTerrifyingScream();
-playSound(120, 'sawtooth', 0.35, 0.6);
+      playSound(120, 'sawtooth', 0.35, 0.6);
+      playJumpscareSfx();
       setTimeout(()=>{ document.getElementById('jumpscare').style.display = 'none'; }, 900);
     }
 
@@ -6058,7 +4678,7 @@ function winCinematic(){
 
 function goldenUpdate(dtMs){
       // Solo durante juego (Golden se maneja por tickAI + toggleCams)
-      if(state.menuActive) return;
+      if(menu.style.display !== 'none') return;
       if(state.powerOut) return;
       if(state.cinematicLock) return;
       if(state.time >= 6){
@@ -6081,43 +4701,6 @@ window.addEventListener('keydown', ()=>{ try{ unlockAudio(); startMenuMusic(); }
     });
 
 
-
-
-// --- v40 FIX: Freddy Vent loop helpers (missing functions caused crash) ---
-function startFreddyVentLoop(){
-  // Detener loop previo si existe
-  stopFreddyVentLoop();
-  // Loop simple: sonido grave/suave cada tanto si está en ventilación
-  if(state.freddyVent){
-    state.freddyVent.loop = setInterval(()=>{
-       if(state.menuActive || state.powerOut || state.dead) return;
-       // Sonido grave y suave para simular ventilación
-       try{ playSound(60, 'sawtooth', 200, 0.04); }catch(_e){}
-    }, 2000);
-  }
-}
-
-function stopFreddyVentLoop(){
-  if(state.freddyVent && state.freddyVent.loop){
-    clearInterval(state.freddyVent.loop);
-    state.freddyVent.loop = null;
-  }
-}</script>
-    <div id="lucia-overlay" aria-hidden="true">
-      <div class="lucia-text">ESTOY ABAJO</div>
-    </div>
-        <div id="arthur-overlay" aria-hidden="true">
-          <div class="arthur-terminal">
-            <div class="arthur-title">REPORTE DE CONCIENCIA - 1997</div>
-            <div class="arthur-body">
-              SUJETO #01 (FREDDY): <span style="color:#aaa">ESTABILIZADO</span><br>
-              SUJETO #02 (BONNIE): <span style="color:#a0a">TRANSFERENCIA COMPLETA</span><br>
-              SUJETO #03 (CHICA): <span style="color:#ee0">ANS. ALIMENTICIA</span><br>
-              SUJETO #04 (FOXY): <span style="color:#f00">RECHAZO DE TEJIDO - AGRESIVO</span><br>
-              <br>
-              <span class="dim">NOTA: Ellos no han olvidado, Arthur.</span>
-            </div>
-          </div>
-        </div>
+</script>
 </body>
 </html>
