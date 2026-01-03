@@ -53,7 +53,12 @@
     @keyframes g{ 0%{transform:translate(0,0)} 25%{transform:translate(-2%,1%)} 50%{transform:translate(-1%,-2%)} 75%{transform:translate(2%,1%)} 100%{transform:translate(0,0)} }
 
     /* menu */
-    .menu{ position:fixed; inset:0; z-index:2000; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+    .menu{
+      position:fixed; inset:0; z-index:2000;
+      display:flex; flex-direction:column; gap:14px;
+      align-items:center; justify-content:center;
+      padding:60px 24px;
+      text-align:center;
       background: radial-gradient(900px 600px at 50% 40%, rgba(52,198,167,.10) 0%, transparent 55%), #020202;
       transition: opacity 1.0s ease;
     }
@@ -68,20 +73,78 @@
     .menu .btn:active{ transform: translateY(0) scale(.99); }
 
     /* main layout */
-    .app{ height:100%; width:100%; display:grid; grid-template-columns: 1.05fr 1.15fr; gap:0;
+    .app{ height:100vh; width:100%; display:grid; grid-template-columns: 1.05fr 1.15fr; gap:0;
       opacity:0; transition: opacity 1.0s ease;
     }
     body.play .app{ opacity:1; }
 
-    .hud{ position:fixed; top:10px; left:10px; z-index:1500;
-      background: rgba(0,0,0,.72); border:1px solid var(--line); border-radius:10px;
-      padding:8px 10px; display:flex; gap:10px; align-items:center; color:var(--muted);
-      box-shadow: 0 10px 25px rgba(0,0,0,.55);
+    .hud{
+      position:fixed; top:10px; left:10px; z-index:1500;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
+        rgba(0,0,0,.78);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      padding:10px 12px;
+      display:flex; gap:10px; align-items:center;
+      color:var(--muted);
+      font-size:13px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      box-shadow: 0 12px 30px rgba(0,0,0,.60);
+      backdrop-filter: blur(4px);
     }
-    .hud b{ color:#e8eef8; }
-    .dots{ display:inline-flex; gap:6px; margin-left:6px; }
-    .dot{ width:9px; height:9px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background: rgba(255,0,0,.08); }
-    .dot.on{ background: rgba(255,0,0,.78); box-shadow: 0 0 14px rgba(255,0,0,.35); }
+    .hud b{ color:#eef5ff; letter-spacing:.06em; }
+    .hud .hlab{ opacity:.70; font-weight:700; }
+    .hud .hsep{ opacity:.28; }
+    .hud .hitem{ display:inline-flex; gap:8px; align-items:baseline; }
+
+    .dots{ display:inline-flex; gap:6px; margin-left:6px; transform: translateY(1px); }
+    .vol{
+      display:flex; align-items:center; gap:8px;
+      padding-left:2px;
+    }
+    .vol input[type="range"]{
+      -webkit-appearance:none;
+      appearance:none;
+      width: 120px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      outline:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+    }
+    .vol input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: rgba(52,198,167,.95);
+      box-shadow: 0 0 0 2px rgba(0,0,0,.55), 0 0 16px rgba(52,198,167,.25);
+      cursor:pointer;
+    }
+    .vol input[type="range"]::-moz-range-thumb{
+      width: 14px; height: 14px;
+      border:none;
+      border-radius: 50%;
+      background: rgba(52,198,167,.95);
+      box-shadow: 0 0 0 2px rgba(0,0,0,.55), 0 0 16px rgba(52,198,167,.25);
+      cursor:pointer;
+    }
+    .vol b{
+      min-width: 32px;
+      text-align:right;
+      color: #d4f9f1;
+      letter-spacing:.02em;
+    }
+
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,0,0,.08);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+    }
+    .dot.on{ background: rgba(255,0,0,.82); box-shadow: 0 0 16px rgba(255,0,0,.35); }
 
     /* left: booth */
     .booth{
@@ -158,14 +221,14 @@
 
     /* doc slot */
     .slot{
-      position:absolute; left:50%; bottom:12px; transform: translateX(-50%);
-      width: 82%; height: 104px;
-      background: linear-gradient(180deg, rgba(0,0,0,.90), rgba(0,0,0,.55));
-      border:1px solid rgba(255,255,255,.12);
+      position:absolute; left:50%; bottom:14px; transform: translateX(-50%);
+      width: 84%; height: 150px;
+      background: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.46));
+      border:1px solid rgba(255,255,255,.14);
       border-radius: 14px;
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,.03),
-        0 16px 36px rgba(0,0,0,.60);
+        0 18px 42px rgba(0,0,0,.65);
       overflow:hidden;
       z-index: 40;
     }
@@ -196,18 +259,18 @@
 
     .doc{
       position:absolute;
-      left:50%; top:26px;
-      width: 88%; height: 108px;
-      transform: translate(-50%, 140%);
-      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(210,210,210,.92));
-      border: 1px solid rgba(0,0,0,.35);
+      left:50%; top:10px;
+      width: 90%; height: 128px;
+      transform: translate(-50%, 170%);
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(212,212,212,.94));
+      border: 1px solid rgba(0,0,0,.40);
       border-radius: 10px;
-      box-shadow: 0 18px 35px rgba(0,0,0,.55);
+      box-shadow: 0 22px 42px rgba(0,0,0,.62);
       transition: transform .55s cubic-bezier(.2,1,.2,1);
       pointer-events:none;
     }
     /* when the subject arrives, the doc slides INTO VIEW */
-    .doc.in{ transform: translate(-50%, -2%); }
+    .doc.in{ transform: translate(-50%, 0%); }
 
     .doc .title{
       font: 900 12px ui-monospace, Menlo, Consolas, monospace;
@@ -228,6 +291,7 @@
     /* right: desk */
     .desk{
       position:relative;
+      min-height: 0;
       background:
         radial-gradient(900px 520px at 70% 22%, rgba(52,198,167,.07) 0%, transparent 60%),
         linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.18)),
@@ -239,9 +303,10 @@
 
     .deskTop{
       height: 100%;
+      min-height: 0;
       display:grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 14px;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 12px;
     }
 
     /* props: a few papers */
@@ -277,7 +342,7 @@
       border:1px solid rgba(0,0,0,.28);
       border-radius:8px;
       overflow:hidden;
-      display:flex; align-items:center; justify-content:center;
+      display:flex; align-items:flex-start; justify-content:flex-start; padding:6px; box-sizing:border-box;
       margin-left:auto;
     }
 
@@ -290,6 +355,10 @@
       padding: 14px;
       position:relative;
       overflow:hidden;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      flex: 1 1 auto;
     }
     .monitor::before{ content:""; position:absolute; inset:0; pointer-events:none;
       background: linear-gradient(180deg, rgba(52,198,167,.10), transparent 58%);
@@ -388,7 +457,7 @@
     .btnNext{ background: rgba(255,255,255,.06); }
 
     .speech{
-      position:absolute; left:18px; bottom: 132px;
+      position:absolute; left:18px; bottom: 190px;
       width: min(560px, 92%);
       background: rgba(0,0,0,.78);
       border-left: 3px solid rgba(52,198,167,.65);
@@ -409,6 +478,7 @@
       overflow:auto;
       border-top:1px solid rgba(255,255,255,.06);
       padding-top: 10px;
+      user-select:none;
     }
 
     /* overlay end */
@@ -434,24 +504,163 @@
     .eyes{ position:absolute; top:64px; left:22px; width:96px; display:flex; justify-content:space-between; }
     .eye{ width:26px; height:14px; background:#ddd; border-radius:50%; position:relative; overflow:hidden; box-shadow: inset 0 2px 7px rgba(0,0,0,.45); }
     .pupil{ width:8px; height:8px; background:#000; border-radius:50%; position:absolute; top:3px; left:9px; }
+    /* doppel tells */
+    .pupil.slit{
+      width:3px; height:12px;
+      border-radius:2px;
+      top:1px; left:10px;
+    }
+    .eye.glow{
+      box-shadow: 0 0 10px rgba(255,0,0,.18);
+    }
+    .extraEye{
+      position:absolute;
+      width:8px; height:8px;
+      border-radius:50%;
+      background:#111;
+      left:61px; top:36px;
+      opacity:.85;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.10);
+    }
+    .extraEye::after{
+      content:"";
+      position:absolute; inset:2px;
+      border-radius:50%;
+      background:#b30000;
+      opacity:.85;
+    }
+    .veins{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.25;
+      background:
+        radial-gradient(20px 18px at 35% 70%, rgba(120,0,0,.35), transparent 60%),
+        radial-gradient(18px 14px at 65% 55%, rgba(120,0,0,.28), transparent 60%),
+        radial-gradient(16px 12px at 48% 40%, rgba(120,0,0,.22), transparent 60%);
+      mix-blend-mode:multiply;
+      filter: blur(.2px);
+    }
+    .mouth.jagged{
+      height:6px;
+      background: linear-gradient(90deg, #240, #120);
+      border-radius: 2px;
+    }
+    .mouth.jagged::after{
+      content:"";
+      position:absolute; left:2px; right:2px; top:1px; height:4px;
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,.20) 0 2px, transparent 2px 6px);
+      opacity:.35;
+    }
+    .mouth.smile{
+      height:5px;
+      border-radius: 0 0 12px 12px;
+      background: #2a0f0f;
+      transform: translateY(1px);
+    }
+
     .nose{ width:12px; height:32px; background: rgba(0,0,0,.20); position:absolute; top:78px; left:64px; border-radius: 5px; }
     .mouth{ width:44px; height:4px; background:#3a1f1f; position:absolute; top:120px; left:48px; border-radius: 10px; }
     .body{ width:220px; height:190px; background: linear-gradient(180deg, #2f363b, #23282d); position:absolute; bottom:0; left:10px; border-radius: 66px 66px 0 0; z-index:5; box-shadow: inset 0 10px 35px rgba(0,0,0,.35); }
     .glasses{ position:absolute; top:61px; left:16px; width:108px; height:22px; border:2px solid rgba(0,0,0,.75); border-radius: 8px; z-index:8; background: rgba(0,0,0,.12); box-shadow: 0 0 10px rgba(0,0,0,.25); }
 
-    .miniWrap{ transform: scale(.55) translateY(38px); transform-origin: top left; }
+    .miniWrap{ transform: translate(-12px,-20px) scale(.45); transform-origin: top left; }
     .dead{ transform: translateY(120px) rotate(10deg); filter: grayscale(1) brightness(.26) blur(2px); transition: 1s; }
 
     /* small action flash */
     .flash{ position:fixed; inset:0; pointer-events:none; z-index:1800; background: rgba(255,255,255,.0); transition: background .18s ease; }
     .flash.on{ background: rgba(255,255,255,.22); }
-  </style>
+  
+    /* marks (tattoos/scars/moles) */
+    .mark{ position:absolute; z-index:9; pointer-events:none; opacity:.78; filter: blur(.1px); }
+    .mark.mole{ width:6px; height:6px; border-radius:50%; background: rgba(30,14,14,.95); box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+    .mark.scar{ width:28px; height:4px; border-radius:10px; background: linear-gradient(90deg, rgba(120,0,0,.0), rgba(120,0,0,.65), rgba(120,0,0,.0)); box-shadow: 0 0 6px rgba(120,0,0,.25); }
+    .mark.tattoo{ width:22px; height:22px; border-radius:50%; border: 2px solid rgba(0,0,0,.38); box-shadow: inset 0 0 0 2px rgba(0,0,0,.10); }
+    .mark.tattoo::after{
+      content:""; position:absolute; inset:4px;
+      border-radius:50%;
+      border:1px dashed rgba(0,0,0,.28);
+      transform: rotate(12deg);
+      opacity:.8;
+    }
+
+    /* subject killed */
+    .personStage.dead{
+      filter: grayscale(1) brightness(.35) blur(.6px);
+      transform: translateX(-50%) rotate(6deg) translateY(26px);
+      transition: transform .55s ease, filter .55s ease;
+    }
+
+    /* blood fx (stylized but more "real") */
+    .bloodFX{
+      position:fixed; inset:0; pointer-events:none; z-index:19;
+      opacity:0;
+      transition: opacity .35s ease;
+      mix-blend-mode: multiply;
+    }
+    .bloodFX.on{ opacity:1; }
+    .bloodBlob{
+      position:absolute;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.20) 0%, rgba(255,255,255,0) 28%),
+        radial-gradient(circle at 50% 50%, rgba(160,0,0,.92) 0%, rgba(120,0,0,.86) 40%, rgba(40,0,0,.0) 72%);
+      filter: blur(.2px);
+      border-radius: 46% 54% 48% 52% / 52% 46% 54% 48%;
+      box-shadow:
+        inset -10px -12px 22px rgba(0,0,0,.35),
+        0 0 28px rgba(0,0,0,.28);
+      opacity:.95;
+    }
+    .bloodSmear{
+      position:absolute;
+      background: linear-gradient(90deg, rgba(120,0,0,0), rgba(150,0,0,.75), rgba(120,0,0,0));
+      height: 14px;
+      filter: blur(.35px);
+      opacity:.75;
+      border-radius: 20px;
+      transform-origin:left center;
+    }
+    .bloodDrip{
+      position:absolute;
+      width: 6px;
+      background: linear-gradient(180deg, rgba(150,0,0,.92), rgba(90,0,0,.85), rgba(20,0,0,0));
+      border-radius: 0 0 8px 8px;
+      opacity:.8;
+      filter: blur(.2px);
+    }
+
+    /* improve miniPhoto visibility */
+    .miniPhoto{ width: 98px; height: 98px; }
+    
+    .dbSimple{ display:flex; gap:12px; align-items:flex-start; margin-top:10px; }
+    .dbFields{ flex:1; display:grid; gap:8px; }
+    .dbFields .row{ display:grid; grid-template-columns: 90px 1fr; gap:10px; align-items:center; }
+    .dbFields .h{ color: rgba(52,198,167,.72); font-weight:900; letter-spacing:.06em; font-size:.82rem; }
+    .dbFields .v{ color:#d9fff4; font-weight:800; letter-spacing:.04em; }
+
+    /* --- compact height: keep buttons reachable --- */
+    @media (max-height: 760px){
+      .desk{ padding: 14px 16px 12px; }
+      .deskTop{ gap: 10px; }
+      .passport{ min-height: 72px; }
+      .monitor{ border-width: 12px; padding: 12px; }
+      .controls{ gap: 10px; }
+      .btn{ padding: 10px 10px; border-radius: 12px; }
+    }
+    @media (max-height: 660px){
+      .passport{ min-height: 66px; }
+      .termTitle{ font-size: 15px; }
+      .termRow input{ font-size: 16px; }
+      .btn{ padding: 9px 10px; letter-spacing:.08em; }
+    }
+
+</style>
 </head>
 <body>
   <div class="crt"></div>
   <div class="vignette"></div>
   <div class="grain"></div>
   <div class="flash" id="flash"></div>
+  <div class="bloodFX" id="bloodFX"></div>
 
   <div class="menu" id="menu">
     <h1>DOPPEL FRONTIER</h1>
@@ -463,20 +672,29 @@
     </p>
   </div>
 
-  <div class="hud" id="hud">
-    DÍA: <b id="uiDay">1</b>
-    <span style="opacity:.35">|</span>
-    COLA: <b id="uiQueue">0</b>
-    <span style="opacity:.35">|</span>
-    ACIERTOS: <b id="uiScore">0</b>
-    <span style="opacity:.35">|</span>
-    FALLOS: <b id="uiStrikes">0</b>
+  <div class="hud" id="hud" role="status" aria-live="polite">
+    <span class="hitem"><span class="hlab">DÍA</span> <b id="uiDay">1</b></span>
+    <span class="hsep">|</span>
+    <span class="hitem"><span class="hlab">NIVEL</span> <b id="uiDiff">1</b></span>
+    <span class="hsep">|</span>
+    <span class="hitem"><span class="hlab">COLA</span> <b id="uiQueue">0</b></span>
+    <span class="hsep">|</span>
+    <span class="hitem"><span class="hlab">ACIERTOS</span> <b id="uiScore">0</b></span>
+    <span class="hsep">|</span>
+    <span class="hitem"><span class="hlab">FALLOS</span> <b id="uiStrikes">0</b></span>
     <span class="dots" aria-hidden="true">
       <span class="dot" id="d1"></span>
       <span class="dot" id="d2"></span>
       <span class="dot" id="d3"></span>
     </span>
-  </div>
+  
+    <span class="hsep">|</span>
+    <span class="vol" title="Volumen">
+      <span class="hlab">VOL</span>
+      <input id="vol" type="range" min="0" max="100" value="45" />
+      <b id="volVal">45%</b>
+    </span>
+</div>
 
   <div class="app" id="app">
     <!-- LEFT: Booth -->
@@ -533,32 +751,28 @@
         </div>
 
         <div class="monitor">
-          <div class="termTitle">&gt; BBDD FEDERAL</div>
-          <div class="termSub">&gt; BUSQUEDA POR APELLIDO / NOMBRE (Enter)</div>
-
-          <div class="termRow">
-            <input id="search" type="text" placeholder="MULLER" autocomplete="off" />
-            <button class="termBtn" id="btnSearch">ENTER</button>
-            <span class="tiny">(o presiona Enter)</span>
+          <div style="position:relative; z-index:2;">
+            <div class="termTitle">&gt; BBDD FEDERAL</div>
+            <div class="termSub">&gt; BUSQUEDA POR APELLIDO / NOMBRE (Enter)</div>
+            <div class="termRow">
+              <input id="search" type="text" placeholder="SMITH" autocomplete="off" />
+              <button class="termBtn" id="btnSearch">ENTER</button>
+              <span class="tiny">(o presiona Enter)</span>
+            </div>
           </div>
 
           <div class="dbBox" id="dbBox">
             <div class="dbHeader">
               <div class="badge" id="dbBadge">SIN CONSULTA</div>
-              <div class="badge" id="photoBadge">FOTO: —</div>
             </div>
 
-            <div style="display:flex; gap:12px; margin-top:10px; align-items:flex-start;">
-              <div class="miniPhoto" id="dbPhoto" style="width:84px; height:84px; background:rgba(0,0,0,.18); border-color:rgba(52,198,167,.45);"></div>
-              <div style="flex:1;">
-                <div class="cmp">
-                  <div class="h">CAMPO</div><div class="h">BBDD</div><div class="h" style="justify-self:end;">VS ID</div>
-
-                  <div class="cell">NOMBRE</div><div class="cell" id="dbName">—</div><div class="pill" id="mName">—</div>
-                  <div class="cell">NAC.</div><div class="cell" id="dbDob">—</div><div class="pill" id="mDob">—</div>
-                  <div class="cell">ORIGEN</div><div class="cell" id="dbOrigin">—</div><div class="pill" id="mOrigin">—</div>
-                  <div class="cell">TRABAJO</div><div class="cell" id="dbJob">—</div><div class="pill" id="mJob">—</div>
-                </div>
+            <div class="dbSimple">
+              <div class="miniPhoto" id="dbPhoto"></div>
+              <div class="dbFields">
+                <div class="row"><div class="h">NOMBRE</div><div class="v" id="dbName">—</div></div>
+                <div class="row"><div class="h">NAC.</div><div class="v" id="dbDob">—</div></div>
+                <div class="row"><div class="h">ORIGEN</div><div class="v" id="dbOrigin">—</div></div>
+                <div class="row"><div class="h">TRABAJO</div><div class="v" id="dbJob">—</div></div>
               </div>
             </div>
 
@@ -629,16 +843,11 @@
       dbBox: $('dbBox'),
       dbErr: $('dbErr'),
       dbBadge: $('dbBadge'),
-      photoBadge: $('photoBadge'),
       dbPhoto: $('dbPhoto'),
       dbName: $('dbName'),
       dbDob: $('dbDob'),
       dbOrigin: $('dbOrigin'),
       dbJob: $('dbJob'),
-      mName: $('mName'),
-      mDob: $('mDob'),
-      mOrigin: $('mOrigin'),
-      mJob: $('mJob'),
       log: $('log'),
 
       qDob: $('qDob'),
@@ -647,8 +856,11 @@
       btnDetain: $('btnDetain'),
       btnApprove: $('btnApprove'),
       btnNext: $('btnNext'),
+      vol: $('vol'),
+      volVal: $('volVal'),
 
       uiDay: $('uiDay'),
+      uiDiff: $('uiDiff'),
       uiQueue: $('uiQueue'),
       uiScore: $('uiScore'),
       uiStrikes: $('uiStrikes'),
@@ -661,7 +873,8 @@
       ovText: $('ovText'),
       ovContinue: $('ovContinue'),
       ovRestart: $('ovRestart'),
-      flash: $('flash')
+      flash: $('flash'),
+      bloodFX: $('bloodFX')
     };
 
     // ----------------------
@@ -671,11 +884,22 @@
     let master = null;
     let audioReady = false;
 
+    let desiredVol = 0.45;
+
+    function applyVolume(){
+      if(audioReady && master) master.gain.value = desiredVol;
+    }
+
+    function setVolumeFromUI(v01){
+      desiredVol = Math.max(0, Math.min(1, v01));
+      applyVolume();
+    }
+
     function ensureAudio(){
       if(audioReady) return;
       AC = new (window.AudioContext || window.webkitAudioContext)();
       master = AC.createGain();
-      master.gain.value = 0.45;
+      master.gain.value = desiredVol;
       master.connect(AC.destination);
 
       // dark hum
@@ -731,6 +955,39 @@
         o.connect(g); route(g);
         o.start(t); o.stop(t+0.4);
       }
+
+      if(kind === 'shot'){
+        // short gunshot-like burst (no samples)
+        const n = AC.createBufferSource();
+        const buffer = AC.createBuffer(1, AC.sampleRate * 0.18, AC.sampleRate);
+        const data = buffer.getChannelData(0);
+        for(let i=0;i<data.length;i++){
+          const t2 = i / data.length;
+          // noise with fast decay
+          data[i] = (Math.random()*2-1) * Math.pow(1-t2, 5);
+        }
+        n.buffer = buffer;
+
+        const bp = AC.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = 900;
+
+        const g = AC.createGain();
+        g.gain.setValueAtTime(0.9, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t+0.18);
+
+        n.connect(bp); bp.connect(g); route(g);
+        n.start(t); n.stop(t+0.18);
+
+        const click = AC.createOscillator();
+        const cg = AC.createGain();
+        click.type='square';
+        click.frequency.setValueAtTime(120, t);
+        cg.gain.setValueAtTime(0.35, t);
+        cg.gain.exponentialRampToValueAtTime(0.001, t+0.08);
+        click.connect(cg); route(cg);
+        click.start(t); click.stop(t+0.08);
+      }
       if(kind === 'shutter'){
         const o = AC.createOscillator();
         const g = AC.createGain();
@@ -772,6 +1029,7 @@
     // State
     // ----------------------
     let day = 1;
+    let diff = 1;
     let score = 0;
     let strikes = 0;
 
@@ -787,6 +1045,7 @@
     const randInt = (a,b)=> a + Math.floor(Math.random()*(b-a+1));
     const pick = (arr)=> arr[Math.floor(Math.random()*arr.length)];
     const chance = (p)=> Math.random() < p;
+    const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
     const normalize = (s)=> (s||'').toUpperCase().trim().replace(/\s+/g,' ');
 
     function setSpeech(t){ el.speech.textContent = t; }
@@ -804,6 +1063,7 @@
 
     function updateHUD(){
       el.uiDay.textContent = String(day);
+      el.uiDiff.textContent = String(diff);
       el.uiQueue.textContent = String(queue.length);
       el.uiScore.textContent = String(score);
       el.uiStrikes.textContent = String(strikes);
@@ -817,6 +1077,67 @@
       setTimeout(()=>el.flash.classList.remove('on'), 120);
     }
 
+    function bloodScreen(intensity=1){
+      const fx = el.bloodFX;
+      if(!fx) return;
+      fx.innerHTML = '';
+      fx.classList.add('on');
+
+      const blobs = Math.round(3 + intensity*2);
+      for(let i=0;i<blobs;i++){
+        const b = document.createElement('div');
+        b.className = 'bloodBlob';
+        const s = randInt(180, 320);
+        b.style.width = s + 'px';
+        b.style.height = s + 'px';
+        b.style.left = randInt(-40, 70) + '%';
+        b.style.top  = randInt(-35, 55) + '%';
+        b.style.transform = `rotate(${randInt(-25,25)}deg)`;
+        fx.appendChild(b);
+
+        // smears
+        if(chance(0.75)){
+          const sm = document.createElement('div');
+          sm.className = 'bloodSmear';
+          sm.style.left = randInt(0, 70) + '%';
+          sm.style.top  = randInt(0, 80) + '%';
+          sm.style.width = randInt(160, 420) + 'px';
+          sm.style.transform = `rotate(${randInt(-18,18)}deg)`;
+          fx.appendChild(sm);
+        }
+
+        // drips
+        if(chance(0.85)){
+          const d = document.createElement('div');
+          d.className = 'bloodDrip';
+          d.style.left = randInt(5, 95) + '%';
+          d.style.top  = randInt(8, 45) + '%';
+          d.style.height = '0px';
+          fx.appendChild(d);
+          requestAnimationFrame(()=>{
+            d.style.transition = `height ${1.2 + Math.random()*1.6}s ease-in`;
+            d.style.height = randInt(120, 380) + 'px';
+          });
+        }
+      }
+
+      // fade out slowly
+      setTimeout(()=>{ fx.classList.remove('on'); }, 4200);
+    }
+
+    function detainShotFX(){
+      // close shutter and execute
+      closeShutter();
+      docOut();
+      sfx('shutter');
+
+      // visual + audio
+      sfx('shot');
+      el.personStage.classList.add('dead');
+      bloodScreen(day>=3 ? 1.25 : 1.0);
+    }
+
+
     function log(line){
       const ts = new Date();
       const hh = String(ts.getHours()).padStart(2,'0');
@@ -829,12 +1150,32 @@
     // ----------------------
     function genVisuals(g){
       const hairType = g==='M' ? (chance(0.20)?'bald':'short') : (chance(0.55)?'long':'short');
+
+      // Civiles también pueden tener marcas (para que SIEMPRE toque comparar)
+      let mark = 'none';
+      if(chance(0.55)){
+        mark = pick(['mole','scar','tattoo']);
+      }
+
       return {
         skin: pick(['#d2b48c','#e0c8a0','#8d5524','#c9a37c']),
         hair: pick(['#111','#222','#000','#633','#888']),
         hairType,
         glasses: chance(0.28),
-        eye: chance(0.55)?'#ddd':'#b9c2d2'
+        eye: chance(0.55)?'#ddd':'#b9c2d2',
+
+        // marcas humanas (tatuajes / cicatrices / lunares)
+        mark,
+        markX: randInt(26, 104),
+        markY: randInt(58, 118),
+        markR: randInt(-22, 22),
+
+        // rasgos extra para doppel (por defecto "humanos")
+        pupilType: 'round',     // 'round' | 'slit'
+        extraEye: false,        // tercer ojo pequeño
+        mouthType: 'line',      // 'line' | 'jagged' | 'smile'
+        eyeGlow: false,         // brillo raro
+        skinVeins: false        // venas suaves
       };
     }
 
@@ -855,35 +1196,62 @@
       const hair = document.createElement('div');
       hair.className = 'hair ' + (v.hairType==='long'?'long':(v.hairType==='bald'?'bald':'short'));
       hair.style.background = v.hair;
+      head.appendChild(hair);
 
+      // Eyes
       const eyes = document.createElement('div');
       eyes.className = 'eyes';
-      const mkEye = () => {
+
+      function mkEye(){
         const e = document.createElement('div');
-        e.className = 'eye';
+        e.className = 'eye' + (v.eyeGlow ? ' glow' : '');
         e.style.background = v.eye;
-        const pup = document.createElement('div');
-        pup.className = 'pupil';
-        e.appendChild(pup);
+
+        const pupil = document.createElement('div');
+        pupil.className = 'pupil' + (v.pupilType==='slit' ? ' slit' : '');
+        e.appendChild(pupil);
         return e;
-      };
+      }
       eyes.appendChild(mkEye());
       eyes.appendChild(mkEye());
-
-      const nose = document.createElement('div');
-      nose.className = 'nose';
-      const mouth = document.createElement('div');
-      mouth.className = 'mouth';
-
-      head.appendChild(hair);
       head.appendChild(eyes);
+
       if(v.glasses){
         const g = document.createElement('div');
         g.className = 'glasses';
         head.appendChild(g);
       }
+
+      // Non-human subtle tells
+      if(v.extraEye){
+        const e3 = document.createElement('div');
+        e3.className = 'extraEye';
+        head.appendChild(e3);
+      }
+      if(v.skinVeins){
+        const veins = document.createElement('div');
+        veins.className = 'veins';
+        head.appendChild(veins);
+      }
+
+      const nose = document.createElement('div');
+      nose.className = 'nose';
+
+      const mouth = document.createElement('div');
+      mouth.className = 'mouth' + (v.mouthType==='jagged' ? ' jagged' : (v.mouthType==='smile' ? ' smile' : ''));
+
       head.appendChild(nose);
       head.appendChild(mouth);
+
+      // Marks (tattoos/scars/moles)
+      if(v.mark && v.mark !== 'none'){
+        const mk = document.createElement('div');
+        mk.className = 'mark ' + v.mark;
+        mk.style.left = (v.markX||60) + 'px';
+        mk.style.top  = (v.markY||84) + 'px';
+        mk.style.transform = `rotate(${v.markR||0}deg)`;
+        head.appendChild(mk);
+      }
 
       p.appendChild(body);
       p.appendChild(head);
@@ -929,98 +1297,112 @@
     function makeCase(isImpostor){
       const base = baseIdentity();
 
-      // ID shown on paper (document)
+      // Documento que entrega (papel)
       const id = structuredClone(base);
 
-      // Truth spoken by the subject (can diverge)
-      const answers = { dob: base.dob, origin: base.origin, job: base.job };
-
-      // Database record (can diverge or missing)
+      // Registro REAL en la BBDD (foto y datos del ciudadano real)
       let db = structuredClone(base);
 
-      // Face outside the window (can diverge)
+      // Respuestas del sujeto (lo que dice cuando lo interrogas)
+      const answers = { dob: base.dob, origin: base.origin, job: base.job };
+
+      // Cara del sujeto que tienes enfrente (puede ser doppel)
       let face = structuredClone(base.visuals);
+
+      // Helper: aplicar diferencias NO humanas pequeñas pero notorias
+      const applyNonHuman = (v, level=1) => {
+        // Level sube con el día: más combinaciones, más sutil
+        const subtle = Math.max(0.25, 0.65 - level*0.05);
+
+        // 1) Pupilas raras (bastante común)
+        if(chance(0.65)) v.pupilType = 'slit';
+
+        // 2) Brillo raro en ojos (sutil)
+        if(chance(subtle)) { v.eyeGlow = true; v.eye = pick(['#d8c0c0','#d0baba','#ddd']); }
+
+        // 3) Tercer ojo mini (notorio)
+        if(chance(0.28 + level*0.04)) v.extraEye = true;
+
+        // 4) Boca rara (a veces)
+        if(chance(0.30 + level*0.03)) v.mouthType = chance(0.5) ? 'jagged' : 'smile';
+
+        // 5) Venas suaves (muy sutil)
+        if(chance(subtle*0.6)) v.skinVeins = true;
+
+        // 6) A veces "casi humano" pero la marca no cuadra con la foto
+        if(chance(0.72)){
+          const t = pick(['shift','type','remove','add']);
+          if(t==='shift'){
+            v.markX = clamp((v.markX||60) + randInt(-18,18), 26, 104);
+            v.markY = clamp((v.markY||84) + randInt(-14,14), 58, 118);
+          }else if(t==='type'){
+            v.mark = pick(['mole','scar','tattoo','none']);
+          }else if(t==='remove'){
+            v.mark = 'none';
+          }else{
+            if(v.mark==='none') v.mark = pick(['mole','scar','tattoo']);
+          }
+        }
+        return v;
+      };
 
       let impType = null;
 
       if(isImpostor){
-        // pick a guaranteed-detectable pattern
-        const types = ['missing_db','id_mismatch','db_mismatch','photo_mismatch','answer_mismatch','combo'];
-        impType = pick(types);
+        // Tipos de impostor: algunos dependen de comparar foto, otros de datos/respuestas
+        // A mayor día, más combos y más "sutil"
+        const level = clamp(day, 1, 12);
 
-        if(impType === 'missing_db'){
+        const pool = [
+          'nonhuman',          // foto no cuadra (rasgos no humanos / marcas)
+          'answer_lie',        // miente al interrogar
+          'doc_mismatch',      // papel trae un dato incorrecto
+          'db_missing'         // no existe en BBDD
+        ];
+
+        impType = pick(pool);
+
+        if(impType === 'db_missing'){
           db = null;
-        }
-        if(impType === 'id_mismatch'){
-          // ID altered, DB remains correct
-          const f = pick(['dob','origin','job']);
-          if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-          if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
-          if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
-        }
-        if(impType === 'db_mismatch'){
-          // DB altered, ID remains correct
-          const f = pick(['dob','origin','job']);
-          if(f==='dob') db.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-          if(f==='origin') db.origin = pick(countries.filter(x=>x!==base.origin));
-          if(f==='job') db.job = pick(jobs.filter(x=>x!==base.job));
-        }
-        if(impType === 'photo_mismatch'){
-          // DB photo differs from face (or vice versa)
-          if(chance(0.5)){
-            face = genVisuals(chance(0.5)?'M':'F');
-          } else {
-            db.visuals = genVisuals(chance(0.5)?'M':'F');
+        }else{
+          // Mantén el registro REAL intacto (db.visuals = base.visuals)
+          // El sujeto es el que cambia
+          face = structuredClone(base.visuals);
+          applyNonHuman(face, level);
+
+          // A veces también mete una mentira o un dato del papel errado (en días altos)
+          if(level >= 3 && chance(0.35)){
+            impType += '+lie';
+            const f = pick(['dob','origin','job']);
+            if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+            if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
+            if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
+          }
+          if(level >= 4 && chance(0.28)){
+            impType += '+paper';
+            const f = pick(['dob','origin','job']);
+            if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+            if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
+            if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
+          }
+
+          // Si salió 'answer_lie' o 'doc_mismatch' como tipo principal, fuerza al menos una inconsistencia en esos
+          if(impType.startsWith('answer_lie')){
+            const f = pick(['dob','origin','job']);
+            if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+            if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
+            if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
+          }
+          if(impType.startsWith('doc_mismatch')){
+            const f = pick(['dob','origin','job']);
+            if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+            if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
+            if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
           }
         }
-        if(impType === 'answer_mismatch'){
-          const f = pick(['dob','origin','job']);
-          if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-          if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
-          if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
-        }
-        if(impType === 'combo'){
-          // 2 issues mixed
-          const a = pick(['missing_db','id_mismatch','db_mismatch','photo_mismatch','answer_mismatch']);
-          const b = pick(['id_mismatch','db_mismatch','photo_mismatch','answer_mismatch']);
-          const apply = (t) => {
-            if(t==='missing_db'){ db=null; return; }
-            if(t==='id_mismatch'){
-              const f = pick(['dob','origin','job']);
-              if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-              if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
-              if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
-            }
-            if(t==='db_mismatch' && db){
-              const f = pick(['dob','origin','job']);
-              if(f==='dob') db.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-              if(f==='origin') db.origin = pick(countries.filter(x=>x!==base.origin));
-              if(f==='job') db.job = pick(jobs.filter(x=>x!==base.job));
-            }
-            if(t==='photo_mismatch'){
-              if(db && chance(0.5)) face = genVisuals(chance(0.5)?'M':'F');
-              else if(db) db.visuals = genVisuals(chance(0.5)?'M':'F');
-            }
-            if(t==='answer_mismatch'){
-              const f = pick(['dob','origin','job']);
-              if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
-              if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
-              if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
-            }
-          };
-          apply(a);
-          apply(b);
-        }
-
-        // Guarantee detectability: if everything still matches, force answer mismatch.
-        if(db &&
-          id.dob===db.dob && id.origin===db.origin && id.job===db.job &&
-          visualSignature(face)===visualSignature(db.visuals) &&
-          answers.dob===id.dob && answers.origin===id.origin && answers.job===id.job
-        ){
-          answers.origin = pick(countries.filter(x=>x!==id.origin));
-          impType = impType + '+forced';
-        }
+      }else{
+        // Ciudadano real: cara = registro; respuestas = coherentes; papel = coherente.
+        // (Ya viene así por defecto)
       }
 
       return {
@@ -1034,8 +1416,16 @@
     }
 
     function buildQueue(){
-      const total = randInt(10,15);
-      const imps = randInt(3,5);
+      // Días más cortos (menos cola) pero con dificultad escalable por día.
+      // Cola: 6–9 personas (sube un poco con los días, pero se mantiene corta).
+      const dayBoost = Math.min(2, Math.floor((day-1)/3)); // +1 cada 3 días (máx 2)
+      const total = Math.min(9, randInt(6,8) + dayBoost);
+
+      // Impostores: inicia 2–3 y aumenta 1 cada 2 días (máx 5 y < total).
+      const impBoost = Math.floor((day-1)/2);
+      let imps = randInt(2,3) + impBoost;
+      imps = Math.max(2, Math.min(Math.min(5, total-1), imps));
+
       const flags = new Array(total).fill(false);
       let placed = 0;
       while(placed < imps){
@@ -1046,8 +1436,9 @@
       for(let i=0;i<total;i++) queue.push({ imp: flags[i] });
       // shuffle
       queue.sort(()=>Math.random()-0.5);
-      log(`<b>INICIO</b> // Personas: ${total} // Posibles impostores: ${imps}`);
-    }
+
+      diff = Math.min(5, day);
+          }
 
     // ----------------------
     // UI flows
@@ -1058,26 +1449,13 @@
       el.dbBox.style.display='none';
       el.dbBadge.className='badge';
       el.dbBadge.textContent='SIN CONSULTA';
-      el.photoBadge.className='badge';
-      el.photoBadge.textContent='FOTO: —';
       el.dbPhoto.innerHTML='';
       el.dbName.textContent='—';
       el.dbDob.textContent='—';
       el.dbOrigin.textContent='—';
       el.dbJob.textContent='—';
-      setPill(el.mName, null);
-      setPill(el.mDob, null);
-      setPill(el.mOrigin, null);
-      setPill(el.mJob, null);
       el.log.innerHTML='';
       lastDB = null;
-    }
-
-    function setPill(node, isMatch){
-      node.className = 'pill';
-      if(isMatch === null){ node.textContent = '—'; return; }
-      if(isMatch){ node.classList.add('match'); node.textContent = 'MATCH'; }
-      else { node.classList.add('mismatch'); node.textContent = 'MISMATCH'; }
     }
 
     function openShutter(){ el.shutter.classList.add('open'); }
@@ -1087,6 +1465,7 @@
     function docOut(){ el.doc.classList.remove('in'); }
 
     function showSubject(){
+      el.personStage.classList.remove('dead');
       el.personStage.classList.add('show');
       openShutter();
       docIn();
@@ -1184,12 +1563,6 @@
       if(!rec){
         el.dbBadge.className = 'badge bad';
         el.dbBadge.textContent = 'NO ENCONTRADO';
-        el.photoBadge.className = 'badge warn';
-        el.photoBadge.textContent = 'FOTO: —';
-        setPill(el.mName, false);
-        setPill(el.mDob, false);
-        setPill(el.mOrigin, false);
-        setPill(el.mJob, false);
         el.dbPhoto.innerHTML='';
         el.dbName.textContent='—';
         el.dbDob.textContent='—';
@@ -1207,29 +1580,6 @@
       el.dbJob.textContent = rec.job;
 
       renderInto(el.dbPhoto, rec.visuals, true);
-
-      // compare vs ID (auto highlight)
-      setPill(el.mName, normalize(rec.full) === normalize(cur.id.full));
-      setPill(el.mDob,  normalize(rec.dob)  === normalize(cur.id.dob));
-      setPill(el.mOrigin, normalize(rec.origin) === normalize(cur.id.origin));
-      setPill(el.mJob, normalize(rec.job) === normalize(cur.id.job));
-
-      // photo match vs outside face
-      const faceOk = visualSignature(cur.face) === visualSignature(rec.visuals);
-      el.photoBadge.className = 'badge ' + (faceOk ? 'ok' : 'bad');
-      el.photoBadge.textContent = 'FOTO: ' + (faceOk ? 'MATCH' : 'MISMATCH');
-
-      // badge warn if something mismatched
-      const anyMismatch = !faceOk ||
-        normalize(rec.full)!==normalize(cur.id.full) ||
-        normalize(rec.dob)!==normalize(cur.id.dob) ||
-        normalize(rec.origin)!==normalize(cur.id.origin) ||
-        normalize(rec.job)!==normalize(cur.id.job);
-
-      if(anyMismatch){
-        el.dbBadge.className = 'badge warn';
-        el.dbBadge.textContent = 'ALERTA: INCONSISTENCIA';
-      }
     }
 
     function searchDB(){
@@ -1290,15 +1640,7 @@
       const ans = cur.answers[kind];
       const label = kind==='dob' ? 'NACIMIENTO' : (kind==='origin' ? 'ORIGEN' : 'TRABAJO');
       setSpeech(`Dice: "${ans}"`);
-
-      // If DB exists and already loaded, also show quick hint line in log
-      if(lastDB){
-        const dbVal = kind==='dob'? lastDB.dob : (kind==='origin'? lastDB.origin : lastDB.job);
-        const mismatch = normalize(ans) !== normalize(dbVal);
-        log(`<b>PREG</b> ${label}: ${ans} ${mismatch ? '<span style="color:#ffb1b1">(≠ BBDD)</span>' : '<span style="color:#b9ffd0">(= BBDD)</span>'}`);
-      } else {
-        log(`<b>PREG</b> ${label}: ${ans}`);
-      }
+      log(`<b>PREG</b> ${label}: ${ans}`);
     }
 
     // ----------------------
@@ -1330,6 +1672,7 @@
       ensureAudio();
 
       decisionLock = true;
+      if(action==='detain'){ detainShotFX(); }
       const isImp = !!cur.isImpostor;
       const correct = (action==='approve' && !isImp) || (action==='detain' && isImp);
 
@@ -1356,11 +1699,29 @@
     }
 
     // ----------------------
-    // Events
+    
+    // ----------------------
+    // Volume UI
+    // ----------------------
+    function initVolumeUI(){
+      if(!el.vol) return;
+      // keep UI usable even before audio is unlocked
+      el.vol.value = Math.round(desiredVol * 100);
+      el.volVal.textContent = `${el.vol.value}%`;
+      el.vol.addEventListener('input', ()=>{
+        const v = parseInt(el.vol.value, 10) / 100;
+        el.volVal.textContent = `${Math.round(v*100)}%`;
+        setVolumeFromUI(v);
+      });
+    }
+    initVolumeUI();
+
+// Events
     // ----------------------
     el.btnStart.addEventListener('click', ()=>{
       ensureAudio();
       if(AC && AC.state === 'suspended') AC.resume();
+      applyVolume();
       el.menu.style.opacity = '0';
       setTimeout(()=>{
         el.menu.style.display='none';
