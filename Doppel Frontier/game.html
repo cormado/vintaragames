@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Doppel Frontier // Oficina (v2)</title>
+  <style>
+    :root{
+      --bg:#050609;
+      --ink:#c9d0dc;
+      --muted:#7f8aa0;
+      --line:rgba(255,255,255,.08);
+      --shadow:rgba(0,0,0,.72);
+
+      --term:#34c6a7;
+      --term2:#1b6b5a;
+      --danger:#c63b3b;
+      --danger2:#5b0d0d;
+      --ok:#3bc66f;
+      --ok2:#0d5b22;
+
+      --paper:#d7d7d7;
+      --paper2:#bfbfbf;
+      --metal:#1a1f29;
+      --metal2:#10141c;
+      --wood:#141518;
+
+      --scan: rgba(0,0,0,.55);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; background: radial-gradient(1200px 700px at 65% 18%, #0f1420 0%, var(--bg) 55%, #000 100%); color:var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace; overflow:hidden; }
+
+    /* overlays */
+    .crt{ position:fixed; inset:0; pointer-events:none; z-index:999;
+      background:
+        linear-gradient(var(--scan) 50%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.02) 0%, transparent 58%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
+      background-size: 100% 4px, 100% 100%, 100% 100%;
+      opacity:.33;
+      mix-blend-mode: overlay;
+      animation: flick 7s linear infinite;
+    }
+    @keyframes flick{ 0%,100%{opacity:.28} 35%{opacity:.38} 65%{opacity:.30} 82%{opacity:.40} }
+    .vignette{ position:fixed; inset:0; pointer-events:none; z-index:998;
+      background: radial-gradient(circle at 50% 45%, transparent 52%, rgba(0,0,0,.92) 100%);
+    }
+    .grain{ position:fixed; inset:0; pointer-events:none; z-index:997; opacity:.12;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+      background-size:140px 140px;
+      animation: g 0.9s steps(2) infinite;
+    }
+    @keyframes g{ 0%{transform:translate(0,0)} 25%{transform:translate(-2%,1%)} 50%{transform:translate(-1%,-2%)} 75%{transform:translate(2%,1%)} 100%{transform:translate(0,0)} }
+
+    /* menu */
+    .menu{ position:fixed; inset:0; z-index:2000; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+      background: radial-gradient(900px 600px at 50% 40%, rgba(52,198,167,.10) 0%, transparent 55%), #020202;
+      transition: opacity 1.0s ease;
+    }
+    .menu h1{ margin:0; letter-spacing:.35em; font-size: clamp(2.0rem, 4.2vw, 4.2rem); color:#e6edf7; text-shadow:0 0 18px rgba(255,255,255,.18); }
+    .menu p{ margin:0; color:#667089; letter-spacing:.22em; font-size:.9rem; }
+    .menu .btn{ margin-top:16px; padding:14px 40px; border-radius:10px; border:1px solid rgba(52,198,167,.75);
+      background: rgba(52,198,167,.08); color:#bff6ea; cursor:pointer; letter-spacing:.24em; font-weight:900;
+      box-shadow: 0 0 0 rgba(52,198,167,0);
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .menu .btn:hover{ background: rgba(52,198,167,.14); box-shadow:0 0 28px rgba(52,198,167,.22); transform: translateY(-1px); }
+    .menu .btn:active{ transform: translateY(0) scale(.99); }
+
+    /* main layout */
+    .app{ height:100%; width:100%; display:grid; grid-template-columns: 1.05fr 1.15fr; gap:0;
+      opacity:0; transition: opacity 1.0s ease;
+    }
+    body.play .app{ opacity:1; }
+
+    .hud{ position:fixed; top:10px; left:10px; z-index:1500;
+      background: rgba(0,0,0,.72); border:1px solid var(--line); border-radius:10px;
+      padding:8px 10px; display:flex; gap:10px; align-items:center; color:var(--muted);
+      box-shadow: 0 10px 25px rgba(0,0,0,.55);
+    }
+    .hud b{ color:#e8eef8; }
+    .dots{ display:inline-flex; gap:6px; margin-left:6px; }
+    .dot{ width:9px; height:9px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background: rgba(255,0,0,.08); }
+    .dot.on{ background: rgba(255,0,0,.78); box-shadow: 0 0 14px rgba(255,0,0,.35); }
+
+    /* left: booth */
+    .booth{
+      position:relative;
+      background:
+        radial-gradient(800px 620px at 40% 25%, rgba(120,180,255,.06) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.25)),
+        #0a0c10;
+      border-right: 10px solid rgba(0,0,0,.5);
+      box-shadow: inset 0 0 140px rgba(0,0,0,.85);
+      overflow:hidden;
+    }
+
+    /* wall junk */
+    .wall{
+      position:absolute; inset:0; padding:18px;
+      background:
+        radial-gradient(500px 300px at 15% 25%, rgba(255,255,255,.03) 0%, transparent 65%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 9px);
+      opacity:.9;
+    }
+
+    .notice{ position:absolute; top:24px; left:22px; width:170px;
+      background: rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.10); border-radius:10px;
+      padding:10px; color:#aeb7c7; font-size:12px; line-height:1.35;
+    }
+    .notice .tag{ display:inline-block; padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.10); margin-bottom:8px; color:#d9e1ee; }
+
+    /* window frame */
+    .window{
+      position:absolute;
+      left:50%; top:52%;
+      transform: translate(-50%,-50%);
+      width: min(520px, 92%);
+      height: min(520px, 74%);
+      background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.65));
+      border-radius: 18px;
+      border: 10px solid rgba(15,20,30,.95);
+      box-shadow: 0 20px 60px rgba(0,0,0,.65), inset 0 0 0 1px rgba(255,255,255,.05);
+      overflow:hidden;
+    }
+
+    .glass{
+      position:absolute; inset:10px 10px 86px 10px;
+      background:
+        linear-gradient(180deg, rgba(120,180,255,.06), rgba(0,0,0,.25)),
+        radial-gradient(500px 380px at 55% 30%, rgba(255,255,255,.04), transparent 60%);
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+
+    .shutter{
+      position:absolute; left:0; right:0; top:0; bottom:0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.45)),
+        repeating-linear-gradient(0deg, rgba(0,0,0,.65) 0 10px, rgba(255,255,255,.03) 10px 12px);
+      transform: translateY(0%);
+      transition: transform .55s cubic-bezier(.2,1,.2,1);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .shutter.open{ transform: translateY(-100%); }
+
+    .personStage{
+      position:absolute; left:50%; bottom:0;
+      transform: translateX(-50%);
+      width: 320px; height: 420px;
+      display:flex; align-items:flex-end; justify-content:center;
+      filter: sepia(.38) contrast(1.22) brightness(.75);
+      opacity:0;
+      transition: opacity .35s ease;
+    }
+    .personStage.show{ opacity:1; }
+
+    /* doc slot */
+    .slot{
+      position:absolute; left:50%; bottom:12px; transform: translateX(-50%);
+      width: 82%; height: 104px;
+      background: linear-gradient(180deg, rgba(0,0,0,.90), rgba(0,0,0,.55));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.03),
+        0 16px 36px rgba(0,0,0,.60);
+      overflow:hidden;
+      z-index: 40;
+    }
+    /* slit where papers come through */
+    .slot::before{
+      content:"";
+      position:absolute; left:14px; right:14px; top:18px; height:12px;
+      background: rgba(0,0,0,.85);
+      border-radius: 999px;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.08),
+        0 6px 18px rgba(0,0,0,.55);
+    }
+    /* grill texture */
+    .slot::after{
+      content:"";
+      position:absolute; inset:0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 1px,
+        transparent 1px,
+        transparent 6px
+      );
+      opacity:.12;
+      pointer-events:none;
+    }
+
+    .doc{
+      position:absolute;
+      left:50%; top:26px;
+      width: 88%; height: 108px;
+      transform: translate(-50%, 140%);
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(210,210,210,.92));
+      border: 1px solid rgba(0,0,0,.35);
+      border-radius: 10px;
+      box-shadow: 0 18px 35px rgba(0,0,0,.55);
+      transition: transform .55s cubic-bezier(.2,1,.2,1);
+      pointer-events:none;
+    }
+    /* when the subject arrives, the doc slides INTO VIEW */
+    .doc.in{ transform: translate(-50%, -2%); }
+
+    .doc .title{
+      font: 900 12px ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing:.16em;
+      color:#14171f;
+      padding:10px 12px 0 12px;
+    }
+    .doc .rows{
+      padding:6px 12px 10px 12px;
+      font: 700 12px ui-monospace, Menlo, Consolas, monospace;
+      color:#202532;
+      display:grid;
+      gap:4px;
+    }
+    .doc .rows span{ display:flex; gap:8px; }
+    .doc .k{ width:78px; color:#4b5466; }
+
+    /* right: desk */
+    .desk{
+      position:relative;
+      background:
+        radial-gradient(900px 520px at 70% 22%, rgba(52,198,167,.07) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.18)),
+        #0b0d12;
+      box-shadow: inset 0 0 140px rgba(0,0,0,.86);
+      padding: 20px 22px;
+      overflow:hidden;
+    }
+
+    .deskTop{
+      height: 100%;
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    /* props: a few papers */
+    .props{
+      display:flex; gap:12px; align-items:stretch;
+    }
+    .passport{
+      flex:1;
+      min-height: 86px;
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(205,205,205,.92));
+      color:#111;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,.35);
+      box-shadow: 0 16px 35px rgba(0,0,0,.55);
+      padding: 10px 12px;
+      position:relative;
+      overflow:hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-size: 13px;
+    }
+    .passport::after{ content:""; position:absolute; inset:-30px; transform:rotate(-10deg);
+      background: linear-gradient(135deg, rgba(255,255,255,.18), transparent 45%);
+      pointer-events:none;
+    }
+    .passport .hdr{ font-weight: 900; letter-spacing:.14em; border-bottom:2px solid rgba(0,0,0,.35); padding-bottom:6px; margin-bottom:6px; }
+    .passport .grid{ display:grid; grid-template-columns: 86px 1fr; gap:2px 8px; }
+    .passport .k{ color:#333a4a; font-weight:800; }
+    .passport .v{ color:#121622; font-weight:800; }
+
+    .miniPhoto{
+      width: 84px; height: 84px;
+      background: rgba(0,0,0,.10);
+      border:1px solid rgba(0,0,0,.28);
+      border-radius:8px;
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      margin-left:auto;
+    }
+
+    /* monitor */
+    .monitor{
+      background: #000;
+      border: 16px solid rgba(25,28,36,.95);
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 18px 40px rgba(0,0,0,.65);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .monitor::before{ content:""; position:absolute; inset:0; pointer-events:none;
+      background: linear-gradient(180deg, rgba(52,198,167,.10), transparent 58%);
+      mix-blend-mode: screen;
+      opacity:.9;
+    }
+
+    .termTitle{ color: var(--term); letter-spacing:.12em; font-weight:900; margin:0 0 8px 0; }
+    .termSub{ color: rgba(52,198,167,.65); margin:0 0 10px 0; font-size: 12px; letter-spacing:.08em; }
+
+    .termRow{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .termRow input{
+      flex:1;
+      min-width: 240px;
+      background: transparent;
+      border:none;
+      border-bottom:2px solid rgba(52,198,167,.75);
+      color: var(--term);
+      font: 900 18px ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing:.06em;
+      outline:none;
+      padding: 6px 4px;
+      text-transform: uppercase;
+    }
+    .termRow input::placeholder{ color: rgba(52,198,167,.35); }
+
+    .tiny{ color: rgba(52,198,167,.55); font-size: 12px; letter-spacing:.06em; }
+
+    .termBtn{
+      padding: 10px 14px;
+      border-radius: 10px;
+      border:1px solid rgba(52,198,167,.40);
+      background: rgba(52,198,167,.07);
+      color: #bff6ea;
+      font-weight:900;
+      letter-spacing:.12em;
+      cursor:pointer;
+      transition: transform .06s ease, filter .16s ease;
+    }
+    .termBtn:active{ transform: translateY(1px) scale(.99); }
+
+    .dbBox{
+      margin-top: 12px;
+      border:1px solid rgba(52,198,167,.28);
+      background: rgba(52,198,167,.05);
+      border-radius: 12px;
+      padding: 10px;
+      display:none;
+    }
+
+    .dbHeader{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .badge{ display:inline-flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.35); color: var(--muted); font-size:12px; letter-spacing:.10em; font-weight:900;
+    }
+    .badge.ok{ border-color: rgba(59,198,111,.35); color:#b9ffd0; }
+    .badge.bad{ border-color: rgba(198,59,59,.35); color:#ffb1b1; }
+    .badge.warn{ border-color: rgba(198,163,59,.35); color:#ffe8b9; }
+
+    .cmp{ margin-top:10px; display:grid; grid-template-columns: 1fr 1fr 120px; gap:8px 10px; align-items:center; }
+    .cmp .h{ color: rgba(52,198,167,.65); font-weight:900; letter-spacing:.08em; font-size:12px; }
+    .cmp .cell{ font-size:12px; color:#cfe9e3; }
+    .pill{ justify-self:end; padding: 4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.10); font-size:11px; letter-spacing:.10em; font-weight:900; color:#aeb7c7; }
+    .pill.match{ border-color: rgba(59,198,111,.35); color:#b9ffd0; }
+    .pill.mismatch{ border-color: rgba(198,59,59,.35); color:#ffb1b1; }
+
+    .dbErr{ display:none; margin-top: 12px; color:#ff4545; font-weight:900; letter-spacing:.08em; }
+
+    /* controls */
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .col{ display:flex; flex-direction:column; gap:10px; }
+
+    .btn{
+      padding: 12px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.35);
+      color: #d9e1ee;
+      font-weight: 900;
+      letter-spacing:.10em;
+      cursor:pointer;
+      transition: transform .06s ease, filter .16s ease, background .16s ease;
+      text-transform: uppercase;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    .btnRed{ background: linear-gradient(180deg, rgba(198,59,59,.25), rgba(0,0,0,.35)); border-color: rgba(198,59,59,.35); }
+    .btnRed:hover{ filter:brightness(1.1); }
+    .btnGreen{ background: linear-gradient(180deg, rgba(59,198,111,.18), rgba(0,0,0,.35)); border-color: rgba(59,198,111,.35); }
+    .btnGreen:hover{ filter:brightness(1.1); }
+
+    .btnNext{ background: rgba(255,255,255,.06); }
+
+    .speech{
+      position:absolute; left:18px; bottom: 132px;
+      width: min(560px, 92%);
+      background: rgba(0,0,0,.78);
+      border-left: 3px solid rgba(52,198,167,.65);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color:#e8eef8;
+      font-style: italic;
+      box-shadow: 0 12px 28px rgba(0,0,0,.55);
+      z-index: 40;
+    }
+
+    .log{
+      margin-top: 10px;
+      color: rgba(200,210,225,.75);
+      font-size:12px;
+      line-height:1.35;
+      max-height: 86px;
+      overflow:auto;
+      border-top:1px solid rgba(255,255,255,.06);
+      padding-top: 10px;
+    }
+
+    /* overlay end */
+    .overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:2200; background: rgba(0,0,0,.78); }
+    .card{ width:min(560px, 92%); background: rgba(10,10,10,.92); border:1px solid rgba(255,255,255,.08); border-radius:16px; box-shadow: 0 25px 70px rgba(0,0,0,.85); padding: 18px; }
+    .card h3{ margin:0 0 10px 0; letter-spacing:.16em; color:#e6edf7; }
+    .card p{ margin:0 0 14px 0; color:#a8b3c7; line-height:1.35; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+
+    @media (max-width: 980px){
+      .app{ grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .booth{ border-right:none; border-bottom: 10px solid rgba(0,0,0,.5); }
+      .window{ top:55%; }
+    }
+
+    /* --- Person CSS art (reused) --- */
+    .person{ width: 240px; height: 390px; position:relative; }
+    .head{ width:140px; height:160px; position:absolute; top:34px; left:50px; border-radius: 54px 54px 64px 64px; z-index:6; box-shadow: inset -7px -8px 22px rgba(0,0,0,.55); }
+    .hair{ position:absolute; top:-16px; left:-10px; width:162px; height:104px; z-index:7; pointer-events:none; filter: contrast(1.05); }
+    .hair.short{ border-radius: 52px 52px 16px 16px; height: 64px; }
+    .hair.long{ height: 192px; border-radius: 64px 64px 0 0; z-index:3; width: 160px; }
+    .hair.bald{ width:0; height:0; background:transparent!important; }
+    .eyes{ position:absolute; top:64px; left:22px; width:96px; display:flex; justify-content:space-between; }
+    .eye{ width:26px; height:14px; background:#ddd; border-radius:50%; position:relative; overflow:hidden; box-shadow: inset 0 2px 7px rgba(0,0,0,.45); }
+    .pupil{ width:8px; height:8px; background:#000; border-radius:50%; position:absolute; top:3px; left:9px; }
+    .nose{ width:12px; height:32px; background: rgba(0,0,0,.20); position:absolute; top:78px; left:64px; border-radius: 5px; }
+    .mouth{ width:44px; height:4px; background:#3a1f1f; position:absolute; top:120px; left:48px; border-radius: 10px; }
+    .body{ width:220px; height:190px; background: linear-gradient(180deg, #2f363b, #23282d); position:absolute; bottom:0; left:10px; border-radius: 66px 66px 0 0; z-index:5; box-shadow: inset 0 10px 35px rgba(0,0,0,.35); }
+    .glasses{ position:absolute; top:61px; left:16px; width:108px; height:22px; border:2px solid rgba(0,0,0,.75); border-radius: 8px; z-index:8; background: rgba(0,0,0,.12); box-shadow: 0 0 10px rgba(0,0,0,.25); }
+
+    .miniWrap{ transform: scale(.55) translateY(38px); transform-origin: top left; }
+    .dead{ transform: translateY(120px) rotate(10deg); filter: grayscale(1) brightness(.26) blur(2px); transition: 1s; }
+
+    /* small action flash */
+    .flash{ position:fixed; inset:0; pointer-events:none; z-index:1800; background: rgba(255,255,255,.0); transition: background .18s ease; }
+    .flash.on{ background: rgba(255,255,255,.22); }
+  </style>
+</head>
+<body>
+  <div class="crt"></div>
+  <div class="vignette"></div>
+  <div class="grain"></div>
+  <div class="flash" id="flash"></div>
+
+  <div class="menu" id="menu">
+    <h1>DOPPEL FRONTIER</h1>
+    <p>SISTEMA DE CONTROL // TURNO DE NOCHE</p>
+    <button class="btn" id="btnStart">INICIAR TURNO</button>
+    <p style="max-width:760px; text-align:center; margin-top:10px; color:#5f6a80; letter-spacing:.06em; line-height:1.4; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;">
+      Revisa el pasaporte (por la rejilla), busca al sujeto en la base de datos y compara.
+      Pregunta si algo te huele raro. Botón <b style="color:#ffb1b1">ROJO</b>: detener. Botón <b style="color:#b9ffd0">VERDE</b>: aprobar.
+    </p>
+  </div>
+
+  <div class="hud" id="hud">
+    DÍA: <b id="uiDay">1</b>
+    <span style="opacity:.35">|</span>
+    COLA: <b id="uiQueue">0</b>
+    <span style="opacity:.35">|</span>
+    ACIERTOS: <b id="uiScore">0</b>
+    <span style="opacity:.35">|</span>
+    FALLOS: <b id="uiStrikes">0</b>
+    <span class="dots" aria-hidden="true">
+      <span class="dot" id="d1"></span>
+      <span class="dot" id="d2"></span>
+      <span class="dot" id="d3"></span>
+    </span>
+  </div>
+
+  <div class="app" id="app">
+    <!-- LEFT: Booth -->
+    <section class="booth">
+      <div class="wall"></div>
+      <div class="notice">
+        <div class="tag">PROTOCOLO</div>
+        <div>1) Verifica datos.</div>
+        <div>2) Compara foto.</div>
+        <div>3) Pregunta si dudas.</div>
+        <div style="margin-top:8px; color:#6c778c">3 fallos = fin.</div>
+      </div>
+
+      <div class="window">
+        <div class="glass" id="glass">
+          <div class="shutter" id="shutter"></div>
+          <div class="personStage" id="personStage"></div>
+        </div>
+
+        <div class="slot">
+          <div class="doc" id="doc">
+            <div class="title">PASAPORTE / IDENTIDAD</div>
+            <div class="rows">
+              <span><span class="k">NOMBRE</span><span class="v" id="docName">—</span></span>
+              <span><span class="k">NAC.</span><span class="v" id="docDob">—</span></span>
+              <span><span class="k">ORIGEN</span><span class="v" id="docOrigin">—</span></span>
+              <span><span class="k">TRABAJO</span><span class="v" id="docJob">—</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="speech" id="speech">Esperando sujeto…</div>
+    </section>
+
+    <!-- RIGHT: Desk -->
+    <section class="desk">
+      <div class="deskTop">
+        <div class="props">
+          <div class="passport" aria-label="Pasaporte en el escritorio">
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div style="flex:1; position:relative; z-index:2;">
+                <div class="hdr">PASAPORTE</div>
+                <div class="grid">
+                  <div class="k">NOMBRE:</div><div class="v" id="idName">—</div>
+                  <div class="k">NAC.:</div><div class="v" id="idDob">—</div>
+                  <div class="k">ORIGEN:</div><div class="v" id="idOrigin">—</div>
+                  <div class="k">TRABAJO:</div><div class="v" id="idJob">—</div>
+                </div>
+              </div>
+              <div class="miniPhoto" id="idPhoto"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monitor">
+          <div class="termTitle">&gt; BBDD FEDERAL</div>
+          <div class="termSub">&gt; BUSQUEDA POR APELLIDO / NOMBRE (Enter)</div>
+
+          <div class="termRow">
+            <input id="search" type="text" placeholder="MULLER" autocomplete="off" />
+            <button class="termBtn" id="btnSearch">ENTER</button>
+            <span class="tiny">(o presiona Enter)</span>
+          </div>
+
+          <div class="dbBox" id="dbBox">
+            <div class="dbHeader">
+              <div class="badge" id="dbBadge">SIN CONSULTA</div>
+              <div class="badge" id="photoBadge">FOTO: —</div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:10px; align-items:flex-start;">
+              <div class="miniPhoto" id="dbPhoto" style="width:84px; height:84px; background:rgba(0,0,0,.18); border-color:rgba(52,198,167,.45);"></div>
+              <div style="flex:1;">
+                <div class="cmp">
+                  <div class="h">CAMPO</div><div class="h">BBDD</div><div class="h" style="justify-self:end;">VS ID</div>
+
+                  <div class="cell">NOMBRE</div><div class="cell" id="dbName">—</div><div class="pill" id="mName">—</div>
+                  <div class="cell">NAC.</div><div class="cell" id="dbDob">—</div><div class="pill" id="mDob">—</div>
+                  <div class="cell">ORIGEN</div><div class="cell" id="dbOrigin">—</div><div class="pill" id="mOrigin">—</div>
+                  <div class="cell">TRABAJO</div><div class="cell" id="dbJob">—</div><div class="pill" id="mJob">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="log" id="log"></div>
+          </div>
+
+          <div class="dbErr" id="dbErr">&gt; ERROR: SUJETO NO ENCONTRADO.</div>
+        </div>
+
+        <div class="controls">
+          <div class="col">
+            <button class="btn" id="qDob">PREG: NACIMIENTO</button>
+            <button class="btn" id="qOrigin">PREG: ORIGEN</button>
+            <button class="btn" id="qJob">PREG: TRABAJO</button>
+          </div>
+          <div class="col">
+            <button class="btn btnRed" id="btnDetain">ROJO: DETENER</button>
+            <button class="btn btnGreen" id="btnApprove">VERDE: APROBAR</button>
+            <button class="btn btnNext" id="btnNext" style="display:none;">SIGUIENTE &gt;&gt;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <h3 id="ovTitle">DÍA TERMINADO</h3>
+      <p id="ovText">—</p>
+      <div class="row">
+        <button class="btn" id="ovContinue">CONTINUAR</button>
+        <button class="btn" id="ovRestart">REINICIAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ----------------------
+    // DOM
+    // ----------------------
+    const $ = (id) => document.getElementById(id);
+    const el = {
+      menu: $('menu'),
+      btnStart: $('btnStart'),
+      hud: $('hud'),
+      app: $('app'),
+      shutter: $('shutter'),
+      personStage: $('personStage'),
+      doc: $('doc'),
+      speech: $('speech'),
+
+      docName: $('docName'),
+      docDob: $('docDob'),
+      docOrigin: $('docOrigin'),
+      docJob: $('docJob'),
+
+      idName: $('idName'),
+      idDob: $('idDob'),
+      idOrigin: $('idOrigin'),
+      idJob: $('idJob'),
+      idPhoto: $('idPhoto'),
+
+      search: $('search'),
+      btnSearch: $('btnSearch'),
+      dbBox: $('dbBox'),
+      dbErr: $('dbErr'),
+      dbBadge: $('dbBadge'),
+      photoBadge: $('photoBadge'),
+      dbPhoto: $('dbPhoto'),
+      dbName: $('dbName'),
+      dbDob: $('dbDob'),
+      dbOrigin: $('dbOrigin'),
+      dbJob: $('dbJob'),
+      mName: $('mName'),
+      mDob: $('mDob'),
+      mOrigin: $('mOrigin'),
+      mJob: $('mJob'),
+      log: $('log'),
+
+      qDob: $('qDob'),
+      qOrigin: $('qOrigin'),
+      qJob: $('qJob'),
+      btnDetain: $('btnDetain'),
+      btnApprove: $('btnApprove'),
+      btnNext: $('btnNext'),
+
+      uiDay: $('uiDay'),
+      uiQueue: $('uiQueue'),
+      uiScore: $('uiScore'),
+      uiStrikes: $('uiStrikes'),
+      d1: $('d1'),
+      d2: $('d2'),
+      d3: $('d3'),
+
+      overlay: $('overlay'),
+      ovTitle: $('ovTitle'),
+      ovText: $('ovText'),
+      ovContinue: $('ovContinue'),
+      ovRestart: $('ovRestart'),
+      flash: $('flash')
+    };
+
+    // ----------------------
+    // Audio (procedural)
+    // ----------------------
+    let AC = null;
+    let master = null;
+    let audioReady = false;
+
+    function ensureAudio(){
+      if(audioReady) return;
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      master = AC.createGain();
+      master.gain.value = 0.45;
+      master.connect(AC.destination);
+
+      // dark hum
+      const osc = AC.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = 58;
+      const lp = AC.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 120;
+      osc.connect(lp).connect(master);
+
+      const lfo = AC.createOscillator();
+      lfo.frequency.value = 0.2;
+      const lfoG = AC.createGain();
+      lfoG.gain.value = 22;
+      lfo.connect(lfoG).connect(lp.frequency);
+
+      osc.start();
+      lfo.start();
+
+      audioReady = true;
+    }
+
+    function sfx(kind){
+      if(!audioReady) return;
+      const t = AC.currentTime;
+      const route = (node) => { node.connect(master); return node; };
+
+      if(kind === 'type'){
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='square'; o.frequency.value=620;
+        g.gain.setValueAtTime(0.02,t);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.05);
+      }
+      if(kind === 'scan'){
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='sine';
+        o.frequency.setValueAtTime(820,t);
+        o.frequency.exponentialRampToValueAtTime(120,t+0.28);
+        g.gain.setValueAtTime(0.11,t);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.28);
+      }
+      if(kind === 'error'){
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='sawtooth'; o.frequency.value=110;
+        g.gain.setValueAtTime(0.18,t);
+        g.gain.linearRampToValueAtTime(0.0,t+0.38);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.4);
+      }
+      if(kind === 'shutter'){
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='triangle';
+        o.frequency.setValueAtTime(220,t);
+        o.frequency.exponentialRampToValueAtTime(120,t+0.22);
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.08,t+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.25);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.28);
+      }
+      if(kind === 'stampOk' || kind === 'stampBad'){
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='triangle';
+        o.frequency.setValueAtTime(kind==='stampOk'?420:180,t);
+        o.frequency.exponentialRampToValueAtTime(kind==='stampOk'?220:120,t+0.08);
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.09,t+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.13);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.16);
+      }
+    }
+
+    // ----------------------
+    // Data
+    // ----------------------
+    const lastNames = ['MULLER','SMITH','DOE','IVANOV','GARCIA','PEREZ','KIM','SATO','ROSSI','WANG','JONES','KOWALSKI'];
+    const namesM = ['JOHN','DAVID','IVAN','PEDRO','HANS','KEN','LUIS','ALEX','MARIO','BRUNO'];
+    const namesF = ['MARY','ANNA','ELENA','MARIA','JULIA','YOKO','SARA','OLGA','SOFIA','NORA'];
+    const countries = ['ARSTOTZKA','OBRISTAN','KOLECHIA','ANTEGRIA','REPUBLIA','IMPOR','UNITED FED'];
+    const jobs = ['INGENIERO','MEDICO','OBRERO','PROFESOR','MILITAR','GRANJERO','MINERO','TECNICO'];
+
+    const MAX_STRIKES = 3;
+
+    // ----------------------
+    // State
+    // ----------------------
+    let day = 1;
+    let score = 0;
+    let strikes = 0;
+
+    let queue = [];
+    let cur = null;
+    let active = false;
+    let decisionLock = false;
+    let lastDB = null; // last searched record shown
+
+    // ----------------------
+    // Helpers
+    // ----------------------
+    const randInt = (a,b)=> a + Math.floor(Math.random()*(b-a+1));
+    const pick = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+    const chance = (p)=> Math.random() < p;
+    const normalize = (s)=> (s||'').toUpperCase().trim().replace(/\s+/g,' ');
+
+    function setSpeech(t){ el.speech.textContent = t; }
+
+    function setEnabled(enabled){
+      el.btnDetain.disabled = !enabled;
+      el.btnApprove.disabled = !enabled;
+      el.qDob.disabled = !enabled;
+      el.qOrigin.disabled = !enabled;
+      el.qJob.disabled = !enabled;
+      el.btnSearch.disabled = !enabled;
+      el.search.disabled = !enabled;
+      if(enabled){ el.btnNext.style.display='none'; }
+    }
+
+    function updateHUD(){
+      el.uiDay.textContent = String(day);
+      el.uiQueue.textContent = String(queue.length);
+      el.uiScore.textContent = String(score);
+      el.uiStrikes.textContent = String(strikes);
+      el.d1.classList.toggle('on', strikes>=1);
+      el.d2.classList.toggle('on', strikes>=2);
+      el.d3.classList.toggle('on', strikes>=3);
+    }
+
+    function flash(){
+      el.flash.classList.add('on');
+      setTimeout(()=>el.flash.classList.remove('on'), 120);
+    }
+
+    function log(line){
+      const ts = new Date();
+      const hh = String(ts.getHours()).padStart(2,'0');
+      const mm = String(ts.getMinutes()).padStart(2,'0');
+      el.log.innerHTML = `<div><span style="color:rgba(255,255,255,.35)">[${hh}:${mm}]</span> ${line}</div>` + el.log.innerHTML;
+    }
+
+    // ----------------------
+    // Person rendering (CSS art)
+    // ----------------------
+    function genVisuals(g){
+      const hairType = g==='M' ? (chance(0.20)?'bald':'short') : (chance(0.55)?'long':'short');
+      return {
+        skin: pick(['#d2b48c','#e0c8a0','#8d5524','#c9a37c']),
+        hair: pick(['#111','#222','#000','#633','#888']),
+        hairType,
+        glasses: chance(0.28),
+        eye: chance(0.55)?'#ddd':'#b9c2d2'
+      };
+    }
+
+    function buildPersonDOM(v, mini=false){
+      const wrap = document.createElement('div');
+      wrap.className = mini ? 'miniWrap' : '';
+
+      const p = document.createElement('div');
+      p.className = 'person';
+
+      const body = document.createElement('div');
+      body.className = 'body';
+
+      const head = document.createElement('div');
+      head.className = 'head';
+      head.style.background = v.skin;
+
+      const hair = document.createElement('div');
+      hair.className = 'hair ' + (v.hairType==='long'?'long':(v.hairType==='bald'?'bald':'short'));
+      hair.style.background = v.hair;
+
+      const eyes = document.createElement('div');
+      eyes.className = 'eyes';
+      const mkEye = () => {
+        const e = document.createElement('div');
+        e.className = 'eye';
+        e.style.background = v.eye;
+        const pup = document.createElement('div');
+        pup.className = 'pupil';
+        e.appendChild(pup);
+        return e;
+      };
+      eyes.appendChild(mkEye());
+      eyes.appendChild(mkEye());
+
+      const nose = document.createElement('div');
+      nose.className = 'nose';
+      const mouth = document.createElement('div');
+      mouth.className = 'mouth';
+
+      head.appendChild(hair);
+      head.appendChild(eyes);
+      if(v.glasses){
+        const g = document.createElement('div');
+        g.className = 'glasses';
+        head.appendChild(g);
+      }
+      head.appendChild(nose);
+      head.appendChild(mouth);
+
+      p.appendChild(body);
+      p.appendChild(head);
+
+      wrap.appendChild(p);
+      return wrap;
+    }
+
+    function renderInto(node, visuals, mini=false){
+      node.innerHTML = '';
+      node.appendChild(buildPersonDOM(visuals, mini));
+    }
+
+    function visualSignature(v){
+      // lightweight signature for "photo match" comparison
+      return [
+        v.skin,
+        v.hair,
+        v.hairType,
+        v.glasses?'1':'0',
+        v.eye
+      ].join('|');
+    }
+
+    // ----------------------
+    // Game model
+    // ----------------------
+    function baseIdentity(){
+      const g = chance(0.52) ? 'M' : 'F';
+      const fn = pick(g==='M'?namesM:namesF);
+      const ln = pick(lastNames);
+      const dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+      return {
+        ln,
+        full: `${ln} ${fn}`,
+        dob,
+        origin: pick(countries),
+        job: pick(jobs),
+        visuals: genVisuals(g)
+      };
+    }
+
+    function makeCase(isImpostor){
+      const base = baseIdentity();
+
+      // ID shown on paper (document)
+      const id = structuredClone(base);
+
+      // Truth spoken by the subject (can diverge)
+      const answers = { dob: base.dob, origin: base.origin, job: base.job };
+
+      // Database record (can diverge or missing)
+      let db = structuredClone(base);
+
+      // Face outside the window (can diverge)
+      let face = structuredClone(base.visuals);
+
+      let impType = null;
+
+      if(isImpostor){
+        // pick a guaranteed-detectable pattern
+        const types = ['missing_db','id_mismatch','db_mismatch','photo_mismatch','answer_mismatch','combo'];
+        impType = pick(types);
+
+        if(impType === 'missing_db'){
+          db = null;
+        }
+        if(impType === 'id_mismatch'){
+          // ID altered, DB remains correct
+          const f = pick(['dob','origin','job']);
+          if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+          if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
+          if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
+        }
+        if(impType === 'db_mismatch'){
+          // DB altered, ID remains correct
+          const f = pick(['dob','origin','job']);
+          if(f==='dob') db.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+          if(f==='origin') db.origin = pick(countries.filter(x=>x!==base.origin));
+          if(f==='job') db.job = pick(jobs.filter(x=>x!==base.job));
+        }
+        if(impType === 'photo_mismatch'){
+          // DB photo differs from face (or vice versa)
+          if(chance(0.5)){
+            face = genVisuals(chance(0.5)?'M':'F');
+          } else {
+            db.visuals = genVisuals(chance(0.5)?'M':'F');
+          }
+        }
+        if(impType === 'answer_mismatch'){
+          const f = pick(['dob','origin','job']);
+          if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+          if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
+          if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
+        }
+        if(impType === 'combo'){
+          // 2 issues mixed
+          const a = pick(['missing_db','id_mismatch','db_mismatch','photo_mismatch','answer_mismatch']);
+          const b = pick(['id_mismatch','db_mismatch','photo_mismatch','answer_mismatch']);
+          const apply = (t) => {
+            if(t==='missing_db'){ db=null; return; }
+            if(t==='id_mismatch'){
+              const f = pick(['dob','origin','job']);
+              if(f==='dob') id.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+              if(f==='origin') id.origin = pick(countries.filter(x=>x!==base.origin));
+              if(f==='job') id.job = pick(jobs.filter(x=>x!==base.job));
+            }
+            if(t==='db_mismatch' && db){
+              const f = pick(['dob','origin','job']);
+              if(f==='dob') db.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+              if(f==='origin') db.origin = pick(countries.filter(x=>x!==base.origin));
+              if(f==='job') db.job = pick(jobs.filter(x=>x!==base.job));
+            }
+            if(t==='photo_mismatch'){
+              if(db && chance(0.5)) face = genVisuals(chance(0.5)?'M':'F');
+              else if(db) db.visuals = genVisuals(chance(0.5)?'M':'F');
+            }
+            if(t==='answer_mismatch'){
+              const f = pick(['dob','origin','job']);
+              if(f==='dob') answers.dob = `${randInt(1,28)}/${randInt(1,12)}/19${randInt(60,89)}`;
+              if(f==='origin') answers.origin = pick(countries.filter(x=>x!==base.origin));
+              if(f==='job') answers.job = pick(jobs.filter(x=>x!==base.job));
+            }
+          };
+          apply(a);
+          apply(b);
+        }
+
+        // Guarantee detectability: if everything still matches, force answer mismatch.
+        if(db &&
+          id.dob===db.dob && id.origin===db.origin && id.job===db.job &&
+          visualSignature(face)===visualSignature(db.visuals) &&
+          answers.dob===id.dob && answers.origin===id.origin && answers.job===id.job
+        ){
+          answers.origin = pick(countries.filter(x=>x!==id.origin));
+          impType = impType + '+forced';
+        }
+      }
+
+      return {
+        isImpostor,
+        impType,
+        id,
+        db,
+        face,
+        answers
+      };
+    }
+
+    function buildQueue(){
+      const total = randInt(10,15);
+      const imps = randInt(3,5);
+      const flags = new Array(total).fill(false);
+      let placed = 0;
+      while(placed < imps){
+        const i = randInt(0,total-1);
+        if(!flags[i]){ flags[i]=true; placed++; }
+      }
+      queue = [];
+      for(let i=0;i<total;i++) queue.push({ imp: flags[i] });
+      // shuffle
+      queue.sort(()=>Math.random()-0.5);
+      log(`<b>INICIO</b> // Personas: ${total} // Posibles impostores: ${imps}`);
+    }
+
+    // ----------------------
+    // UI flows
+    // ----------------------
+    function resetPanels(){
+      el.search.value='';
+      el.dbErr.style.display='none';
+      el.dbBox.style.display='none';
+      el.dbBadge.className='badge';
+      el.dbBadge.textContent='SIN CONSULTA';
+      el.photoBadge.className='badge';
+      el.photoBadge.textContent='FOTO: —';
+      el.dbPhoto.innerHTML='';
+      el.dbName.textContent='—';
+      el.dbDob.textContent='—';
+      el.dbOrigin.textContent='—';
+      el.dbJob.textContent='—';
+      setPill(el.mName, null);
+      setPill(el.mDob, null);
+      setPill(el.mOrigin, null);
+      setPill(el.mJob, null);
+      el.log.innerHTML='';
+      lastDB = null;
+    }
+
+    function setPill(node, isMatch){
+      node.className = 'pill';
+      if(isMatch === null){ node.textContent = '—'; return; }
+      if(isMatch){ node.classList.add('match'); node.textContent = 'MATCH'; }
+      else { node.classList.add('mismatch'); node.textContent = 'MISMATCH'; }
+    }
+
+    function openShutter(){ el.shutter.classList.add('open'); }
+    function closeShutter(){ el.shutter.classList.remove('open'); }
+
+    function docIn(){ el.doc.classList.add('in'); }
+    function docOut(){ el.doc.classList.remove('in'); }
+
+    function showSubject(){
+      el.personStage.classList.add('show');
+      openShutter();
+      docIn();
+      sfx('shutter');
+    }
+
+    function hideSubject(){
+      el.personStage.classList.remove('show');
+      closeShutter();
+      docOut();
+      sfx('shutter');
+    }
+
+    function spawnNext(){
+      decisionLock = false;
+      active = true;
+      setEnabled(true);
+      resetPanels();
+
+      if(queue.length === 0){
+        dayEnd();
+        return;
+      }
+
+      const raw = queue.pop();
+      cur = makeCase(raw.imp);
+
+      // fill docs
+      el.docName.textContent = cur.id.full;
+      el.docDob.textContent = cur.id.dob;
+      el.docOrigin.textContent = cur.id.origin;
+      el.docJob.textContent = cur.id.job;
+
+      el.idName.textContent = cur.id.full;
+      el.idDob.textContent = cur.id.dob;
+      el.idOrigin.textContent = cur.id.origin;
+      el.idJob.textContent = cur.id.job;
+
+      renderInto(el.idPhoto, cur.id.visuals, true);
+      renderInto(el.personStage, cur.face, false);
+
+      setSpeech('Siguiente…');
+      showSubject();
+
+      updateHUD();
+      // focus input
+      setTimeout(()=> el.search.focus({preventScroll:true}), 80);
+    }
+
+    function dayEnd(){
+      active = false;
+      hideSubject();
+      setEnabled(false);
+
+      el.ovTitle.textContent = 'DÍA TERMINADO';
+      el.ovText.textContent = `Reporte: Aciertos ${score} | Fallos ${strikes}/${MAX_STRIKES}.`;
+      el.overlay.style.display='flex';
+    }
+
+    function gameOver(){
+      active = false;
+      hideSubject();
+      setEnabled(false);
+
+      el.ovTitle.textContent = 'TURNO CANCELADO';
+      el.ovText.textContent = 'Demasiados fallos. La oficina entra en estado de alarma.';
+      el.overlay.style.display='flex';
+    }
+
+    function continueDay(){
+      el.overlay.style.display='none';
+      day += 1;
+      buildQueue();
+      updateHUD();
+      spawnNext();
+    }
+
+    function restartAll(){
+      el.overlay.style.display='none';
+      day = 1;
+      score = 0;
+      strikes = 0;
+      buildQueue();
+      updateHUD();
+      spawnNext();
+    }
+
+    // ----------------------
+    // DB search + compare
+    // ----------------------
+    function showDBRecord(rec){
+      el.dbBox.style.display = 'block';
+      el.dbErr.style.display = 'none';
+
+      if(!rec){
+        el.dbBadge.className = 'badge bad';
+        el.dbBadge.textContent = 'NO ENCONTRADO';
+        el.photoBadge.className = 'badge warn';
+        el.photoBadge.textContent = 'FOTO: —';
+        setPill(el.mName, false);
+        setPill(el.mDob, false);
+        setPill(el.mOrigin, false);
+        setPill(el.mJob, false);
+        el.dbPhoto.innerHTML='';
+        el.dbName.textContent='—';
+        el.dbDob.textContent='—';
+        el.dbOrigin.textContent='—';
+        el.dbJob.textContent='—';
+        return;
+      }
+
+      el.dbBadge.className = 'badge ok';
+      el.dbBadge.textContent = 'REGISTRO ENCONTRADO';
+
+      el.dbName.textContent = rec.full;
+      el.dbDob.textContent = rec.dob;
+      el.dbOrigin.textContent = rec.origin;
+      el.dbJob.textContent = rec.job;
+
+      renderInto(el.dbPhoto, rec.visuals, true);
+
+      // compare vs ID (auto highlight)
+      setPill(el.mName, normalize(rec.full) === normalize(cur.id.full));
+      setPill(el.mDob,  normalize(rec.dob)  === normalize(cur.id.dob));
+      setPill(el.mOrigin, normalize(rec.origin) === normalize(cur.id.origin));
+      setPill(el.mJob, normalize(rec.job) === normalize(cur.id.job));
+
+      // photo match vs outside face
+      const faceOk = visualSignature(cur.face) === visualSignature(rec.visuals);
+      el.photoBadge.className = 'badge ' + (faceOk ? 'ok' : 'bad');
+      el.photoBadge.textContent = 'FOTO: ' + (faceOk ? 'MATCH' : 'MISMATCH');
+
+      // badge warn if something mismatched
+      const anyMismatch = !faceOk ||
+        normalize(rec.full)!==normalize(cur.id.full) ||
+        normalize(rec.dob)!==normalize(cur.id.dob) ||
+        normalize(rec.origin)!==normalize(cur.id.origin) ||
+        normalize(rec.job)!==normalize(cur.id.job);
+
+      if(anyMismatch){
+        el.dbBadge.className = 'badge warn';
+        el.dbBadge.textContent = 'ALERTA: INCONSISTENCIA';
+      }
+    }
+
+    function searchDB(){
+      if(!active || decisionLock) return;
+      ensureAudio();
+      sfx('type');
+
+      const q = normalize(el.search.value);
+      el.dbErr.style.display = 'none';
+      el.dbBox.style.display = 'none';
+
+      setTimeout(()=>{
+        if(!active || decisionLock) return;
+
+        if(!cur.db){
+          sfx('error');
+          el.dbErr.style.display = 'block';
+          el.dbErr.textContent = '> ERROR: SUJETO NO ENCONTRADO.';
+          el.dbBox.style.display = 'block';
+          showDBRecord(null);
+          log('<b>DB</b>: Sin registro.');
+          lastDB = null;
+          return;
+        }
+
+        const db = cur.db;
+        const ln = normalize(db.ln);
+        const full = normalize(db.full);
+
+        const ok = q && (q === ln || q === full || (q.length>=2 && (ln.startsWith(q) || full.startsWith(q))));
+        if(!ok){
+          sfx('error');
+          el.dbErr.style.display = 'block';
+          el.dbErr.textContent = '> ERROR: NOMBRE NO COINCIDE.';
+          el.dbBox.style.display = 'block';
+          showDBRecord(null);
+          log('<b>DB</b>: Consulta fallida.');
+          lastDB = null;
+          return;
+        }
+
+        sfx('scan');
+        el.dbErr.style.display = 'none';
+        showDBRecord(db);
+        log(`<b>DB</b>: ${db.full} cargado.`);
+        lastDB = db;
+      }, 420);
+    }
+
+    // ----------------------
+    // Questions
+    // ----------------------
+    function ask(kind){
+      if(!active || decisionLock) return;
+      ensureAudio();
+      sfx('type');
+
+      const ans = cur.answers[kind];
+      const label = kind==='dob' ? 'NACIMIENTO' : (kind==='origin' ? 'ORIGEN' : 'TRABAJO');
+      setSpeech(`Dice: "${ans}"`);
+
+      // If DB exists and already loaded, also show quick hint line in log
+      if(lastDB){
+        const dbVal = kind==='dob'? lastDB.dob : (kind==='origin'? lastDB.origin : lastDB.job);
+        const mismatch = normalize(ans) !== normalize(dbVal);
+        log(`<b>PREG</b> ${label}: ${ans} ${mismatch ? '<span style="color:#ffb1b1">(≠ BBDD)</span>' : '<span style="color:#b9ffd0">(= BBDD)</span>'}`);
+      } else {
+        log(`<b>PREG</b> ${label}: ${ans}`);
+      }
+    }
+
+    // ----------------------
+    // Decisions
+    // ----------------------
+    function makeMistake(){
+      strikes = Math.min(MAX_STRIKES, strikes + 1);
+      updateHUD();
+      flash();
+      sfx('stampBad');
+      if(strikes >= MAX_STRIKES){
+        setTimeout(gameOver, 450);
+        return true;
+      }
+      return false;
+    }
+
+    function endDecision(msg){
+      active = false;
+      setEnabled(false);
+      decisionLock = true;
+      setSpeech(msg);
+      el.btnNext.style.display = 'block';
+      el.btnNext.focus({preventScroll:true});
+    }
+
+    function decide(action){
+      if(!active || decisionLock) return;
+      ensureAudio();
+
+      decisionLock = true;
+      const isImp = !!cur.isImpostor;
+      const correct = (action==='approve' && !isImp) || (action==='detain' && isImp);
+
+      if(correct){
+        score += 1;
+        updateHUD();
+        sfx('stampOk');
+        endDecision(correctMsg(action));
+      } else {
+        const over = makeMistake();
+        if(over){
+          endDecision('ALERTA. TURNO SUSPENDIDO.');
+          return;
+        }
+        endDecision(wrongMsg(action));
+      }
+    }
+
+    function correctMsg(action){
+      return action==='approve' ? 'APROBADO. CIUDADANO ACEPTADO.' : 'DETENIDO. AMENAZA CONFIRMADA.';
+    }
+    function wrongMsg(action){
+      return action==='approve' ? 'FALLO. UN IMPOSTOR SE COLÓ.' : 'FALLO. DETUVISTE A UN INOCENTE.';
+    }
+
+    // ----------------------
+    // Events
+    // ----------------------
+    el.btnStart.addEventListener('click', ()=>{
+      ensureAudio();
+      if(AC && AC.state === 'suspended') AC.resume();
+      el.menu.style.opacity = '0';
+      setTimeout(()=>{
+        el.menu.style.display='none';
+        document.body.classList.add('play');
+        buildQueue();
+        updateHUD();
+        spawnNext();
+      }, 650);
+    });
+
+    el.btnSearch.addEventListener('click', searchDB);
+    el.search.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchDB(); });
+
+    el.qDob.addEventListener('click', ()=>ask('dob'));
+    el.qOrigin.addEventListener('click', ()=>ask('origin'));
+    el.qJob.addEventListener('click', ()=>ask('job'));
+
+    el.btnDetain.addEventListener('click', ()=>decide('detain'));
+    el.btnApprove.addEventListener('click', ()=>decide('approve'));
+
+    el.btnNext.addEventListener('click', ()=>{
+      hideSubject();
+      setTimeout(()=>{
+        spawnNext();
+      }, 260);
+    });
+
+    el.ovContinue.addEventListener('click', continueDay);
+    el.ovRestart.addEventListener('click', restartAll);
+
+    // initial
+    updateHUD();
+    setEnabled(false);
+    closeShutter();
+    docOut();
+
+    // unlock audio on first user gesture (backup)
+    window.addEventListener('pointerdown', ()=>ensureAudio(), {once:true});
+  })();
+  </script>
+</body>
+</html>
