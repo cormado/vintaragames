@@ -343,7 +343,8 @@
       border:1px solid rgba(0,0,0,.28);
       border-radius:8px;
       overflow:hidden;
-      display:flex; align-items:flex-start; justify-content:flex-start; padding:6px; box-sizing:border-box;
+      display:flex; align-items:center; justify-content:center;
+      padding:0; box-sizing:border-box;
       margin-left:auto;
     }
 
@@ -564,7 +565,7 @@
     .body{ width:220px; height:190px; background: linear-gradient(180deg, #2f363b, #23282d); position:absolute; bottom:0; left:10px; border-radius: 66px 66px 0 0; z-index:5; box-shadow: inset 0 10px 35px rgba(0,0,0,.35); }
     .glasses{ position:absolute; top:61px; left:16px; width:108px; height:22px; border:2px solid rgba(0,0,0,.75); border-radius: 8px; z-index:8; background: rgba(0,0,0,.12); box-shadow: 0 0 10px rgba(0,0,0,.25); }
 
-    .miniWrap{ transform: translate(-12px,-20px) scale(.45); transform-origin: top left; }
+    .miniWrap{ transform: scale(.42); transform-origin: center center; }
     .dead{ transform: translateY(120px) rotate(10deg); filter: grayscale(1) brightness(.26) blur(2px); transition: 1s; }
 
     /* small action flash */
@@ -654,7 +655,87 @@
       .btn{ padding: 9px 10px; letter-spacing:.08em; }
     }
 
-</style>
+
+    /* highscores */
+    .hsBox{
+      margin-top:18px;
+      width:min(520px, 92vw);
+      border:1px solid rgba(0,255,200,.22);
+      border-radius:14px;
+      padding:14px 16px;
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+    }
+    .hsTitle{
+      letter-spacing: .22em;
+      font-weight: 700;
+      font-size: 12px;
+      color: rgba(160,255,230,.9);
+      margin-bottom:6px;
+    }
+    .hsHint{ font-size: 11px; color: rgba(255,255,255,.45); letter-spacing:.08em; }
+    .hsBestLine{
+      display:flex;
+      gap:12px;
+      align-items:baseline;
+      justify-content:flex-start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.88);
+      letter-spacing:.12em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    .hsBestScore{
+      font-size: 20px;
+      font-weight: 900;
+      color: rgba(185,255,220,.95);
+    }
+    .hsBestIni{
+      font-size: 14px;
+      font-weight: 800;
+      color: rgba(255,255,255,.70);
+    }
+
+    .hsTable{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.08);
+      padding-top:10px;
+      display:grid;
+      gap:8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+    .hsRow{
+      display:grid;
+      grid-template-columns: 30px 1fr 120px;
+      gap: 10px;
+      align-items:center;
+      color: rgba(255,255,255,.78);
+    }
+    .hsRow b{ color: rgba(185,255,220,.95); font-weight:800; }
+    .hsRow .rk{ color: rgba(255,255,255,.45); }
+    .hsOverlay{ margin-top:14px; }
+    .hsEntry{ margin-top:6px; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.18); }
+    .hsEntryLabel{ font-size: 12px; color: rgba(255,255,255,.85); letter-spacing:.14em; margin-bottom:8px; }
+    .hsEntryRow{ display:flex; gap:10px; align-items:center; justify-content:center; }
+    .hsInput{
+      width: 110px;
+      text-transform: uppercase;
+      text-align:center;
+      letter-spacing: .35em;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(0,255,200,.22);
+      background: rgba(0,0,0,.30);
+      color: rgba(220,255,245,.95);
+      outline: none;
+      font-weight:800;
+    }
+
+  </style>
 </head>
 <body>
   <div class="crt"></div>
@@ -671,6 +752,15 @@
       Revisa el pasaporte (por la rejilla), busca al sujeto en la base de datos y compara.
       Pregunta si algo te huele raro. Botón <b style="color:#ffb1b1">ROJO</b>: detener. Botón <b style="color:#b9ffd0">VERDE</b>: aprobar.
     </p>
+
+    <div class="hsBox" id="hsMenu" aria-label="Highscore">
+      <div class="hsTitle">HIGHSCORE</div>
+      <div class="hsHint">Mejor puntaje guardado (este navegador)</div>
+      <div class="hsBestLine">
+        <span class="hsBestScore" id="hsBestScoreMenu">0</span>
+        <span class="hsBestIni" id="hsBestIniMenu">---</span>
+      </div>
+    </div>
   </div>
 
   <div class="hud" id="hud" role="status" aria-live="polite">
@@ -680,7 +770,7 @@
     <span class="hsep">|</span>
     <span class="hitem"><span class="hlab">COLA</span> <b id="uiQueue">0</b></span>
     <span class="hsep">|</span>
-    <span class="hitem"><span class="hlab">ACIERTOS</span> <b id="uiScore">0</b></span>
+    <span class="hitem"><span class="hlab">SCORE</span> <b id="uiScore">0</b></span>
     <span class="hsep">|</span>
     <span class="hitem"><span class="hlab">FALLOS</span> <b id="uiStrikes">0</b></span>
     <span class="dots" aria-hidden="true">
@@ -803,8 +893,27 @@
     <div class="card">
       <h3 id="ovTitle">DÍA TERMINADO</h3>
       <p id="ovText">—</p>
+
+      <div class="hsOverlay" id="hsOverlay" style="display:none">
+        <div class="hsEntry" id="hsEntry" style="display:none">
+          <div class="hsEntryLabel">¡NUEVO RÉCORD!</div>
+          <div class="hsEntryRow">
+            <input id="hsInput" class="hsInput" maxlength="3" placeholder="AAA" autocomplete="off" />
+            <button class="btn" id="hsSave">GUARDAR</button>
+          </div>
+          <div class="hsHint" style="margin-top:6px">Iniciales (3 letras). Si sales sin guardar, el récord se guarda sin iniciales.</div>
+        </div>
+
+        <div class="hsTitle" style="margin-top:10px">HIGHSCORE</div>
+        <div class="hsBestLine" style="justify-content:center; margin-top:8px">
+          <span class="hsBestScore" id="hsBestScoreOverlay">0</span>
+          <span class="hsBestIni" id="hsBestIniOverlay">---</span>
+        </div>
+      </div>
+
       <div class="row">
         <button class="btn" id="ovContinue">CONTINUAR</button>
+        <button class="btn" id="ovMenu">VOLVER AL MENÚ</button>
         <button class="btn" id="ovRestart">REINICIAR</button>
       </div>
     </div>
@@ -874,6 +983,16 @@
       ovText: $('ovText'),
       ovContinue: $('ovContinue'),
       ovRestart: $('ovRestart'),
+      ovMenu: $('ovMenu'),
+      hsMenu: $('hsMenu'),
+      hsBestScoreMenu: $('hsBestScoreMenu'),
+      hsBestIniMenu: $('hsBestIniMenu'),
+      hsOverlay: $('hsOverlay'),
+      hsEntry: $('hsEntry'),
+      hsInput: $('hsInput'),
+      hsSave: $('hsSave'),
+      hsBestScoreOverlay: $('hsBestScoreOverlay'),
+      hsBestIniOverlay: $('hsBestIniOverlay'),
       flash: $('flash'),
       bloodFX: $('bloodFX')
     };
@@ -1013,7 +1132,38 @@
         o.connect(g); route(g);
         o.start(t); o.stop(t+0.16);
       }
-    }
+    
+      if(kind === 'jingle'){
+        // pequeño jingle feliz
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+        const g = AC.createGain();
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.10,t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.55);
+        route(g);
+        notes.forEach((f,i)=>{
+          const o = AC.createOscillator();
+          o.type='triangle';
+          o.frequency.value = f;
+          o.connect(g);
+          const st = t + i*0.12;
+          o.start(st); o.stop(st+0.18);
+        });
+      }
+      if(kind === 'gameover'){
+        // caída triste
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.type='sawtooth';
+        o.frequency.setValueAtTime(180,t);
+        o.frequency.exponentialRampToValueAtTime(55,t+0.7);
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.10,t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.75);
+        o.connect(g); route(g);
+        o.start(t); o.stop(t+0.78);
+      }
+}
 
     // ----------------------
     // Data
@@ -1031,8 +1181,15 @@
     // ----------------------
     let day = 1;
     let diff = 1;
-    let score = 0;
+    let points = 0;
+    let correctCount = 0;
+    let dayCorrect = 0;
+    let dayWrong = 0;
     let strikes = 0;
+
+    // Easter eggs (aparecen 1 por día hasta agotarse, luego nunca repiten en la partida)
+    const SPECIAL_FIRST = ['JJ','ALFEM','YNEX','FRAIGOT'];
+    let specialRemaining = SPECIAL_FIRST.slice();
 
     let queue = [];
     let cur = null;
@@ -1066,7 +1223,7 @@
       el.uiDay.textContent = String(day);
       el.uiDiff.textContent = String(diff);
       el.uiQueue.textContent = String(queue.length);
-      el.uiScore.textContent = String(score);
+      el.uiScore.textContent = String(points);
       el.uiStrikes.textContent = String(strikes);
       el.d1.classList.toggle('on', strikes>=1);
       el.d2.classList.toggle('on', strikes>=2);
@@ -1125,8 +1282,7 @@
       // fade out slowly
       setTimeout(()=>{ fx.classList.remove('on'); }, 4200);
     }
-
-    function detainShotFX(){
+      function detainShotFX(){
       // close shutter and execute
       closeShutter();
       docOut();
@@ -1154,7 +1310,7 @@
 
       // Civiles también pueden tener marcas (para que SIEMPRE toque comparar)
       let mark = 'none';
-      if(chance(0.55)){
+      if(chance(0.75)){
         mark = pick(['mole','scar','tattoo']);
       }
 
@@ -1162,7 +1318,7 @@
         skin: pick(['#d2b48c','#e0c8a0','#8d5524','#c9a37c']),
         hair: pick(['#111','#222','#000','#633','#888']),
         hairType,
-        glasses: chance(0.28),
+        glasses: chance(0.34),
         eye: chance(0.55)?'#ddd':'#b9c2d2',
 
         // marcas humanas (tatuajes / cicatrices / lunares)
@@ -1295,8 +1451,13 @@
       };
     }
 
-    function makeCase(isImpostor){
+    function makeCase(isImpostor, specialFirst=null){
       const base = baseIdentity();
+
+      // Easter egg: reemplaza SOLO el nombre (una vez por día)
+      if(specialFirst){
+        base.full = `${base.ln} ${specialFirst}`;
+      }
 
       // Documento que entrega (papel)
       const id = structuredClone(base);
@@ -1344,6 +1505,13 @@
             if(v.mark==='none') v.mark = pick(['mole','scar','tattoo']);
           }
         }
+        // Garantiza al menos un "tell" visible (evita casos injustos donde no se nota)
+        const major = (v.pupilType && v.pupilType==='slit') || v.extraEye || (v.mouthType && v.mouthType!=='line') || v.skinVeins || (v.mark && v.mark!=='none' && (v.markX||0)!== (base.visuals.markX||0) );
+        if(!major){
+          v.pupilType = 'slit';
+          v.mouthType = 'jagged';
+          v.skinVeins = true;
+        }
         return v;
       };
 
@@ -1367,11 +1535,17 @@
           db = null;
         }else{
           // Mantén el registro REAL intacto (db.visuals = base.visuals)
-          // El sujeto es el que cambia
-          face = structuredClone(base.visuals);
-          applyNonHuman(face, level);
+          // Visual: solo algunos impostores cambian físicamente (no siempre)
+          const willChangeFace = (impType === 'nonhuman') || (level >= 6 && chance(0.28));
 
-          // A veces también mete una mentira o un dato del papel errado (en días altos)
+          if(willChangeFace){
+            face = structuredClone(base.visuals);
+            applyNonHuman(face, level);
+            if(impType !== 'nonhuman') impType += '+nonhuman';
+          }else{
+            face = structuredClone(base.visuals);
+          }
+// A veces también mete una mentira o un dato del papel errado (en días altos)
           if(level >= 3 && chance(0.35)){
             impType += '+lie';
             const f = pick(['dob','origin','job']);
@@ -1438,8 +1612,23 @@
       // shuffle
       queue.sort(()=>Math.random()-0.5);
 
+      // stats por día
+      dayCorrect = 0;
+      dayWrong = 0;
+
+      // Easter egg: 1 cameo por día (si quedan)
+      if(specialRemaining.length){
+        const pickIdx = randInt(0, specialRemaining.length-1);
+        const first = specialRemaining.splice(pickIdx,1)[0];
+        // ubica el cameo en un slot NO impostor
+        const safeIdxs = [];
+        for(let i=0;i<queue.length;i++){ if(!queue[i].imp) safeIdxs.push(i); }
+        const slot = safeIdxs.length ? safeIdxs[randInt(0, safeIdxs.length-1)] : 0;
+        queue[slot].specialFirst = first;
+      }
+
       diff = Math.min(5, day);
-          }
+}
 
     // ----------------------
     // UI flows
@@ -1492,7 +1681,7 @@
       }
 
       const raw = queue.pop();
-      cur = makeCase(raw.imp);
+      cur = makeCase(raw.imp, raw.specialFirst);
 
       // fill docs
       el.docName.textContent = cur.id.full;
@@ -1521,8 +1710,14 @@
       hideSubject();
       setEnabled(false);
 
-      el.ovTitle.textContent = 'DÍA TERMINADO';
-      el.ovText.textContent = `Reporte: Aciertos ${score} | Fallos ${strikes}/${MAX_STRIKES}.`;
+      el.ovTitle.textContent = `DÍA ${day} COMPLETADO`; 
+      el.ovText.textContent = `+${dayCorrect} aciertos | ${dayWrong} fallos — Score total: ${points}`;
+      el.hsOverlay.style.display = 'block';
+      el.hsEntry.style.display = 'none';
+      el.ovContinue.style.display = '';
+      el.ovRestart.textContent = 'REINICIAR';
+      markBestPending();
+      sfx('jingle');
       el.overlay.style.display='flex';
     }
 
@@ -1531,13 +1726,21 @@
       hideSubject();
       setEnabled(false);
 
-      el.ovTitle.textContent = 'TURNO CANCELADO';
-      el.ovText.textContent = 'Demasiados fallos. La oficina entra en estado de alarma.';
+      el.ovTitle.textContent = 'GAME OVER';
+      el.ovText.textContent = `Demasiados fallos. Score final: ${points}`;
+      el.ovContinue.style.display = 'none';
+      el.ovRestart.textContent = 'REINICIAR PARTIDA';
+      markBestPending();
       el.overlay.style.display='flex';
     }
 
     function continueDay(){
+      commitPendingBest(); // guarda récord si aplica
       el.overlay.style.display='none';
+      el.hsOverlay.style.display = 'none';
+      el.ovContinue.style.display = '';
+      el.ovRestart.textContent = 'REINICIAR';
+
       day += 1;
       buildQueue();
       updateHUD();
@@ -1545,14 +1748,52 @@
     }
 
     function restartAll(){
+      commitPendingBest(); // guarda récord si aplica
       el.overlay.style.display='none';
+      el.hsOverlay.style.display = 'none';
+      el.ovContinue.style.display = '';
+      el.ovRestart.textContent = 'REINICIAR';
+
       day = 1;
-      score = 0;
+      points = 0;
+      correctCount = 0;
       strikes = 0;
+      specialRemaining = SPECIAL_FIRST.slice();
+
       buildQueue();
       updateHUD();
       spawnNext();
     }
+
+    function backToMenu(){
+      commitPendingBest(); // guarda récord si aplica
+      active = false;
+      decisionLock = false;
+      hideSubject();
+      closeShutter();
+      docOut();
+      setEnabled(false);
+
+      el.overlay.style.display='none';
+      el.hsOverlay.style.display = 'none';
+      el.ovContinue.style.display = '';
+      el.ovRestart.textContent = 'REINICIAR';
+
+      // reinicia corrida
+      day = 1;
+      points = 0;
+      correctCount = 0;
+      strikes = 0;
+      specialRemaining = SPECIAL_FIRST.slice();
+
+      buildQueue();
+      updateHUD();
+
+      document.body.classList.remove('play');
+      el.menu.style.display = 'flex';
+      renderBest();
+    }
+
 
     // ----------------------
     // DB search + compare
@@ -1678,11 +1919,16 @@
       const correct = (action==='approve' && !isImp) || (action==='detain' && isImp);
 
       if(correct){
-        score += 1;
+        correctCount += 1;
+        dayCorrect += 1;
+        // Puntos: aprobar civil = 120, detener impostor = 160 (un poco más por riesgo)
+        points += (action==='approve' ? 120 : 160);
         updateHUD();
         sfx('stampOk');
         endDecision(correctMsg(action));
       } else {
+        dayWrong += 1;
+        points = Math.max(0, points - 80);
         const over = makeMistake();
         if(over){
           endDecision('ALERTA. TURNO SUSPENDIDO.');
@@ -1752,9 +1998,90 @@
 
     el.ovContinue.addEventListener('click', continueDay);
     el.ovRestart.addEventListener('click', restartAll);
+    el.ovMenu.addEventListener('click', backToMenu);
 
-    // initial
+    
+    // ----------------------
+    // Highscores (Top 5 local)
+    // ----------------------
+    const HS_KEY = 'df_highscore_best_v1';
+    let pendingBest = false;
+
+    function shakeInput(node){
+      try{
+        node.animate([
+          { transform:'translateX(0)' },
+          { transform:'translateX(-6px)' },
+          { transform:'translateX(6px)' },
+          { transform:'translateX(-4px)' },
+          { transform:'translateX(4px)' },
+          { transform:'translateX(0)' }
+        ], { duration: 260, easing:'ease-in-out' });
+      }catch(e){}
+    }
+
+    function loadBest(){
+      try{
+        const raw = localStorage.getItem(HS_KEY);
+        const obj = raw ? JSON.parse(raw) : null;
+        if(obj && typeof obj.score === 'number'){
+          return {
+            score: Math.max(0, obj.score|0),
+            ini: (typeof obj.ini === 'string' && obj.ini.trim()) ? obj.ini.trim().slice(0,3) : '---'
+          };
+        }
+      }catch(e){}
+      return { score: 0, ini: '---' };
+    }
+    function saveBest(best){
+      try{
+        const out = { score: Math.max(0, best.score|0), ini: (best.ini||'---').slice(0,3) };
+        localStorage.setItem(HS_KEY, JSON.stringify(out));
+      }catch(e){}
+    }
+    function renderBest(){
+      const b = loadBest();
+      if(el.hsBestScoreMenu) el.hsBestScoreMenu.textContent = String(b.score||0);
+      if(el.hsBestIniMenu) el.hsBestIniMenu.textContent = (b.ini||'---');
+      if(el.hsBestScoreOverlay) el.hsBestScoreOverlay.textContent = String(b.score||0);
+      if(el.hsBestIniOverlay) el.hsBestIniOverlay.textContent = (b.ini||'---');
+    }
+
+    function markBestPending(){
+      const b = loadBest();
+      pendingBest = (points > (b.score||0));
+      el.hsOverlay.style.display = 'block';
+      renderBest();
+      el.hsEntry.style.display = pendingBest ? 'block' : 'none';
+      if(pendingBest){
+        el.hsInput.value = '';
+        setTimeout(()=>el.hsInput.focus?.(), 50);
+      }
+    }
+    function commitPendingBest(fallbackIni){
+      if(!pendingBest) return;
+      const rawIni = (fallbackIni || '---').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);
+      const ini = (rawIni.length===3) ? rawIni : '---';
+      saveBest({ score: points, ini });
+      pendingBest = false;
+      renderBest();
+      el.hsEntry.style.display = 'none';
+    }
+
+el.hsSave?.addEventListener('click', ()=>{
+      const ini = (el.hsInput.value || '').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);
+      if(ini.length !== 3){ shakeInput(el.hsInput); sfx('type'); return; }
+      saveBest({ score: points, ini });
+      pendingBest = false;
+      renderBest();
+      el.hsEntry.style.display = 'none';
+      sfx('stampOk');
+    });
+
+
+// initial
     updateHUD();
+    renderBest();
     setEnabled(false);
     closeShutter();
     docOut();
