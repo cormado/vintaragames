@@ -1439,22 +1439,6 @@
       color:rgba(255,255,255,0.85);
       text-transform:uppercase;
     }
-    .heat-bar{
-      width:140px;
-      height:10px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.10);
-      border:1px solid rgba(255,255,255,0.14);
-      overflow:hidden;
-      box-shadow: inset 0 0 16px rgba(0,0,0,0.55);
-    }
-    #heat-fill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg, rgba(255,215,0,0.9), rgba(255,80,80,0.95));
-      transition: width 0.12s linear;
-    }
-
     .vent-ctrl{
       position:absolute;
       right: 18%;
@@ -1729,6 +1713,56 @@
 }
 
 
+
+/* ===================== v48: ARTHUR SECRET (terminal overlay) ===================== */
+#arthur-overlay{
+  position:fixed;
+  inset:0;
+  background: radial-gradient(circle at 50% 40%, rgba(70,0,0,0.98), rgba(0,0,0,0.98) 65%);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index: 99998;
+  pointer-events:none;
+}
+#arthur-overlay.active{
+  display:flex;
+  animation: arthurFlicker 90ms steps(2, start) infinite;
+}
+#arthur-overlay .arthur-terminal{
+  border: 1px solid rgba(255,80,80,0.55);
+  background: rgba(0,0,0,0.55);
+  padding: 18px 22px;
+  border-radius: 10px;
+  box-shadow: 0 0 40px rgba(255,0,0,0.18);
+  min-width: min(640px, 86vw);
+}
+#arthur-overlay .arthur-title{
+  color: rgba(255,120,120,0.92);
+  font-family: "Courier New", monospace;
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+#arthur-overlay .arthur-body{
+  color: rgba(255,220,220,0.92);
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 20px;
+  line-height: 1.25;
+  text-shadow: 0 0 18px rgba(255,0,0,0.18);
+}
+#arthur-overlay .arthur-body .dim{
+  opacity: 0.72;
+  font-weight: 600;
+}
+@keyframes arthurFlicker{
+  0%{ opacity: 1; filter: contrast(1.05) saturate(1.1); }
+  50%{ opacity: 0.12; filter: contrast(1.25) saturate(1.2); }
+}
     /* === v34 PATCH: Z-Index supremo para pantallas críticas === */
     #jumpscare { z-index: 99999 !important; }
     #cinematic { z-index: 99999 !important; }
@@ -1744,6 +1778,74 @@
 #menu { z-index: 10000; } /* El menú queda abajo de los sustos */
 #death-tip { z-index: 99998 !important; }
 #cin-text { position: relative; z-index: 100000; text-shadow: 0 0 10px red; }
+
+/* ===================== v37: Start Screen (Click to Start) ===================== */
+#start-screen{
+  position: fixed; inset: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 100000;
+  color: #fff;
+  text-align: center;
+}
+#start-screen .boot-title{
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 28px;
+  opacity: 0.95;
+}
+#start-screen .boot-sub{
+  font-size: 12px;
+  opacity: 0.75;
+  max-width: 520px;
+  line-height: 1.35;
+}
+#start-btn{
+  border: 2px solid rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+#start-btn:hover{
+  background: rgba(255,255,255,0.14);
+  box-shadow: 0 0 30px rgba(255,255,255,0.12);
+}
+#start-btn:active{ transform: scale(0.98); }
+
+/* Hide menu/game until booted */
+body:not(.booted) #menu{ display: none !important; }
+body:not(.booted) #game{ display: none !important; }
+
+/* ===================== v37: Phone Guy Mute Button ===================== */
+#mute-call{
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.92);
+  font-size: 12px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  display: none;
+  z-index: 25000;
+  pointer-events: auto;
+}
+#mute-call:hover{ background: rgba(255,255,255,0.06); }
+
 </style>
 </head>
 
@@ -1757,9 +1859,20 @@
   <source src="692008__zhr__horror-music-5.wav" type="audio/wav">
 </audio>
 <audio id="jumpscare-sound" preload="auto">
-  <source src="jumpscare.mp3" type="audio/mpeg">
+  </audio>
+
+<audio id="phone-night1" preload="auto" style="display:none">
+  <source src="Noche 1 oficial oficial.mp3" type="audio/mpeg">
 </audio>
+
   <div id="bg-vignette"></div>
+  <!-- ===================== START SCREEN (Audio unlock) ===================== -->
+  <div id="start-screen" aria-label="Pantalla de inicio">
+    <div class="boot-title">SYSTEM BOOT</div>
+    <button id="start-btn" data-alt-id="btn-start-system" type="button">INICIAR SISTEMA</button>
+    <div class="boot-sub">Haz clic para desbloquear audio y cargar el sistema.</div>
+  </div>
+
 
   <!-- ===================== MENU ===================== -->
   <main id="menu" aria-label="Menú principal">
@@ -1965,8 +2078,8 @@
   <div id="game">
     <div id="hud-top">
       <div class="pwr-wrap" aria-label="Energía y consumo">
-        <div id="pwr-text">ENERGÍA: 99%</div>
-        <div id="usage-ind" role="img" aria-label="Consumo de energía">
+        <div id="pwr-text">ENERGÍA: 100%</div>
+<div id="usage-ind" role="img" aria-label="Consumo de energía">
           <span class="u-label">USO</span>
           <span class="u-bars" aria-hidden="true">
             <span class="u-bar"></span>
@@ -1978,12 +2091,13 @@
       </div>
       <div class="heat-wrap" aria-label="Calor">
         <div id="heat-text">CALOR: 0%</div>
-        <div class="heat-bar" aria-hidden="true"><div id="heat-fill"></div></div>
-      </div>
+</div>
       <div id="time-text">12 AM</div>
       <div id="night-text">NOCHE 1</div>
     </div>
 <div id="office-view">
+      <div id="mute-call" onclick="mutePhone()">MUTE CALL</div>
+
       <div id="office-ceiling-light"></div>
       <div id="back-wall">
         <div id="poster-big"></div>
@@ -2110,6 +2224,202 @@
     // ===================== EARLY BOOT (v30) =====================
     // Ensure core globals exist BEFORE any input handlers can fire.
     const state = window.state || (window.state = { menuActive:true });
+    
+
+// --- FIX v38: RESTAURAR REFERENCIAS DE UI (Menú/UCN) ---
+const ui = {
+  camOverlay: document.getElementById('cam-overlay'),
+  camRender: document.getElementById('cam-render-area'),
+  camDetails: document.getElementById('cam-details'),
+  camInfo: document.getElementById('cam-info'),
+  foxyPhase: document.getElementById('foxy-phase'),
+  goldenOffice: document.getElementById('golden-office'),
+  poweroutFreddy: document.getElementById('powerout-freddy'),
+  blackout: document.getElementById('blackout'),
+  deathTip: document.getElementById('death-tip'),
+  deathTitle: document.getElementById('death-title'),
+  deathKiller: document.getElementById('death-killer'),
+  deathMessage: document.getElementById('death-message'),
+  btnRetry: document.getElementById('btn-retry'),
+  btnMenu: document.getElementById('btn-menu')
+};
+
+// --- v46 GAMEPLAY FIX: Defaults + Camera Labels (anti-undefined / anti-crash) ---
+const CAM_SCENES = {
+  1:{ Grey:1, Purple:2, Yellow:1, Foxy:1, Golden:0 },
+  2:{label:'CAM 2 - DINING'},
+  3:{label:'CAM 3 - HALL'},
+  4:{label:'CAM 4 - COVE'},
+  5:{label:'CAM 5 - LEFT HALL'},
+  6:{label:'CAM 6 - STORAGE'},
+  7:{label:'CAM 7 - SERVICE'},
+  8:{label:'CAM 8 - RIGHT HALL'},
+  V:{label:'CAM VENT'}
+};
+
+function camLabel(id){
+  const s = CAM_SCENES[id];
+  return (s && s.label) ? s.label : ('CAM ' + id);
+}
+// --- v47: Clock speed (missing constant) ---
+const HOUR_MS = 45000; // 45s per hour => ~4.5 minutes per night
+
+
+function ensureStateDefaults(){
+  // State root
+  if(!window.state || typeof window.state !== 'object') window.state = {};
+  try{ if(typeof state !== 'object' || !state) state = window.state; }catch(_e){}
+  const s = window.state;
+
+  // Basic flags
+  s.menuActive = !!s.menuActive;
+  s.dead = !!s.dead;
+  s.powerOut = !!s.powerOut;
+  s.inJumpscare = !!s.inJumpscare;
+  s.ucn = !!s.ucn;
+
+  // Containers
+  if(!s.doors || typeof s.doors !== 'object') s.doors = { l:false, r:false, vent:false };
+  s.doors.l = !!s.doors.l;
+  s.doors.r = !!s.doors.r;
+  if(typeof s.ventClosed !== 'boolean') s.ventClosed = false;
+
+  if(!s.lights || typeof s.lights !== 'object') s.lights = { l:false, r:false };
+  s.lights.l = !!s.lights.l;
+  s.lights.r = !!s.lights.r;
+
+  if(!s.officeArmed || typeof s.officeArmed !== 'object') s.officeArmed = { Purple:false, Yellow:false };
+  s.officeArmed.Purple = !!s.officeArmed.Purple;
+  s.officeArmed.Yellow = !!s.officeArmed.Yellow;
+
+  if(!Array.isArray(s.loops)) s.loops = [];
+  if(!Array.isArray(s.powerOutTimers)) s.powerOutTimers = [];
+  if(!Array.isArray(s.phoneTimers)) s.phoneTimers = [];
+
+  // Numbers
+  if(typeof s.pwr !== 'number' || !isFinite(s.pwr)) s.pwr = 100;
+  if(typeof s.heat !== 'number' || !isFinite(s.heat)) s.heat = 0;
+  if(typeof s.time !== 'number' || !isFinite(s.time)) s.time = 0;
+  if(typeof s.night !== 'number' || !isFinite(s.night)) s.night = 1;
+  if(typeof s.displayNight !== 'number' || !isFinite(s.displayNight)) s.displayNight = s.night;
+
+  if(typeof s.cam === 'undefined' || s.cam === null) s.cam = 1;
+  if(typeof s.camOpen !== 'boolean') s.camOpen = false;
+
+  // AI / misc nested objects used elsewhere
+  s.golden = s.golden || { active:false, manifest:false, cooldownUntil:0 };
+  s.freddyState = s.freddyState || { warning:false, atDoor:false, cooldownUntil:0 };
+  s.freddyVent = s.freddyVent || { active:false, stage:'none', loop:null, mode:'', fromSide:null, pendingOutcome:null, stageUntil:0, whiteUntil:0, teleportSide:null, enteredAt:0 };
+  s.freddyDoor = s.freddyDoor || { active:false, side:null, attackAt:0 };
+
+  // ---- Monsters: normalize ALWAYS (prevents "se quedan quietos" por estados parciales) ----
+  const defaults = {
+    Grey:   { id:'Grey',   type:'freddy', pos:1, route:[1,2,3,5,6,7,8], door:null, atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, waitingDoor:false, waitSide:null, inVent:false, path:null, stallTimer:null },
+    Purple: { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5], atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, enterRemaining:0, knockPending:false, leaveAt:0 },
+    Yellow: { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8], atDoor:false, entering:false, hidden:false, cooldownUntil:0, stalled:false, doorArriveAt:0, inOfficeArmed:false, enteredAt:0, enterRemaining:0, knockPending:false, leaveAt:0 },
+    Foxy:   { id:'Foxy',   type:'foxy', pos:4, phase:0, attacking:false, attackSide:null, cooldownUntil:0, leaveAt:0, phaseTimer:null, foxyTimers:[] },
+    Golden: { id:'Golden', type:'golden', active:false, manifest:false, cooldownUntil:0 }
+  };
+
+  if(!Array.isArray(s.monsters)) s.monsters = [];
+  const byId = new Map(s.monsters.filter(Boolean).map(m=>[m.id, m]));
+  const normalized = [];
+  ['Grey','Purple','Yellow','Foxy','Golden'].forEach(id=>{
+    const base = JSON.parse(JSON.stringify(defaults[id]));
+    const cur = byId.get(id) || {};
+    const m = Object.assign(base, cur);
+
+    // hard requirements
+    if(id === 'Grey'){
+      if(!Array.isArray(m.route) || m.route.length<2) m.route = defaults.Grey.route.slice();
+      if(typeof m.pos !== 'number') m.pos = 1;
+      m.atDoor = !!m.atDoor;
+    }
+    if(id === 'Purple' || id === 'Yellow'){
+      if(!Array.isArray(m.route) || m.route.length<2) m.route = defaults[id].route.slice();
+      if(typeof m.pos !== 'number') m.pos = 1;
+      m.atDoor = !!m.atDoor;
+      m.entering = !!m.entering;
+      m.hidden = !!m.hidden;
+      if(typeof m.cooldownUntil !== 'number' || !isFinite(m.cooldownUntil)) m.cooldownUntil = 0;
+    }
+    if(id === 'Foxy'){
+      if(typeof m.phase !== 'number') m.phase = 0;
+      if(!Array.isArray(m.foxyTimers)) m.foxyTimers = [];
+      m.attacking = !!m.attacking;
+    }
+    normalized.push(m);
+  });
+  s.monsters = normalized;
+
+  // Keep local alias in sync if it exists
+  try{ state = window.state; }catch(_e){}
+}
+
+
+
+ensureStateDefaults();
+
+// ===================== v50: Night Watchdog (anti-freeze) =====================
+function stopMainLoops(){
+  try{ (state.loops||[]).forEach(id=>{ try{ clearInterval(id); }catch(_e){} }); }catch(_){}
+  try{ if(state.powerOutKill){ clearInterval(state.powerOutKill); state.powerOutKill = null; } }catch(_){}
+  try{ (state.powerOutTimers||[]).forEach(t=>{ try{ clearTimeout(t); }catch(_e){} }); }catch(_){}
+  try{ (state.phoneTimers||[]).forEach(t=>{ try{ clearTimeout(t); }catch(_e){} }); }catch(_){}
+  try{ if(state.loopWatchdog){ clearInterval(state.loopWatchdog); state.loopWatchdog = null; } }catch(_){}
+  state.loops = [];
+  state.powerOutTimers = [];
+  state.phoneTimers = [];
+}
+
+function startMainLoops(hourMs){
+  const hm = (typeof hourMs === 'number' && isFinite(hourMs) && hourMs > 1000) ? hourMs : 45000;
+
+  // Clear old loops first
+  stopMainLoops();
+
+  // Heartbeat timestamps
+  state.lastCoreAt = Date.now();
+  state.lastClockAt = Date.now();
+
+  // Core loops
+  state.loops.push(setInterval(()=>{ try{ tickAI(); }catch(e){ console.warn('tickAI:', e); } }, 180));
+  state.loops.push(setInterval(()=>{ try{ updateCore(); }catch(e){ console.warn('updateCore:', e); } }, 100));
+  state.loops.push(setInterval(()=>{ try{ ambientMusic(); }catch(e){} }, 2000));
+  state.loops.push(setInterval(()=>{ try{ clockTick(); }catch(e){} }, hm));
+
+  // Watchdog: if something stops the loops (softlock), restart them
+  state.loopWatchdog = setInterval(()=>{
+    try{
+      if(state.menuActive) return;
+      if(state.dead) return;
+      const now = Date.now();
+
+      // Core loop should tick many times per second
+      if(now - (state.lastCoreAt||0) > 1700){
+        console.warn('Watchdog: core loop stalled — restarting');
+        startMainLoops(hm);
+        return;
+      }
+
+      // Clock should tick at least once per hourMs (+margin)
+      if(now - (state.lastClockAt||0) > (hm + 2500)){
+        console.warn('Watchdog: clock stalled — restarting');
+        startMainLoops(hm);
+        return;
+      }
+    }catch(_e){}
+  }, 1000);
+}
+
+
+// expose UI references globally for safety
+try{ window.ui = ui; }catch(_e){}
+
+
+state.phoneBtnActive = false;
+    state.phoneTimers = [];
+
     // Audio bootstrap (robust): never let audio break menu/UI.
     let audioCtx = null;
     let master = null;
@@ -2132,11 +2442,38 @@
       }
     }
 
+
+// ---- v52: Noise buffer helper (for real metal/air impacts, not musical tones) ----
+const __noiseBufCache = {};
+function getNoiseBuffer(sec=0.12){
+  try{
+    ensureAudio();
+    if(!audioCtx) return null;
+    const key = String(Math.max(1, Math.round(sec*1000)));
+    if(__noiseBufCache[key]) return __noiseBufCache[key];
+    const sr = audioCtx.sampleRate || 44100;
+    const len = Math.max(1, Math.floor(sr * sec));
+    const buf = audioCtx.createBuffer(1, len, sr);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<len;i++){
+      // Slightly colored-ish noise (more "air/metal" than pure white)
+      const w = (Math.random()*2 - 1);
+      data[i] = w * (0.85 - 0.25*(i/len));
+    }
+    __noiseBufCache[key] = buf;
+    return buf;
+  }catch(_e){
+    return null;
+  }
+}
+
+
+
     // Create audio objects lazily; some browsers dislike early construction.
     ensureAudio();
 
     // Generic one-shot SFX helper (was missing in some builds)
-    function playSound(freq=440, type='sine', ms=80, vol=0.08){
+    function playSound(freq=440, type='sine', ms=100, vol=0.05){
       try{
         if(!ensureAudio() || !audioCtx || !master) return;
         const o = audioCtx.createOscillator();
@@ -2155,40 +2492,66 @@
     }
 
     // Loud fallback jumpscare sfx (in case mp3 is blocked/missing)
-    function playJumpscareSfx(){
-      try{
-        if(!ensureAudio() || !audioCtx || !master) return;
-        const out = audioCtx.createGain();
-        out.gain.value = 1.0; // loud fallback
-        out.connect(master);
 
-        // Noise burst + downward tone
-        const len = Math.floor(audioCtx.sampleRate * 0.55);
-        const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-        const data = buf.getChannelData(0);
-        for(let i=0;i<len;i++){
-          data[i] = (Math.random()*2 - 1) * (1 - i/len);
+    // --- v42: Sonidos faltantes ---
+    function playFoxyRun(side){
+      // Pasos rápidos (running). side: 'l' o 'r'
+      let steps = 0;
+      const runInt = setInterval(()=>{
+        steps++;
+        try{
+          ensureAudio();
+          if(!audioCtx){ playSound(150,'sawtooth',0.05,0.18); }
+          else{
+            const ctx = audioCtx;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+            o.type = 'sawtooth';
+            const base = (side==='l') ? 170 : 150;
+            o.frequency.value = base + Math.random()*25;
+            g.gain.value = 0.18;
+            o.connect(g);
+            if(p){
+              p.pan.value = (side==='l') ? -1 : 1;
+              g.connect(p); p.connect(ctx.destination);
+            }else{
+              g.connect(ctx.destination);
+            }
+            o.start();
+            o.stop(ctx.currentTime + 0.055);
+          }
+        }catch(_){
+          playSound(150,'sawtooth',0.05,0.18);
         }
-        const src = audioCtx.createBufferSource();
-        src.buffer = buf;
-
-        const bp = audioCtx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.value = 900;
-        bp.Q.value = 0.7;
-
-        const g = audioCtx.createGain();
-        g.gain.value = 0.9;
-
-        src.connect(bp); bp.connect(g); g.connect(out);
-        src.start();
-        src.stop(audioCtx.currentTime + 0.55);
-
-        // Low screech
-        playSound(140, 'sawtooth', 420, 0.6);
-        playSound(95, 'square', 520, 0.45);
-      }catch(e){ /* silent */ }
+        if(steps >= 6) clearInterval(runInt);
+      }, 130);
     }
+
+    function playPowerDownSfx(){
+      // Sonido de apagón descendente
+      try{
+        ensureAudio();
+        if(!audioCtx){ playSound(60,'sawtooth',1.8,0.25); return; }
+        const ctx = audioCtx;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(140, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 1.8);
+        g.gain.setValueAtTime(0.22, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        o.stop(ctx.currentTime + 1.85);
+      }catch(_){
+        playSound(60,'sawtooth',1.8,0.25);
+      }
+    }
+
+    function playJumpscareSfx(){ /* v38: disabled (use jumpscare.mp3 only) */ }
+        
+
 // ===================== MENU MANAGER (teclado + click) =====================
     const menu = document.getElementById('menu');
     const game = document.getElementById('game');
@@ -2287,7 +2650,9 @@
       if(menuVisible && !state.menuActive) state.menuActive = true;
       if(!menuVisible && state.menuActive && game && game.style.display !== 'none') state.menuActive = false;
     
-  stopMenuMusic();}
+  stopMenuMusic();
+  try{ stopAmbient(); }catch(_e){}
+}
     // Robust menu handling (delegación) — v29: click global SIMPLE (anti z-index / estados corruptos)
     document.addEventListener('click', (e) => {
       // Buscar el elemento clickeado o su padre
@@ -2515,6 +2880,554 @@ function playWhiteNoise(ms=1100, vol=0.30){
   }catch(e){}
 }
 
+// ===================== v48: "IRON" SFX PACK (procedural WebAudio) =====================
+function _rand(a,b){ return a + Math.random()*(b-a); }
+function _now(){ return (audioCtx && audioCtx.currentTime) ? audioCtx.currentTime : 0; }
+
+function _makeNoiseBuffer(seconds=0.12){
+  if(!ensureAudio() || !audioCtx) return null;
+  const sr = audioCtx.sampleRate || 44100;
+  const len = Math.max(1, Math.floor(sr*seconds));
+  const buf = audioCtx.createBuffer(1, len, sr);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<len;i++){
+    // slightly colored noise (more low end)
+    const w = (i/len);
+    data[i] = (Math.random()*2-1) * (0.85 - 0.35*w);
+  }
+  return buf;
+}
+
+function playDoorSfx(closed){
+  try{
+    unlockAudio();
+    ensureAudio();
+    if(!audioCtx || !master){
+      // Fallback
+      playSound(closed ? 70 : 120, 'sine', 0.12, 0.10);
+      return;
+    }
+    const ctx = audioCtx;
+    const t0 = ctx.currentTime;
+
+    // master already limits overall volume; keep this subtle but punchy
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(0.95, t0);
+    out.connect(master);
+
+    const noise = (sec)=> {
+      const b = getNoiseBuffer(sec);
+      if(!b) return null;
+      const s = ctx.createBufferSource();
+      s.buffer = b;
+      return s;
+    };
+
+    if(closed){
+      // === CLOSE: heavy iron thud + short metal ring ===
+
+      // Sub-bass weight (sine, not square)
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      const subG = ctx.createGain();
+      subG.gain.setValueAtTime(0.0001, t0);
+      sub.frequency.setValueAtTime(62, t0);
+      sub.frequency.exponentialRampToValueAtTime(20, t0 + 0.10);
+      subG.gain.exponentialRampToValueAtTime(0.55, t0 + 0.012);
+      subG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+      sub.connect(subG); subG.connect(out);
+      sub.start(t0); sub.stop(t0 + 0.20);
+
+      // Impact "hit" (filtered noise)
+      const hit = noise(0.10);
+      if(hit){
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(520, t0);
+        lp.Q.setValueAtTime(0.7, t0);
+
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.85, t0 + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.13);
+
+        hit.connect(lp); lp.connect(g); g.connect(out);
+        hit.start(t0); hit.stop(t0 + 0.12);
+      }
+
+      // Metallic ring (bandpass noise, very short)
+      const ring = noise(0.16);
+      if(ring){
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(1450, t0);
+        bp.Q.setValueAtTime(10, t0);
+
+        const rg = ctx.createGain();
+        rg.gain.setValueAtTime(0.0001, t0);
+        rg.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
+        rg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.26);
+
+        ring.connect(bp); bp.connect(rg); rg.connect(out);
+        ring.start(t0 + 0.01); ring.stop(t0 + 0.30);
+      }
+    } else {
+      // === OPEN: pneumatic release + servo slide + small rattle ===
+
+      // Click (dry)
+      const click = noise(0.015);
+      if(click){
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.setValueAtTime(1400, t0);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.03);
+        click.connect(hp); hp.connect(g); g.connect(out);
+        click.start(t0); click.stop(t0 + 0.03);
+      }
+
+      // Air release (hiss)
+      const hiss = noise(0.30);
+      if(hiss){
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(900, t0);
+        bp.Q.setValueAtTime(0.9, t0);
+
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.38, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
+
+        hiss.connect(bp); bp.connect(g); g.connect(out);
+        hiss.start(t0 + 0.01); hiss.stop(t0 + 0.36);
+      }
+
+      // Servo/slide (subtle, sine so it doesn't sound musical)
+      const servo = ctx.createOscillator();
+      servo.type = 'sine';
+      const sg = ctx.createGain();
+      sg.gain.setValueAtTime(0.0001, t0);
+      servo.frequency.setValueAtTime(170, t0);
+      servo.frequency.exponentialRampToValueAtTime(85, t0 + 0.26);
+      sg.gain.exponentialRampToValueAtTime(0.10, t0 + 0.03);
+      sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.30);
+      servo.connect(sg); sg.connect(out);
+      servo.start(t0 + 0.01); servo.stop(t0 + 0.32);
+
+      // Little metal rattle bursts
+      for(let k=0;k<2;k++){
+        const rt = t0 + 0.06 + k*0.06;
+        const rat = noise(0.05);
+        if(rat){
+          const bp = ctx.createBiquadFilter();
+          bp.type = 'bandpass';
+          bp.frequency.setValueAtTime(1800 + k*300, rt);
+          bp.Q.setValueAtTime(7, rt);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, rt);
+          g.gain.exponentialRampToValueAtTime(0.14, rt + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, rt + 0.09);
+          rat.connect(bp); bp.connect(g); g.connect(out);
+          rat.start(rt); rat.stop(rt + 0.10);
+        }
+      }
+    }
+  }catch(e){
+    try{ playSound(closed ? 70 : 120, 'sine', 0.12, 0.10); }catch(_){}
+  }
+}
+
+
+
+function playVentSfx(closed){
+  try{
+    unlockAudio();
+    if(!ensureAudio() || !audioCtx || !master) return;
+
+    const t0 = _now();
+    // Pneumatic hiss + lighter metal click (distinct from door)
+    const nb = _makeNoiseBuffer(0.20);
+    if(nb){
+      const ns = audioCtx.createBufferSource(); ns.buffer = nb;
+      const bp = audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=_rand(700,1100); bp.Q.value=0.9;
+      const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.0001, t0);
+      ng.gain.exponentialRampToValueAtTime(closed ? 0.26 : 0.20, t0+0.01);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t0+0.19);
+      ns.connect(bp); bp.connect(ng); ng.connect(master);
+      ns.start(t0); ns.stop(t0+0.22);
+    }
+
+    const click = audioCtx.createOscillator();
+    click.type = 'square';
+    click.frequency.setValueAtTime(closed ? 180 : 220, t0);
+    const cg = audioCtx.createGain();
+    cg.gain.setValueAtTime(0.0001, t0);
+    cg.gain.exponentialRampToValueAtTime(0.14, t0+0.002);
+    cg.gain.exponentialRampToValueAtTime(0.0001, t0+0.05);
+    click.connect(cg); cg.connect(master);
+    click.start(t0); click.stop(t0+0.06);
+  }catch(_){}
+}
+
+function playLightSfx(on){
+  try{
+    unlockAudio();
+    if(!ensureAudio || !ensureAudio() || !audioCtx || !master) return;
+
+    const sr = audioCtx.sampleRate || 44100;
+    const makeWhiteNoise = (seconds)=>{
+      const len = Math.max(1, Math.floor(sr * seconds));
+      const b = audioCtx.createBuffer(1, len, sr);
+      const d = b.getChannelData(0);
+      for(let i=0;i<len;i++){ d[i] = (Math.random()*2 - 1); }
+      return b;
+    };
+
+    const t0 = audioCtx.currentTime + 0.001;
+
+    const out = audioCtx.createGain(); out.gain.value = 1.0;
+    out.connect(master);
+
+    // 1) Click seco (≈5ms): ruido blanco muy corto
+    const click = audioCtx.createBufferSource();
+    click.buffer = makeWhiteNoise(0.03);
+
+    const clickHP = audioCtx.createBiquadFilter();
+    clickHP.type = 'highpass';
+    clickHP.frequency.value = 1400;
+
+    const clickG = audioCtx.createGain();
+    clickG.gain.setValueAtTime(0.0001, t0);
+    clickG.gain.exponentialRampToValueAtTime(0.9, t0 + 0.002);
+    clickG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.007); // ~5ms tail
+
+    click.connect(clickHP);
+    clickHP.connect(clickG);
+    clickG.connect(out);
+
+    click.start(t0);
+    click.stop(t0 + 0.04);
+
+    // 2) Buzz eléctrico sutil: sawtooth MUY bajo + filtrado para que no suene musical
+    const buzz = audioCtx.createOscillator();
+    buzz.type = 'sawtooth';
+    buzz.frequency.setValueAtTime(50, t0);
+
+    const buzzHP = audioCtx.createBiquadFilter();
+    buzzHP.type = 'highpass';
+    buzzHP.frequency.value = 900; // quita el fundamental, deja armónicos "eléctricos"
+
+    const buzzLP = audioCtx.createBiquadFilter();
+    buzzLP.type = 'lowpass';
+    buzzLP.frequency.value = 4200;
+
+    const buzzG = audioCtx.createGain();
+    buzzG.gain.setValueAtTime(0.0001, t0);
+    buzzG.gain.exponentialRampToValueAtTime(on ? 0.045 : 0.035, t0 + 0.012);
+    buzzG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+
+    buzz.connect(buzzHP);
+    buzzHP.connect(buzzLP);
+    buzzLP.connect(buzzG);
+    buzzG.connect(out);
+
+    buzz.start(t0);
+    buzz.stop(t0 + 0.18);
+
+    setTimeout(()=>{ try{ out.disconnect(); }catch(e){} }, 350);
+  }catch(e){}
+}
+
+function playCamSwitchSfx(){
+  try{
+    unlockAudio();
+    ensureAudio();
+    if(!audioCtx || !master){
+      playSound(950, 'sine', 0.05, 0.05);
+      return;
+    }
+    const ctx = audioCtx;
+    const t0 = ctx.currentTime;
+
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(0.75, t0);
+    out.connect(master);
+
+    // Dry click (very short noise)
+    const click = ctx.createBufferSource();
+    click.buffer = getNoiseBuffer(0.012);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.setValueAtTime(1200, t0);
+    const cg = ctx.createGain();
+    cg.gain.setValueAtTime(0.0001, t0);
+    cg.gain.exponentialRampToValueAtTime(0.22, t0 + 0.002);
+    cg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.02);
+    click.connect(hp); hp.connect(cg); cg.connect(out);
+    click.start(t0); click.stop(t0 + 0.02);
+
+    // CRT static burst (bandpassed noise)
+    const st = ctx.createBufferSource();
+    st.buffer = getNoiseBuffer(0.10);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(2100, t0);
+    bp.Q.setValueAtTime(1.2, t0);
+
+    const sg = ctx.createGain();
+    sg.gain.setValueAtTime(0.0001, t0);
+    sg.gain.exponentialRampToValueAtTime(0.34, t0 + 0.01);
+    sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.13);
+    st.connect(bp); bp.connect(sg); sg.connect(out);
+    st.start(t0 + 0.003); st.stop(t0 + 0.14);
+
+    // Tiny chirp (subtle, not "beep")
+    const chirp = ctx.createOscillator();
+    chirp.type = 'sine';
+    const chg = ctx.createGain();
+    chg.gain.setValueAtTime(0.0001, t0);
+    chirp.frequency.setValueAtTime(1700, t0);
+    chirp.frequency.exponentialRampToValueAtTime(1150, t0 + 0.055);
+    chg.gain.exponentialRampToValueAtTime(0.08, t0 + 0.01);
+    chg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08);
+    chirp.connect(chg); chg.connect(out);
+    chirp.start(t0 + 0.01); chirp.stop(t0 + 0.09);
+  }catch(e){
+    try{ playSound(950, 'sine', 0.05, 0.05); }catch(_){}
+  }
+}
+
+let __ambStarted = false;
+let __ambNodes = null;
+
+function ambientMusic(){
+  // Start once per night; very low-volume "facility hum" ambience
+  if(__ambStarted) return;
+  if(state.menuActive || state.dead) return;
+  try{
+    ensureAudio();
+    if(!audioCtx || !master) return;
+    __ambStarted = true;
+
+    const ctx = audioCtx;
+    const t0 = ctx.currentTime;
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.14, t0 + 2.0); // fade-in
+    g.connect(master);
+
+    // Low rumble
+    const rum = ctx.createOscillator();
+    rum.type = 'sine';
+    rum.frequency.setValueAtTime(34, t0);
+    const rg = ctx.createGain();
+    rg.gain.setValueAtTime(0.18, t0);
+    rum.connect(rg); rg.connect(g);
+
+    // Air/room noise (looped)
+    const ns = ctx.createBufferSource();
+    ns.buffer = getNoiseBuffer(1.2) || getNoiseBuffer(0.8);
+    ns.loop = true;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1800, t0);
+    lp.Q.setValueAtTime(0.6, t0);
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.30, t0);
+    ns.connect(lp); lp.connect(ng); ng.connect(g);
+
+    // Subtle movement in the noise (slow LFO)
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(0.08, t0);
+    const lfg = ctx.createGain();
+    lfg.gain.setValueAtTime(280, t0);
+    lfo.connect(lfg); lfg.connect(lp.frequency);
+
+    rum.start(t0);
+    ns.start(t0);
+    lfo.start(t0);
+
+    __ambNodes = { g, rum, ns, lfo };
+
+    // Occasional tiny creaks (scheduled with JS timer)
+    if(!state.__ambCreakTimer){
+      state.__ambCreakTimer = setInterval(()=>{
+        try{
+          if(state.menuActive || state.dead || state.powerOut) return;
+          if(Math.random() < 0.42) return;
+          const t = audioCtx.currentTime;
+          const c = audioCtx.createBufferSource();
+          c.buffer = getNoiseBuffer(0.12);
+          const bp = audioCtx.createBiquadFilter();
+          bp.type='bandpass';
+          bp.frequency.setValueAtTime(700 + Math.random()*900, t);
+          bp.Q.setValueAtTime(6 + Math.random()*4, t);
+          const cg = audioCtx.createGain();
+          cg.gain.setValueAtTime(0.0001, t);
+          cg.gain.exponentialRampToValueAtTime(0.10 + Math.random()*0.06, t+0.02);
+          cg.gain.exponentialRampToValueAtTime(0.0001, t+0.25);
+          c.connect(bp); bp.connect(cg); cg.connect(master);
+          c.start(t); c.stop(t+0.28);
+        }catch(_e){}
+      }, 4200);
+    }
+  }catch(_e){}
+}
+
+function stopAmbient(){
+  try{
+    __ambStarted = false;
+    if(__ambNodes){
+      const n = __ambNodes;
+      try{ n.rum.stop(); }catch(_){}
+      try{ n.ns.stop(); }catch(_){}
+      try{ n.lfo.stop(); }catch(_){}
+      try{ n.g.disconnect(); }catch(_){}
+      __ambNodes = null;
+    }
+    if(state.__ambCreakTimer){
+      clearInterval(state.__ambCreakTimer);
+      state.__ambCreakTimer = null;
+    }
+  }catch(_e){}
+}
+
+
+
+
+
+function playFreddyMoveSfx(mode='step'){
+  try{
+    unlockAudio();
+    if(!ensureAudio() || !audioCtx || !master) return;
+
+    const t0 = _now();
+
+    if(mode === 'laugh'){
+      const o = audioCtx.createOscillator();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(_rand(150,190), t0);
+      o.frequency.exponentialRampToValueAtTime(_rand(95,120), t0+0.45);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.18, t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.55);
+      o.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0+0.60);
+      // a little static tail
+      playWhiteNoise(160, 0.10);
+      return;
+    }
+
+    // Two heavy foot thuds (slow)
+    for(let k=0;k<2;k++){
+      const tk = t0 + k*0.085;
+      const o = audioCtx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(_rand(38,52), tk);
+      o.frequency.exponentialRampToValueAtTime(_rand(24,34), tk+0.10);
+
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001, tk);
+      g.gain.exponentialRampToValueAtTime(0.22, tk+0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, tk+0.13);
+
+      o.connect(g); g.connect(master);
+      o.start(tk); o.stop(tk+0.15);
+    }
+
+    // subtle metal shuffle
+    const nb = _makeNoiseBuffer(0.12);
+    if(nb){
+      const ns = audioCtx.createBufferSource(); ns.buffer = nb;
+      const bp = audioCtx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=_rand(500,850); bp.Q.value=1.4;
+      const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.0001, t0);
+      ng.gain.exponentialRampToValueAtTime(0.10, t0+0.01);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t0+0.12);
+      ns.connect(bp); bp.connect(ng); ng.connect(master);
+      ns.start(t0); ns.stop(t0+0.16);
+    }
+  }catch(_){}
+}
+// =================== end v48 SFX PACK ===================
+
+
+
+function playTerrifyingScream() {
+  try {
+    // Lazy-init audio
+    try { ensureAudio(); } catch(_) {}
+    if (!audioCtx) return;
+
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(()=>{});
+    }
+
+    const t = audioCtx.currentTime;
+    const masterGain = audioCtx.createGain();
+    // Prefer global master bus if present
+    const out = (typeof master !== 'undefined' && master) ? master : audioCtx.destination;
+    masterGain.connect(out);
+
+    masterGain.gain.setValueAtTime(0.8, t);
+    masterGain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
+
+    // CAPA 1: "Rugido Metálico" (FM Synthesis)
+    const carrier = audioCtx.createOscillator();
+    carrier.type = 'sawtooth';
+    carrier.frequency.setValueAtTime(150, t);
+    carrier.frequency.linearRampToValueAtTime(100, t + 1.5);
+
+    const modulator = audioCtx.createOscillator();
+    modulator.type = 'square';
+    modulator.frequency.setValueAtTime(60, t);
+
+    const modGain = audioCtx.createGain();
+    modGain.gain.setValueAtTime(800, t);
+
+    modulator.connect(modGain);
+    modGain.connect(carrier.frequency); // FM
+    carrier.connect(masterGain);
+
+    modulator.start(t);
+    carrier.start(t);
+    modulator.stop(t + 2.0);
+    carrier.stop(t + 2.0);
+
+    // CAPA 2: "Chillido Digital" (Glitch agudo)
+    const screech = audioCtx.createOscillator();
+    screech.type = 'sawtooth';
+    screech.frequency.setValueAtTime(1200, t);
+    screech.frequency.exponentialRampToValueAtTime(400, t + 0.8);
+
+    const tremolo = audioCtx.createOscillator();
+    tremolo.type = 'square';
+    tremolo.frequency.setValueAtTime(40, t);
+
+    const tremoloGain = audioCtx.createGain();
+    tremoloGain.gain.setValueAtTime(0.5, t);
+
+    tremolo.connect(tremoloGain.gain);
+    screech.connect(tremoloGain);
+    tremoloGain.connect(masterGain);
+
+    screech.start(t);
+    tremolo.start(t);
+    screech.stop(t + 1.8);
+    tremolo.stop(t + 1.8);
+
+  } catch (e) {
+    console.error("Error en screamer mecánico:", e);
+  }
+}
+
+
+
 function triggerLuciaSecret(){
   if(state.menuActive || state.dead) return;
   if(state.camOpen) return; // sorpresa total
@@ -2544,6 +3457,45 @@ function triggerLuciaSecret(){
       }
     } else {
       state.luciaSeqIdx = (k === 'L') ? 1 : 0;
+    }
+  }, true);
+})();
+
+// ===================== v48: ARTHUR SECRET (A-R-T-H-U-R) =====================
+function triggerArthurSecret(){
+  if(state.menuActive || state.dead) return;
+  if(state.camOpen) return; // keep the surprise like LUCIA
+  const now = Date.now();
+  state.arthurOverlayUntil = now + 1600;
+
+  const el = document.getElementById('arthur-overlay');
+  if(el){
+    el.classList.add('active');
+    setTimeout(()=>{ try{ if(Date.now() >= (state.arthurOverlayUntil||0)) el.classList.remove('active'); }catch(_){} }, 1650);
+  }
+
+  // darker, heavier noise + a low laugh hint
+  try{ playWhiteNoise(900, 0.30); }catch(_){}
+  try{ playFreddyMoveSfx('laugh'); }catch(_){}
+}
+
+(function(){
+  const seq = ['A','R','T','H','U','R'];
+  window.addEventListener('keydown', (e)=>{
+    if(state.menuActive || state.dead) return;
+    if(state.camOpen) return;
+    const k = (e.key || '').toUpperCase();
+    if(!k) return;
+
+    const idx = state.arthurSeqIdx||0;
+    if(k === seq[idx]){
+      state.arthurSeqIdx = idx + 1;
+      if(state.arthurSeqIdx >= seq.length){
+        state.arthurSeqIdx = 0;
+        triggerArthurSecret();
+      }
+    } else {
+      state.arthurSeqIdx = (k === 'A') ? 1 : 0;
     }
   }, true);
 })();
@@ -2594,7 +3546,56 @@ document.addEventListener('click', (e)=>{
 
 
 
-    // Arm unlock on first user gesture (autoplay policy) — and re-arm after focus
+    
+// ===================== v37: Click-to-Start boot screen (prevents menu freeze) =====================
+(function initBootScreen(){
+  try{
+    document.body.classList.remove('booted');
+    const startScreen = document.getElementById('start-screen');
+    const startBtn = document.getElementById('btn-start-system') || document.getElementById('start-btn');
+    const menuEl = document.getElementById('menu');
+
+    // At load: show ONLY start screen
+    if(menuEl) menuEl.style.display = 'none';
+    if(startScreen) startScreen.style.display = 'flex';
+
+    function enterMenu(){
+      // PRIORIDAD VISUAL: siempre entrar al menú aunque el audio falle
+      try{ document.body.classList.add('booted'); }catch(_e){}
+      try{ if(startScreen) startScreen.style.display = 'none'; }catch(_e){}
+      try{ if(menuEl) menuEl.style.display = 'flex'; }catch(_e){}
+      try{ state.menuActive = true; }catch(_e){}
+    }
+
+    function bootAudio(){
+      // AUDIO SAFE: lazy init + resume + música (sin romper UI)
+      try{
+        try{ ensureAudio(); }catch(_e){}
+        try{ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{}); }catch(_e){}
+        try{ startMenuMusic(); }catch(_e){}
+      }catch(e){
+        console.log('boot audio unlock failed:', e);
+      }
+    }
+
+    if(startBtn){
+      startBtn.addEventListener('click', ()=>{
+        enterMenu();
+        bootAudio();
+      }, { once: true });
+    }else{
+      // Fallback: si no existe el botón, al menos mostrar menú
+      enterMenu();
+      bootAudio();
+    }
+  }catch(e){
+    console.warn('initBootScreen:', e);
+    try{ document.body.classList.add('booted'); }catch(_e){}
+    try{ const menuEl = document.getElementById('menu'); if(menuEl) menuEl.style.display='flex'; }catch(_e){}
+  }
+})();
+
+// Arm unlock on first user gesture (autoplay policy) — and re-arm after focus
     function armAudioUnlock(){
       document.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
       document.addEventListener("keydown", unlockAudio, { once:true });
@@ -2656,6 +3657,78 @@ function stopMenuMusic(){
     console.warn('stopMenuMusic:', e);
   }
 }
+
+// ===================== v37: Phone Guy (Noche 1) =====================
+function stopPhoneCall(){
+  try{
+    if(state && Array.isArray(state.phoneTimers)){
+      state.phoneTimers.forEach(t=>{ try{ clearTimeout(t); }catch(_e){} });
+    }
+    if(state) state.phoneTimers = [];
+    const phone = document.getElementById('phone-night1');
+    if(phone){ try{ phone.pause(); phone.currentTime = 0; }catch(_e){} }
+    const btn = document.getElementById('mute-call');
+    if(btn) btn.style.display = 'none';
+    if(state) state.phoneBtnActive = false;
+  }catch(e){
+    console.warn('stopPhoneCall:', e);
+  }
+}
+
+function startPhoneCall(){
+  try{
+    if(!state || state.menuActive || state.dead || state.powerOut) return;
+    if(state.ucn) return;
+    if(state.night !== 1) return;
+
+    const phone = document.getElementById('phone-night1');
+    const btn = document.getElementById('mute-call');
+    if(!phone || !btn) return;
+
+    stopPhoneCall();
+    try{ phone.volume = 1.0; }catch(_e){}
+
+    const t1 = setTimeout(()=>{
+      try{
+        unlockAudio();
+        const p = phone.play();
+        if(p && typeof p.catch === 'function') p.catch(e=>console.log('phone-night1 play blocked:', e));
+      }catch(e){
+        console.log('phone-night1 play error:', e);
+      }
+
+      const t2 = setTimeout(()=>{
+        try{
+          if(state.dead || state.powerOut || state.menuActive) return;
+          state.phoneBtnActive = true;
+          btn.style.display = state.camOpen ? 'none' : 'block';
+        }catch(_e){}
+        const t3 = setTimeout(()=>{ try{ btn.style.display = 'none'; }catch(_e){} }, 15000);
+        state.phoneTimers.push(t3);
+      }, 8000);
+
+      state.phoneTimers.push(t2);
+    }, 3000);
+
+    state.phoneTimers.push(t1);
+  }catch(e){
+    console.warn('startPhoneCall:', e);
+  }
+}
+
+function mutePhone(){
+  try{
+    const phone = document.getElementById('phone-night1');
+    if(phone) phone.pause();
+  }catch(_e){}
+  try{
+    const btn = document.getElementById('mute-call');
+    if(btn) btn.style.display = 'none';
+  }catch(_e){}
+  try{ state.phoneBtnActive = false; }catch(_e){}
+}
+
+
 
     // ===================== PROGRESS / STARS =====================
     const PROG_KEY = "shape_nights_progress_v2";
@@ -2723,7 +3796,7 @@ function stopMenuMusic(){
       // 3 AM: Bonnie/Chica/Foxy +1
       // 4 AM: Bonnie/Chica/Foxy +1
       // Freddy NO cambia durante la noche.
-      1:{ Grey:0, Purple:0, Yellow:0, Foxy:0, Golden:0 },
+      1:{ Grey:0, Purple:1, Yellow:0, Foxy:0, Golden:0 },
       2:{ Grey:0, Purple:3, Yellow:1, Foxy:1, Golden:0 },
       3:{ Grey:1, Purple:0, Yellow:5, Foxy:2, Golden:1 },
       4:{ Grey:null, Purple:2, Yellow:4, Foxy:6, Golden:3 }, // Grey null => 50/50 entre 1 o 2
@@ -2897,8 +3970,9 @@ function renderUCN(){
           clearInterval(iv);
           // final scare flash
           box.innerHTML = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">${renderEntity("Grey", 3.2)}</div>`;
-          playJumpscareSfx();
-          playSound(140, "sawtooth", 0.35, 0.55);
+          // REEMPLAZO: Reproducir MP3 real en la cinemática
+      playTerrifyingScream();
+playSound(140, "sawtooth", 0.35, 0.55);
           setTimeout(()=>{
             if(_stopCine) _stopCine();
             layer.style.display="none";
@@ -2949,6 +4023,9 @@ function renderUCN(){
       startGame(state.displayNight);
     });
 ui.btnMenu?.addEventListener('click', ()=>{
+      try{ stopPhoneCall(); }catch(_e){}
+      try{ stopAmbient(); }catch(_e){}
+
       state.menuActive = true;
     startMenuMusic();
       ui.deathTip.style.display = 'none';
@@ -2964,11 +4041,93 @@ ui.btnMenu?.addEventListener('click', ()=>{
     });
 
     function startGame(n){
+  // --- v46 GAMEPLAY FIX: always ensure defaults before using state/UI ---
+  ensureStateDefaults();
+  // --- v48 ANTI-FREEZE: make hour duration always defined (safe even if const missing) ---
+  const hourMs = (typeof HOUR_MS === 'number' ? HOUR_MS : (window.HOUR_MS || 45000));
+
+  let _loopsStarted = false;
+  try{
+
+  // --- v48 ANTI-FREEZE: critical state containers MUST exist before any access ---
+  if(!state.officeArmed || typeof state.officeArmed !== 'object') state.officeArmed = { Purple:false, Yellow:false };
+  if(typeof state.officeArmed.Purple !== 'boolean') state.officeArmed.Purple = false;
+  if(typeof state.officeArmed.Yellow !== 'boolean') state.officeArmed.Yellow = false;
+
+  if(!Array.isArray(state.loops)) state.loops = [];
+  if(!Array.isArray(state.powerOutTimers)) state.powerOutTimers = [];
+  if(!Array.isArray(state.phoneTimers)) state.phoneTimers = [];
+
+  // Ensure WebAudio is unlocked on the same click that starts the night
+  try{ unlockAudio(); }catch(_e){} 
+
+  // Ensure UI refs exist (some builds lost references)
+  if(!ui || !ui.camOverlay){
+    // (fallback) try to refresh the cached references
+    try{
+      ui.camOverlay = document.getElementById('cam-overlay');
+      ui.camRender  = document.getElementById('cam-render-area');
+      ui.camDetails = document.getElementById('cam-details');
+      ui.camInfo    = document.getElementById('cam-info');
+      ui.foxyPhase  = document.getElementById('foxy-phase');
+      ui.blackout   = document.getElementById('blackout');
+      ui.deathTip   = document.getElementById('death-tip');
+      ui.deathTitle = document.getElementById('death-title');
+      ui.deathKiller= document.getElementById('death-killer');
+      ui.deathMessage=document.getElementById('death-message');
+      ui.btnRetry   = document.getElementById('btn-retry');
+      ui.btnMenu    = document.getElementById('btn-menu');
+    }catch(_){}
+  }
+
+  // Ensure monsters exist so doors/lights/cams work
+  if(!state.monsters || state.monsters.length === 0){
+    state.monsters = [
+      { id:'Grey', type:'freddy', pos:1, route:[1,2,3,5,6,7,8], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
+      { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
+      { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8], path:null, cooldownUntil:0, hidden:false, atDoor:false, stingPlayed:false },
+      { id:'Foxy', type:'foxy', pos:4, phase:1, attacking:false, attackSide:null, cooldownUntil:0, hidden:false }
+    ];
+  }
+
+  // --- v46 SAFETY INIT: evitar crasheos por estados faltantes ---
+  state.golden = state.golden || { active:false, manifest:false, cooldownUntil:0 };
+  state.freddyState = state.freddyState || { warning:false };
+  state.freddyVent  = state.freddyVent  || { active:false, stage:'none', loop:null };
+  state.freddyDoor  = state.freddyDoor  || { active:false, side:null, attackAt:0 };
+
+  // Inicializar monstruos si no existen (evita freeze en renderCam / tickAI)
+  if(!Array.isArray(state.monsters) || state.monsters.length === 0){
+    state.monsters = [
+      { id:'Grey',   type:'freddy',   pos:1, route:[1,2,3,5,6,7,8], door:null, atDoor:false, entering:false, hidden:false, cooldownUntil:0 },
+      { id:'Purple', type:'standard', pos:1, door:'l', route:[1,2,3,5],       atDoor:false, entering:false, hidden:false, cooldownUntil:0, knockPending:false, leaveAt:0 },
+      { id:'Yellow', type:'standard', pos:1, door:'r', route:[1,2,6,7,8],     atDoor:false, entering:false, hidden:false, cooldownUntil:0, knockPending:false, leaveAt:0 },
+      { id:'Foxy',   type:'foxy',     pos:4, phase:1, attacking:false, attackSide:null, cooldownUntil:0, leaveAt:0 }
+    ];
+  }
+
+      // FIX v42: Inicializar objetos antes de usarlos (evita crash)
+      state.golden = state.golden || { active:false, manifest:false, cooldownUntil:0 };
+      state.freddyState = state.freddyState || { warning:false };
+      state.freddyVent = state.freddyVent || { active:false, loop:null };
+      state.freddyDoor = state.freddyDoor || { active:false };
+      state.phone = state.phone || { active:false };
+      // --- FIX v45: al iniciar partida, ocultar menú y mostrar juego (antes el menú quedaba encima y parecía que "no iniciaba") ---
+      try{
+        if(menu) menu.style.display = 'none';
+        if(game) game.style.display = 'block';
+        const ss = document.getElementById('start-screen');
+        if(ss) ss.style.display = 'none';
+      }catch(_e){}
+
+
       state.menuActive = false;
       unlockAudio();
       stopMenuMusic();
 
-      if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
+      
+      try{ stopPhoneCall(); }catch(_e){}
+if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
 
       state.displayNight = n;
       state.night = (n === 7 ? 6 : n);
@@ -2978,11 +4137,13 @@ ui.btnMenu?.addEventListener('click', ()=>{
       if(state.ucn){
         try{ state.ucnAI = JSON.parse(localStorage.getItem('shape_nights_ucn_ai')||'null'); }catch(e){ state.ucnAI=null; }
       }
-      state.pwr = 99;
+      state.pwr = 100;
       state.time = 0;
       state.dead = false;
       state.luciaSeqIdx = 0;
       state.luciaOverlayUntil = 0;
+      state.arthurSeqIdx = 0;
+      state.arthurOverlayUntil = 0;
       state.glitchDocUntil = 0;
       state.luciaPoster = false;
       state.cam7HatchClicks = 0;
@@ -3068,33 +4229,63 @@ state.freddyVent.enteredAt = 0;
 
       document.getElementById('night-text').innerText = state.ucn ? "UCN" : ("NOCHE " + n);
       document.getElementById('time-text').innerText = "12 AM";
-      ui.camOverlay.style.display = 'none';
+      
+      // v37: Phone Guy (Noche 1)
+      try{ startPhoneCall(); }catch(_e){}
+ui.camOverlay.style.display = 'none';
       ui.foxyPhase.style.display = 'none';
       // restore camera map in case a previous blackout hid it
       const _mapEl = document.getElementById('cam-map');
       if(_mapEl) _mapEl.style.display = 'block';
 
-      state.loops.forEach(l=> clearInterval(l));
-      state.loops = [];
-      state.powerOutTimers.forEach(t=> clearTimeout(t));
-      state.powerOutTimers = [];
-      state.powerOutSide = 'l';
-      state.foxyDrainCount = 0;
-      state.fanMs = 0;
-      if(state.powerOutKill) clearInterval(state.powerOutKill);
+      stopMainLoops();
+      try{ mutePhone(); }catch(_){}
 
             const _nowAI = Date.now();
       state.aiGraceUntil = _nowAI + (state.ucn ? 4500 : 3500); // early grace so UCN/campaign don't insta-move
       state.aiClock = { Grey:_nowAI, Purple:_nowAI, Yellow:_nowAI, Foxy:_nowAI, Golden:_nowAI };
 
-state.loops.push(setInterval(tickAI, 180));
-      state.loops.push(setInterval(updateCore, 100));
-      state.loops.push(setInterval(ambientMusic, 2000));
-      state.loops.push(setInterval(clockTick, HOUR_MS));
+_loopsStarted = true;
+      startMainLoops(hourMs);
+
+      // v48: Phone Guy (Night 1)
+      try{ mutePhone(); }catch(_e){}
+      if(n === 1){
+        const tPlay = setTimeout(()=>{ 
+          try{
+            const phone = document.getElementById('phone-night1');
+            if(phone){
+              phone.currentTime = 0;
+              const p = phone.play();
+              if(p && typeof p.catch === 'function') p.catch(()=>{});
+            }
+          }catch(_){}
+        }, 3000);
+        const tBtn = setTimeout(()=>{ 
+          try{
+            const btn = document.getElementById('mute-call');
+            if(btn){
+              btn.style.display = 'block';
+              btn.style.zIndex = '25000';
+            }
+            state.phoneBtnActive = true;
+          }catch(_){}
+        }, 11000); // 3s + 8s
+        state.phoneTimers.push(tPlay, tBtn);
+      }
+
       // goldenCheck se maneja desde tickAI (ODM) + goldenUpdate
+  }catch(e){
+    console.warn('startGame init error:', e);
+  }finally{
+    if(!_loopsStarted){
+      try{ startMainLoops(hourMs); }catch(_e){}
+    }
+  }
     }
 
     function clockTick(){
+      state.lastClockAt = Date.now();
       state.time++;
       document.getElementById('time-text').innerText = (state.time === 0 ? 12 : state.time) + " AM";
       if(state.time >= 6) winCinematic();
@@ -3213,18 +4404,21 @@ state.loops.push(setInterval(tickAI, 180));
     }
 
     function calcPowerDrainPerSec(bars){
-      // Ajuste solicitado: más batería / consumo más justo (la noche también es más corta).
-      // Mantiene el feeling FNaF (puertas cuestan más que luces), pero sin vaciarse “patéticamente” rápido.
-      const base = state.ucn ? 0.090 : (0.060 + (state.night - 1) * 0.010);
-      const mult = (bars === 1) ? 1.0 : (bars === 2) ? 1.55 : (bars === 3) ? 2.25 : 3.15;
+      // Más visible y "FNaF feel": al mínimo se nota bajar, y con uso alto se vuelve peligroso.
+      // - 6 horas por noche (HOUR_MS) ≈ 4.5 min si HOUR_MS=45000.
+      // - Queremos que con USO 1 termines con margen, pero que USO 3-4 te mate si abusas.
+      const base = state.ucn ? 0.165 : (0.145 + (state.night - 1) * 0.018); // % por segundo
+
+      const mult = (bars === 1) ? 1.0 : (bars === 2) ? 1.65 : (bars === 3) ? 2.55 : 3.65;
 
       let extra = 0;
-      if(state.camOpen) extra += 0.020;
-      if(state.lights.l) extra += 0.014;
-      if(state.lights.r) extra += 0.014;
-      if(state.doors.l) extra += 0.040;
-      if(state.doors.r) extra += 0.040;
-      if(state.doors.l && state.doors.r) extra += 0.055;
+      // Extras (pequeños) para que se sienta el "costo" de cada acción
+      if(state.camOpen) extra += 0.030;
+      if(state.lights.l) extra += 0.020;
+      if(state.lights.r) extra += 0.020;
+      if(state.doors.l) extra += 0.060;
+      if(state.doors.r) extra += 0.060;
+      if(state.doors.l && state.doors.r) extra += 0.080;
 
       return (base * mult) + extra;
     }
@@ -3239,50 +4433,49 @@ state.loops.push(setInterval(tickAI, 180));
 
     
     function updateHeat(){
-      const now = Date.now();
-      if(!state.lastHeatTick) state.lastHeatTick = now;
-      const dt = Math.min(0.25, Math.max(0, (now - state.lastHeatTick) / 1000));
-      state.lastHeatTick = now;
+  const now = Date.now();
+  if(!state.lastHeatTick) state.lastHeatTick = now;
+  const dt = Math.min(0.25, Math.max(0, (now - state.lastHeatTick) / 1000));
+  state.lastHeatTick = now;
 
-      // When power is out, heat slowly drifts down but defenses are irrelevant
-      if(state.powerOut){
-        state.heat = clamp(state.heat - 0.6 * dt, 0, 100);
-        updateHeatUI();
-        return;
-      }
+  if(state.powerOut){
+    state.heat = clamp(state.heat - 0.8 * dt, 0, 100);
+    updateHeatUI();
+    return;
+  }
 
-      // Fuente de calor: SOLO cuando la ventilación está cerrada.
-      if(state.ventClosed){
-        // Base (vent cerrada) + multiplicador fuerte si además cierras puertas laterales
-        let inc = 5; // +5% / sec
-        if(state.doors.l) inc += 4; // +4% / sec extra
-        if(state.doors.r) inc += 4; // +4% / sec extra
-        state.heat += inc * dt;
-      } else {
-        // Enfriamiento: al abrir la ventilación, baja LENTAMENTE (penalización),
-        // y si además cierras puertas, enfría todavía más lento.
-        let dec = 0.55; // -0.55% / sec
-        if(state.doors.l || state.doors.r) dec = 0.30; // penalización por puertas cerradas
-        state.heat -= dec * dt;
-      }
+  // Base system warmth (always a tiny drift up so it never feels "stuck")
+  let net = 0.06; // +0.06%/sec
 
-      state.heat = clamp(state.heat, 0, 100);
+  if(state.ventClosed){
+    // Vent CLOSED: heats up fast (main mechanic)
+    net = 2.6;               // +2.6%/sec
+    if(state.doors.l) net += 1.6;
+    if(state.doors.r) net += 1.6;
+  } else {
+    // Vent OPEN: cools down if you already have heat; otherwise keep a tiny living drift
+    let cool = 0.40;         // -0.40%/sec
+    if(state.doors.l || state.doors.r) cool = 0.25; // less airflow with doors closed
+    if(state.heat > 1.2) net = net - cool;          // cool only when there's something to cool
+  }
 
-      // Overheat: force-open all defenses for 8 seconds
-      if(state.heat >= 100 && Date.now() >= (state.defenseLockedUntil||0)){
-        forceOpenAll('overheat');
-        state.defenseLockedUntil = Date.now() + 8000;
-      }
+  state.heat = clamp(state.heat + net * dt, 0, 100);
 
-      updateHeatUI();
-    }
+  // Overheat: force-open defenses briefly
+  if(state.heat >= 100 && Date.now() >= (state.defenseLockedUntil||0)){
+    forceOpenAll('overheat');
+    state.defenseLockedUntil = Date.now() + 8000;
+  }
 
-    function updateHeatUI(){
-      const ht = document.getElementById('heat-text');
-      const hf = document.getElementById('heat-fill');
-      if(ht) ht.textContent = `CALOR: ${Math.round(state.heat)}%`;
-      if(hf) hf.style.width = `${clamp(state.heat,0,100)}%`;
-    }
+  updateHeatUI();
+}
+
+function updateHeatUI(){
+  const ht = document.getElementById('heat-text');
+  if(ht) ht.textContent = `CALOR: ${Math.round(state.heat)}%`;
+}
+
+
 
     function forceOpenAll(reason='overheat'){
       // Doors
@@ -3318,12 +4511,13 @@ state.loops.push(setInterval(tickAI, 180));
 
     function updateCore(){
 
+      state.lastCoreAt = Date.now();
       updateHeat();
 
       const bars = calcUsageBars();
       const drainPerSec = calcPowerDrainPerSec(bars);
       if(!state.powerOut) state.pwr -= drainPerSec/10;
-        state.pwr = clamp(state.pwr, 0, 99);
+        state.pwr = clamp(state.pwr, 0, 100);
 
       // Fan drain (FNaF1-style): from Night 2+, extra -0.1% every N seconds
       if(!state.powerOut){
@@ -3339,10 +4533,13 @@ state.loops.push(setInterval(tickAI, 180));
         }
       }
 
-      const pwrShown = Math.max(0, Math.floor(state.pwr));
-      document.getElementById('pwr-text').innerText = `ENERGÍA: ${pwrShown}%`;
+            const pwrShown = Math.max(0, Math.floor(state.pwr));
+      const pwrText = document.getElementById('pwr-text');
+      if(pwrText) pwrText.innerText = `ENERGÍA: ${pwrShown}%`;
+      }
       updateUsageUI(bars);
       if(pwrShown <= 0 && !state.powerOut) startPowerOut();
+
 
 
       handleFreddyDoor();
@@ -3435,7 +4632,6 @@ const ml = state.monsters.find(m => m.id==='Purple' && (m.atDoor || m.entering) 
           fNode.innerHTML = '';
         }
       }
-    }
 
     function ucnStallAtDoor(monster, side){
       if(!state.doors[side]) toggleDoor(side, true);
@@ -4107,7 +5303,7 @@ function moveFreddy(m){
       if(m.pos === 1){
         m.pos = 2;
         m.path = null;
-        playSound(110, 'square', 0.02, 0.05);
+        playFreddyMoveSfx('step');
         m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*700) : (1400 + Math.random()*900));
         return;
       }
@@ -4125,7 +5321,7 @@ function moveFreddy(m){
         } else {
           m.pos = 6; m.path = 'R';
         }
-        playSound(105, 'square', 0.02, 0.05);
+        playFreddyMoveSfx('step');
         m.cooldownUntil = now + (state.ucn ? (1200 + Math.random()*900) : (1500 + Math.random()*1100));
         return;
       }
@@ -4133,7 +5329,7 @@ function moveFreddy(m){
       // Left path
       if(m.pos === 3){
         m.pos = 5;
-        playSound(95, 'square', 0.018, 0.05);
+        playFreddyMoveSfx('step');
         m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
         return;
       }
@@ -4141,7 +5337,7 @@ function moveFreddy(m){
       // Right path
       if(m.pos === 6){
         m.pos = 7;
-        playSound(95, 'square', 0.018, 0.05);
+        playFreddyMoveSfx('step');
         m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
         return;
       }
@@ -4155,7 +5351,7 @@ function moveFreddy(m){
         }
 
         m.pos = 8;
-        playSound(95, 'square', 0.018, 0.05);
+        playFreddyMoveSfx('step');
         m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
         return;
       }
@@ -4356,12 +5552,14 @@ function moveFoxy(m){
     }
 
     function toggleDoor(s, silent=false){
+  ensureStateDefaults();
+
       if(Date.now() < (state.defenseLockedUntil||0)) return;
       if(state.powerOut || Math.floor(state.pwr) <= 0) return;
 state.doors[s] = !state.doors[s];
       document.getElementById(`${s}-door-asset`).classList.toggle('closed');
       document.getElementById(`btn-d${s}`).classList.toggle('active-door');
-      if(!silent) playSound(100, 'square', 0.1, 0.1);
+      if(!silent) playDoorSfx(state.doors[s]);
 
       if(state.doors[s]){
         if(s === 'l'){ document.getElementById('m-office-l').style.display = 'none'; }
@@ -4392,6 +5590,8 @@ state.doors[s] = !state.doors[s];
     window.toggleDoor = toggleDoor;
 
     function toggleLight(s){
+  ensureStateDefaults();
+
   if(state.dead || state.powerOut || state.inJumpscare) return;
   if(state.camOpen) return; // Solo evita encender si la cámara está abierta
 
@@ -4408,7 +5608,7 @@ state.doors[s] = !state.doors[s];
   }
 
   // Play SFX for light toggle
-  playSound(800 + Math.random()*120, 'square', 0.03, 0.03);
+  playLightSfx(on);
 
   const fx = document.getElementById(s === 'l' ? 'l-light-fx' : 'r-light-fx');
   if(fx) fx.classList.toggle('on', on);
@@ -4417,6 +5617,8 @@ state.doors[s] = !state.doors[s];
 
     
     function toggleVent(){
+  ensureStateDefaults();
+
       if(state.powerOut) return;
       if(Date.now() < (state.defenseLockedUntil||0)) return;
       state.ventClosed = !state.ventClosed;
@@ -4429,26 +5631,37 @@ state.doors[s] = !state.doors[s];
       if(bv) bv.classList.toggle('active-door', state.ventClosed);
       const hatch = document.getElementById('vent-hatch');
       if(hatch) hatch.classList.toggle('closed', state.ventClosed);
-      playSound(state.ventClosed ? 90 : 140, 'square', 0.09, 0.08);
+      playVentSfx(state.ventClosed);
     }
     window.toggleVent = toggleVent;
 
 
 function toggleCams(){
+  ensureStateDefaults();
+
       if(state.powerOut) return;
 
       const wasOpen = state.camOpen;
       state.camOpen = !state.camOpen;
             state.camOpenSince = state.camOpen ? Date.now() : 0;
 ui.camOverlay.style.display = state.camOpen ? 'block' : 'none';
-      if(!state.camOpen){
+      
+      // v37: Hide/show Phone Guy mute button with monitor
+      try{
+        const _mute = document.getElementById('mute-call');
+        if(_mute){
+          if(state.camOpen) _mute.style.display = 'none';
+          else if(state.phoneBtnActive) _mute.style.display = 'block';
+        }
+      }catch(_e){}
+if(!state.camOpen){
         const camScreenEl = document.getElementById('cam-screen');
         if(camScreenEl) camScreenEl.classList.remove('cam-alert-red');
       }
 
       const _mapEl2 = document.getElementById('cam-map');
       if(_mapEl2) _mapEl2.style.display = state.camOpen ? 'block' : 'none';
-      playSound(400, 'sawtooth', 0.05, 0.05);
+      playCamSwitchSfx();
 
       // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
       if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
@@ -4592,11 +5805,13 @@ ui.camOverlay.style.display = state.camOpen ? 'block' : 'none';
     }
 
 function setCam(n){
+  ensureStateDefaults();
+
       state.cam = n;
             // v34: Poster 'DESAPARECIDA' (1/400) al cambiar a CAM 2 o CAM 6
       if(n === 2 || n === 6){ state.luciaPoster = (Math.random() < (1/400)); }
       else { state.luciaPoster = false; }
-const name = CAM_NAMES[n] || "";
+const name = camLabel(n) || "";
       ui.camInfo.innerText = (n === 'V') ? `CAM VENT: ${name}` : `CAM ${n}: ${name}`;
 
       // Active highlight without relying on index order (supports VENT node)
@@ -4608,7 +5823,7 @@ const name = CAM_NAMES[n] || "";
         rect && rect.classList.add('active');
       }
 
-      if(state.camOpen) playSound(520, 'square', 0.02, 0.05);
+      if(state.camOpen) playCamSwitchSfx();
       renderCam();
       updateFoxyPhaseUI();
     }
@@ -4695,57 +5910,67 @@ if(n === 7){
     }
 
     function renderCam(){
-      const camId = state.cam;
-      const scene = CAM_SCENES[camId] || CAM_SCENES[1];
-      // v24: Foxy visual alarm — blink CAM 4 when he has left Pirate Cove (run/attack)
-      const camScreenEl = document.getElementById('cam-screen');
-      if(camScreenEl){
-        const foxy = state.monsters.find(x => x.id === 'Foxy');
-        const alert = (camId === 4 && !!foxy && (foxy.attacking || foxy.phase >= 4) && foxy.pos !== 4);
-        camScreenEl.classList.toggle('cam-alert-red', !!alert);
-      }
+  const camId = state.cam;
+  const scene = (typeof CAM_SCENES !== 'undefined' && CAM_SCENES[camId]) ? CAM_SCENES[camId] : { label: 'CAM ' + camId };
 
+  // Fondo base con gradiente (sin imágenes externas para evitar errores)
+  const bgStyle = `background: radial-gradient(circle at 50% 30%, #1a1a20 0%, #050505 80%); box-shadow: inset 0 0 80px #000;`;
 
-      // Special VENT camera: shows ONLY Freddy eyes (red/white/purple) + industrial decor
-      if(camId === 'V'){
-        const active = !!state.freddyVent.active;
-        const stage = state.freddyVent.stage || 'none';
-                const eyesClass = (stage === 'white') ? 'white' : (stage === 'red' ? 'red' : (stage === 'purple' ? 'purple' : (stage === 'gold' ? 'gold' : 'gold')));
-        const eyesHTML = active ? `
-          <div class="vent-eyes ${eyesClass}">
-            <div class="vent-eye"></div>
-            <div class="vent-eye"></div>
-          </div>
-        ` : '';
+  // Renderizar monstruos visibles (y casos especiales de puertas)
+  const list = Array.isArray(state.monsters) ? state.monsters : [];
+  const visible = list.filter(m =>
+    m && !m.hidden && (
+      m.pos === camId ||
+      (camId===5 && m.id==='Purple' && (m.atDoor||m.entering)) ||
+      (camId===8 && m.id==='Yellow' && (m.atDoor||m.entering))
+    )
+  );
 
-        ui.camRender.innerHTML = `
-          <div class="vent-scene"></div>
-          <div class="vent-pipe" style="left:8%; top:16%; width:72%; height:18%;"></div>
-          <div class="vent-pipe" style="left:18%; top:60%; width:56%; height:14%;"></div>
-          <div class="vent-pipe" style="left:70%; top:12%; width:16%; height:56%; transform: rotate(90deg);"></div>
-          <div class="vent-grate"></div>
-          ${eyesHTML}
-          <div class="cam-label">${scene.label}</div>
-        `;
-        ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
-        return;
-      }
+  const monstersHTML = visible.map(m => {
+    const opts = (m.id==='Foxy' && m.phase===5) ? { extraClass:'foxy-run' } : {};
+    return (typeof renderEntity === 'function') ? renderEntity(m.id, 0.9, opts) : '';
+  }).join('');
 
-      // Normal cameras
-      const visible = state.monsters.filter(m => !m.hidden && (m.pos === camId || (camId===5 && m.id==='Purple' && (m.atDoor||m.entering)) || (camId===8 && m.id==='Yellow' && (m.atDoor||m.entering))));
-            const monstersHTML = visible.map(m => {
-        const opts = (m.id==='Foxy' && m.phase===5) ? { extraClass:'foxy-run' } : {};
-        return renderEntity(m.id, 0.9, opts);
-      }).join('');
+  // Props/decoración por cámara (si existe helper)
+  const props = (typeof camPropsHTML === 'function') ? camPropsHTML(camId) : '';
 
-      ui.camRender.innerHTML = `
-        <div class="cam-scene" style="background-image: url('https://dummyimage.com/640x360/0b0b10/0b0b10&text='); background-repeat: repeat, no-repeat; background-size: 420px 240px, cover;"></div>
-        ${camPropsHTML(camId)}
-        <div class="cam-label">${scene.label}</div>
-        <div style="position:relative; z-index:10; display:flex; gap:18px;">${monstersHTML}</div>
-      `;
-      ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
-    }
+  // Alerta visual de Foxy (parpadeo rojo) en CAM 4
+  const camScreenEl = document.getElementById('cam-screen');
+  if(camScreenEl){
+    const foxy = list.find(x => x && x.id === 'Foxy');
+    const alert = (camId === 4 && !!foxy && (foxy.attacking || foxy.phase >= 4) && foxy.pos !== 4);
+    camScreenEl.classList.toggle('cam-alert-red', !!alert);
+  }
+
+  // Render especial VENTILACIÓN (CAM V)
+  if(camId === 'V'){
+    const fv = state.freddyVent || (state.freddyVent = { active:false, stage:'none' });
+    const active = !!fv.active;
+    const stage = fv.stage || 'none';
+    const eyesClass = (stage === 'white') ? 'white' : (stage === 'red' ? 'red' : (stage === 'purple' ? 'purple' : 'gold'));
+
+    ui.camRender.innerHTML = `
+      <div class="vent-scene"></div>
+      <div class="vent-pipe" style="left:10%; top:20%; width:80%; height:20%;"></div>
+      <div class="vent-grate"></div>
+      ${active ? `<div class="vent-eyes ${eyesClass}"><div class="vent-eye"></div><div class="vent-eye"></div></div>` : ''}
+      <div class="cam-label">CAM VENT</div>
+    `;
+    ui.camDetails.innerText = "SYSTEM: ONLINE";
+    return;
+  }
+
+  // Render CÁMARAS NORMALES
+  ui.camRender.innerHTML = `
+    <div class="cam-scene" style="${bgStyle}"></div>
+    ${props}
+    <div class="cam-label">${camLabel(camId)}</div>
+    <div style="position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; gap:20px; pointer-events:none;">
+      ${monstersHTML}
+    </div>
+  `;
+  ui.camDetails.innerText = "REC ● " + new Date().toLocaleTimeString();
+}
 
     function goldenCheck(){ /* manejado por tickAI */ }
 
@@ -4769,6 +5994,8 @@ if(n === 7){
     function kill(k){ die(k); }
 
 function die(killer, meta={}){
+  try{ stopPhoneCall(); }catch(_e){}
+
       state.dead = true;
       try{ document.getElementById('lucia-overlay')?.classList.remove('active'); }catch(_){ }
 
@@ -4790,19 +6017,14 @@ function die(killer, meta={}){
 
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(killer === 'Golden' ? 'Golden' : killer, 6);
-      playSound(100, 'sawtooth', 0.8, 2);
-      const jsAudio = document.getElementById('jumpscare-sound');
-      if(jsAudio){
-        try{ jsAudio.currentTime = 0; }catch(_){}
-        jsAudio.volume = 1.0;
-        jsAudio.play().catch(e => console.warn(e));
-      }
-      playJumpscareSfx();
-setTimeout(()=>{
+      
+      playTerrifyingScream();
+playSound(100, 'sawtooth', 0.8, 2);
+      setTimeout(()=>{
         document.getElementById('jumpscare').style.display = 'none';
         ui.deathTip.style.display = 'flex';
         ui.deathTitle.innerText = "Te moriste 💀";
-        ui.deathKiller.innerText = (killer === 'Golden') ? "Golden Freddy" : (killer === 'Grey' ? 'Freddy' : (killer === 'Purple' ? 'Bonnie' : (killer === 'Yellow' ? 'Chica' : killer)));
+        ui.deathKiller.innerText = (killer === 'Golden') ? 'Golden Freddy' : (killer === 'Purple' ? 'Bonnie' : (killer === 'Yellow' ? 'Chica' : killer));
         ui.deathMessage.innerHTML = tipFor(killer, meta);
       }, 1500);
     }
@@ -4811,15 +6033,10 @@ setTimeout(()=>{
       const id = who === "Golden" ? "Golden" : who;
       document.getElementById('jumpscare').style.display = 'flex';
       document.getElementById('scare-render').innerHTML = renderEntity(id, 6);
-      playSound(120, 'sawtooth', 0.35, 0.6);
-      const jsAudio = document.getElementById('jumpscare-sound');
-      if(jsAudio){
-        try{ jsAudio.currentTime = 0; }catch(_){}
-        jsAudio.volume = 1.0;
-        jsAudio.play().catch(e => console.warn(e));
-      }
-      playJumpscareSfx();
-setTimeout(()=>{ document.getElementById('jumpscare').style.display = 'none'; }, 900);
+      
+  playTerrifyingScream();
+playSound(120, 'sawtooth', 0.35, 0.6);
+      setTimeout(()=>{ document.getElementById('jumpscare').style.display = 'none'; }, 900);
     }
 
     
@@ -4977,9 +6194,43 @@ window.addEventListener('keydown', ()=>{ try{ unlockAudio(); startMenuMusic(); }
     });
 
 
-</script>
+
+
+// --- v40 FIX: Freddy Vent loop helpers (missing functions caused crash) ---
+function startFreddyVentLoop(){
+  // Detener loop previo si existe
+  stopFreddyVentLoop();
+  // Loop simple: sonido grave/suave cada tanto si está en ventilación
+  if(state.freddyVent){
+    state.freddyVent.loop = setInterval(()=>{
+       if(state.menuActive || state.powerOut || state.dead) return;
+       // Sonido grave y suave para simular ventilación
+       try{ playSound(60, 'sawtooth', 200, 0.04); }catch(_e){}
+    }, 2000);
+  }
+}
+
+function stopFreddyVentLoop(){
+  if(state.freddyVent && state.freddyVent.loop){
+    clearInterval(state.freddyVent.loop);
+    state.freddyVent.loop = null;
+  }
+}</script>
     <div id="lucia-overlay" aria-hidden="true">
       <div class="lucia-text">ESTOY ABAJO</div>
     </div>
+        <div id="arthur-overlay" aria-hidden="true">
+          <div class="arthur-terminal">
+            <div class="arthur-title">REPORTE DE CONCIENCIA - 1997</div>
+            <div class="arthur-body">
+              SUJETO #01 (FREDDY): <span style="color:#aaa">ESTABILIZADO</span><br>
+              SUJETO #02 (BONNIE): <span style="color:#a0a">TRANSFERENCIA COMPLETA</span><br>
+              SUJETO #03 (CHICA): <span style="color:#ee0">ANS. ALIMENTICIA</span><br>
+              SUJETO #04 (FOXY): <span style="color:#f00">RECHAZO DE TEJIDO - AGRESIVO</span><br>
+              <br>
+              <span class="dim">NOTA: Ellos no han olvidado, Arthur.</span>
+            </div>
+          </div>
+        </div>
 </body>
 </html>
