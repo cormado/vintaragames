@@ -2297,8 +2297,8 @@ function ensureStateDefaults(){
   if(!Array.isArray(s.phoneTimers)) s.phoneTimers = [];
 
   // Numbers
-  if(typeof s.pwr !== 'number' || !isFinite(s.pwr)) s.pwr = 100;
-  if(typeof s.heat !== 'number' || !isFinite(s.heat)) s.heat = 0;
+  if(typeof s.pwr !== 'number' || !isFinite(s.pwr)) s.pwr = 100; console.log("ERROR DE BATERIA");
+  if(typeof s.heat !== 'number' || !isFinite(s.heat)) s.heat = 0; console.log("ERROR DE CALOR");
   if(typeof s.time !== 'number' || !isFinite(s.time)) s.time = 0;
   if(typeof s.night !== 'number' || !isFinite(s.night)) s.night = 1;
   if(typeof s.displayNight !== 'number' || !isFinite(s.displayNight)) s.displayNight = s.night;
@@ -2350,7 +2350,27 @@ function ensureStateDefaults(){
     }
     normalized.push(m);
   });
+
   s.monsters = normalized;
+
+  // Planificador de ticks IA (4–5s por entidad)
+  if(!s.aiPlan || typeof s.aiPlan !== 'object') s.aiPlan = {};
+
+  // Freddy route base (según spec): 1 -> 2 -> 6 -> 7 -> 8
+  const fr = s.monsters.find(mm=>mm && mm.id==='Grey');
+  if(fr){
+    fr.route = [1,2,6,7,8];
+    if(typeof fr.pos !== 'number' || !isFinite(fr.pos)) fr.pos = 1;
+  }
+
+  // Foxy: contador de paciencia
+  const fx = s.monsters.find(mm=>mm && mm.id==='Foxy');
+  if(fx){
+    if(typeof fx.patience !== 'number' || !isFinite(fx.patience)) fx.patience = 100;
+    if(typeof fx.phase !== 'number' || !isFinite(fx.phase)) fx.phase = 0;
+    if(typeof fx.attacking !== 'boolean') fx.attacking = false;
+  }
+
 
   // Keep local alias in sync if it exists
   try{ state = window.state; }catch(_e){}
@@ -2361,6 +2381,8 @@ function ensureStateDefaults(){
 ensureStateDefaults();
 
 // ===================== v50: Night Watchdog (anti-freeze) =====================
+
+
 function stopMainLoops(){
   try{ (state.loops||[]).forEach(id=>{ try{ clearInterval(id); }catch(_e){} }); }catch(_){}
   try{ if(state.powerOutKill){ clearInterval(state.powerOutKill); state.powerOutKill = null; } }catch(_){}
@@ -4333,7 +4355,7 @@ _loopsStarted = true;
       playPowerDownSfx();
 
       // Freddy aparece en una puerta (50/50) cuando empiece su melodía
-      state.powerOutSide = (Math.random() < 0.5) ? 'l' : 'r';
+      state.powerOutSide = 'l';
       ui.poweroutFreddy.innerHTML = renderEntity('Grey', 2.2);
 
       const placeFreddy = ()=>{
@@ -4394,6 +4416,8 @@ _loopsStarted = true;
 
     
     // ===================== POWER / BATERÍA =====================
+
+
     function calcUsageBars(){
       let bars = 1; // consumo base siempre
       if(state.camOpen) bars += 1;
@@ -4511,127 +4535,42 @@ function updateHeatUI(){
 
     function updateCore(){
 
-      state.lastCoreAt = Date.now();
-      updateHeat();
+          state.lastCoreAt = Date.now();
+          updateHeat();
 
-      const bars = calcUsageBars();
-      const drainPerSec = calcPowerDrainPerSec(bars);
-      if(!state.powerOut) state.pwr -= drainPerSec/10;
-        state.pwr = clamp(state.pwr, 0, 100);
+          const bars = calcUsageBars();
+          updateUsageUI(bars);
 
-      // Fan drain (FNaF1-style): from Night 2+, extra -0.1% every N seconds
-      if(!state.powerOut){
-        if(state.night >= 2){
-          state.fanMs += 100;
-          const per = (state.night===2 ? 7000 : (state.night===3 ? 6000 : (state.night===4 ? 5000 : 4000)));
-          while(state.fanMs >= per){
-            state.fanMs -= per;
-            state.pwr = clamp(state.pwr - 0.07, 0, 99);
+          const drainPerSec = calcPowerDrainPerSec(bars);
+
+          // Este loop corre cada 100ms => /10
+          if(!state.powerOut) state.pwr -= drainPerSec/10;
+          state.pwr = clamp(state.pwr, 0, 100);
+
+          // Fan drain (FNaF1-style): from Night 2+, extra pequeño cada N segundos
+          if(!state.powerOut){
+            if(state.night >= 2){
+              state.fanMs += 100;
+              const per = (state.night===2 ? 7000 : (state.night===3 ? 6000 : (state.night===4 ? 5000 : 4000)));
+              while(state.fanMs >= per){
+                state.fanMs -= per;
+                state.pwr = clamp(state.pwr - 0.07, 0, 100);
+              }
+            } else {
+              state.fanMs = 0;
+            }
           }
-        } else {
-          state.fanMs = 0;
-        }
-      }
 
-            const pwrShown = Math.max(0, Math.floor(state.pwr));
-      const pwrText = document.getElementById('pwr-text');
-      if(pwrText) pwrText.innerText = `ENERGÍA: ${pwrShown}%`;
-      }
-      updateUsageUI(bars);
-      if(pwrShown <= 0 && !state.powerOut) startPowerOut();
+          // UI texto energía
+          const pwrShown = Math.max(0, Math.floor(state.pwr));
+          const pwrText = document.getElementById('pwr-text');
+          if(pwrText) pwrText.innerText = `ENERGÍA: ${pwrShown}%`;
 
-
-
-      handleFreddyDoor();
-      goldenUpdate(100);
-      // Bonnie/Chica: finalizan entrada SOLO con monitor abajo, con margen justo para reaccionar
-      const nowDoor = Date.now();
-      const dtStep = 100;
-      state.monsters.forEach(mm=>{
-        if((mm.id==='Purple' || mm.id==='Yellow') && mm.entering && !mm.inOfficeArmed){
-          if(state.camOpen) return; // NO cuentan mientras estás viendo cámaras
-          if(state.doors[mm.door]){ mm.entering=false; mm.enterRemaining=0; return; }
-
-          // El “tiempo de colarse” solo corre con monitor ABAJO,
-          // así al bajar cámaras el jugador SIEMPRE tiene ventana para alumbrar/cerrar.
-          mm.enterRemaining = (mm.enterRemaining || 0) - dtStep;
-          if(mm.enterRemaining <= 0){
-            mm.pos = 0;
-            mm.inOfficeArmed = true;
-            mm.enteredAt = nowDoor;
-            mm.entering = false;
-            mm.enterRemaining = 0;
-            mm.atDoor = false;
-            state.officeArmed[mm.id] = true;
-            playSound(70, 'sine', 0.09, 0.14);
+          // Powerout trigger real
+          if(!state.powerOut && state.pwr <= 0.01){
+            startPowerOut();
           }
         }
-      });
-
-const ml = state.monsters.find(m => m.id==='Purple' && (m.atDoor || m.entering) && m.door === 'l' && m.pos === 5);
-      const mr = state.monsters.find(m => m.id==='Yellow' && (m.atDoor || m.entering) && m.door === 'r' && m.pos === 8);
-
-      // Freddy “ojos blancos” cuando está por atacar (solo si lo alumbras y la puerta está abierta)
-      const mfL = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'l' && m.pos === 5);
-      const mfR = state.monsters.find(m => m.id==='Grey' && m.atDoor && m.door === 'r' && m.pos === 8);
-
-      // (Fix v20 #1) La advertencia de Freddy ahora se arma al iniciar el ataque de puerta
-      const freddyWarn = !!(state.freddyState && state.freddyState.warning && Date.now() < (state.freddyState.warningUntil||0));
-      const freddyDoorL = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'l' && Date.now() < (state.freddyDoor.attackAt||0));
-      const freddyDoorR = !!(state.freddyDoor && state.freddyDoor.active && state.freddyDoor.side === 'r' && Date.now() < (state.freddyDoor.attackAt||0));
-
-      const lNode = document.getElementById('m-office-l');
-      const rNode = document.getElementById('m-office-r');
-
-      const showLeft = ml && state.lights.l && !state.doors.l && !state.camOpen;
-      const showRight = mr && state.lights.r && !state.doors.r && !state.camOpen;
-
-      const showFreddyLeft = !showLeft && mfL && state.lights.l && !state.doors.l && !state.camOpen && (freddyWarn || freddyDoorL);
-      const showFreddyRight = !showRight && mfR && state.lights.r && !state.doors.r && !state.camOpen && (freddyWarn || freddyDoorR);
-
-      // Solo se ve al animatrónico en la puerta cuando ALUMBRÁS (sin siluetas en oscuridad)
-      lNode.style.display = (showLeft || showFreddyLeft) ? 'block' : 'none';
-      lNode.style.opacity = '1';
-      lNode.innerHTML = showLeft ? renderEntity(ml.id, 1.5) : (showFreddyLeft ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
-
-      rNode.style.display = (showRight || showFreddyRight) ? 'block' : 'none';
-      rNode.style.opacity = '1';
-      rNode.innerHTML = showRight ? renderEntity(mr.id, 1.5) : (showFreddyRight ? renderEntity('Grey', 1.5, { alertEyes:true, extraClass:'door-freddy' }) : '');
-
-      // === Front reveal (Bonnie/Chica): aparecen FRENTE al jugador antes del jumpscare ===
-      const fNode = document.getElementById('m-office-front');
-      if(fNode){
-        const ft = state.frontThreat;
-        const nowFT = Date.now();
-
-        // Si el jugador cerró la puerta durante la ventana, cancela el ataque y los hace retroceder
-        if(ft && state.doors[ft.side]){
-          const mm = state.monsters.find(x => x.id === ft.id);
-          state.frontThreat = null;
-          fNode.style.display = 'none';
-          fNode.innerHTML = '';
-          if(mm && mm.inOfficeArmed){
-            mm.inOfficeArmed = false;
-            mm.entering = false; mm.enterRemaining = 0;
-            mm.atDoor = false;
-            mm.pos = (mm.id === 'Purple') ? 3 : 7; // 1 cámara antes
-            mm.stalled = true;
-            if(mm.stallTimer){ clearTimeout(mm.stallTimer); }
-            mm.stallTimer = setTimeout(()=>{ mm.stalled=false; mm.stallTimer=null; }, 2500);
-            playSound(120, 'square', 0.05, 0.06);
-          }
-        }
-
-        const active = ft && !state.camOpen && !state.powerOut && nowFT < ft.until;
-        if(active){
-          fNode.style.display = 'block';
-          fNode.style.left = (ft.id === 'Purple') ? '46%' : '54%';
-          fNode.innerHTML = renderEntity(ft.id, 2.35);
-        } else {
-          fNode.style.display = 'none';
-          fNode.innerHTML = '';
-        }
-      }
 
     function ucnStallAtDoor(monster, side){
       if(!state.doors[side]) toggleDoor(side, true);
@@ -4708,59 +4647,69 @@ function tickAI(){
 
       if(state.aiGraceUntil && now < state.aiGraceUntil) return;
 
-      // === Golden Freddy (rework justo) ===
-      // - IA “letal” cap a 5 (no se vuelve injusto aunque lo pongás en 20)
-      // - IA > 10 SOLO aumenta frecuencia de intentos (más apariciones), no la ventana de esquive
-      // - Se activa SOLO si estás mirando cámaras (como FNaF)
-      const aiG = state.ucn ? (getUcnAI('Golden')||0) : getCampaignAI('Golden');
-      const capG = goldenChanceCap(aiG);
-      const intervalG = goldenAttemptIntervalMs(aiG);
-      const minCamForGolden = 550;
+      // ------------------------------------------------------------
+      // GOLDEN FREDDY (fantasma) — check por segundo (según noche)
+      // N1-3: 0.1% / seg  |  N4+: 5% / seg
+      // Salvación: subir monitor (camOpen=true) => desaparece
+      // ------------------------------------------------------------
+      if(!state.golden) state.golden = { active:false, manifest:false, cooldownUntil:0, killTimer:null, lastCheck:0 };
+      if(!state.golden.lastCheck) state.golden.lastCheck = now;
 
-      if(now >= (state.golden.cooldownUntil||0) && now - (state.aiClock.Golden||0) >= intervalG){
-        state.aiClock.Golden = now;
+      if(now - state.golden.lastCheck >= 1000){
+        state.golden.lastCheck = now;
 
-        if(!state.golden.active){
-          const camOpenFor = state.camOpen ? (Date.now() - (state.camOpenSince || Date.now())) : 0;
-          if(state.camOpen && camOpenFor >= minCamForGolden){
-            if(capG > 0){
-              const r = 1 + Math.floor(Math.random()*20);
-              if(r <= capG) activateGolden();
-            }
+        if(!state.menuActive && !state.dead && state.time < 6 && !state.golden.active && now >= (state.golden.cooldownUntil||0)){
+          const p = (state.night >= 4) ? 0.05 : 0.001;
+          if(Math.random() < p){
+            state.golden.active = true;
+            state.golden.manifest = true;
+
+            try{
+              if(ui.goldenOffice){
+                ui.goldenOffice.style.display = 'block';
+                ui.goldenOffice.innerHTML = renderEntity('Golden', 2.4);
+              }
+            }catch(e){}
+
+            if(state.golden.killTimer){ clearTimeout(state.golden.killTimer); state.golden.killTimer = null; }
+            state.golden.killTimer = setTimeout(()=>{
+              if(state.time >= 6) return;
+              if(state.powerOut) return;
+              if(state.cinematicLock) return;
+              if(!state.golden.manifest) return;
+              die('Golden', { reason:'golden' });
+            }, 3000);
           }
         }
       }
 
+      // Si aparece y subís monitor => se va
+      if(state.golden && state.golden.manifest && state.camOpen){
+        clearGolden();
+        state.golden.cooldownUntil = now + 9000;
+      }
 
-      // === Animatrónicos principales (ODM por tick dedicado) ===
+      // ------------------------------------------------------------
+      // TICK DE MOVIMIENTO (4–5s) por animatrónico
+      // ------------------------------------------------------------
+      if(!state.aiPlan || typeof state.aiPlan !== 'object') state.aiPlan = {};
+      if(!Array.isArray(state.monsters)) return;
+
       state.monsters.forEach(m=>{
-        if(state.ucn && m.stalled) return;
+        if(!m || m.id === 'Golden' || m.type === 'golden') return;
 
-        // (v33) FAILSAFE: Si Foxy quedó atascado en fase 4/5 sin resolver, forzar reinicio.
-        if(m.id === 'Foxy' && m.phase >= 4){
-          if(!m.attacking && (!m.cooldownUntil || Date.now() > (m.cooldownUntil + 2000))){
-            m.phase = 1; m.pos = 4; m.attacking = false; m.attackSide = null;
-            updateFoxyPhaseUI();
-          }
-        }
+        // Planificador por ID
+        if(!state.aiPlan[m.id]) state.aiPlan[m.id] = { next: now + (4000 + Math.random()*1000) };
+        if(now < state.aiPlan[m.id].next) return;
+        state.aiPlan[m.id].next = now + (4000 + Math.random()*1000);
 
-        const interval = (m.id === 'Grey') ? 2700 : 4600;
-        if(now - (state.aiClock[m.id]||0) < interval) return;
-        state.aiClock[m.id] = now;
-
+        // Ejecuta movimiento (cada función maneja su RNG interno según reglas)
         if(m.type === 'freddy') { moveFreddy(m); return; }
         if(m.type === 'foxy') { moveFoxy(m); return; }
         moveStandard(m);
       });
 
-      // v34: Documento glitcheado (CAM 2) — 1/1000 por tick cuando estás mirando cámaras
-      if(!state.menuActive && !state.dead && state.camOpen && state.cam === 2){
-        if(!state.glitchDocUntil && Math.random() < 0.001){
-          state.glitchDocUntil = now + 2200 + Math.random()*1800;
-        }
-      }
-      if(state.glitchDocUntil && now > state.glitchDocUntil) state.glitchDocUntil = 0;
-
+      // Render dinámico mientras mirás cámaras
       if(state.camOpen) renderCam();
       updateFoxyPhaseUI();
     }
@@ -4902,6 +4851,29 @@ function handleFreddyDoor(){
       if(!f) { stopFreddyVentLoop(); return; }
 
       const now = Date.now();
+      // Fail-safe (v55): si Freddy entra a VENT y NO cerrás en 10s => Jumpscare (según spec)
+      if(state.freddyVent && state.freddyVent.active && state.freddyVent.enteredAt){
+        const dtVent = now - state.freddyVent.enteredAt;
+        if(dtVent >= 10000){
+          stopFreddyVentLoop();
+          state.freddyVent.active = false;
+          state.freddyVent.stage = 'none';
+          state.freddyVent.mode = '';
+          state.freddyVent.stageUntil = 0;
+          state.freddyVent.whiteUntil = 0;
+
+          if(!state.ventClosed){
+            // Vent abierto => muerte
+            die('Grey', { reason:'vent_timeout' });
+            return;
+          } else {
+            // Vent cerrado a tiempo => vuelve a Stage
+            freddyResetToStage(800);
+            return;
+          }
+        }
+      }
+
 
       // --- Helpers (scope global) ---
       // Start/Reset/Attack helpers are defined below if missing (compat)
@@ -5144,6 +5116,8 @@ state.freddyVent.enteredAt = 0;
     }
 
 // ===== Freddy helpers (v17) =====
+
+
 function isDoorOccupied(side){
   return state.monsters.some(mm=>{
     if(mm.id!=='Purple' && mm.id!=='Yellow') return false;
@@ -5268,133 +5242,61 @@ function moveFreddy(m){
       const ai = state.ucn ? getUcnAI('Grey') : getCampaignAI('Grey');
       if(ai <= 0) return;
 
-      // While vent sequence or door strike is active, don't advance the route here
-      if(state.freddyVent.active) return;
+      // Si está en secuencia VENT o strike de puerta, no avanzar ruta acá
+      if(state.freddyVent && state.freddyVent.active) return;
       if(state.freddyDoor && state.freddyDoor.active) return;
 
-      // If he's waiting for a door to free up (queue system), keep him hidden in CAM 5/8
-      if(m.waitingDoor){
-        const side = m.waitSide || 'l';
-        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
-        if(!busy){
-          m.waitingDoor = false;
-          m.hidden = false;
-          // Arm a door strike as soon as it becomes available
-          armFreddyDoorAttack(m, side, 'queue');
-        }
-        return;
-      }
+      // Freddy NO se mueve por "ruta libre"; pasa por chequeo RNG del tick
+      const ok = state.ucn ? ucnRoll('Grey') : campaignRoll('Grey');
+      if(!ok) return;
 
-      if(m.cooldownUntil == null) m.cooldownUntil = 0;
-      if(now < m.cooldownUntil) return;
-
-      // Cameras slow Freddy (not freeze). Watching his current cam slows more.
-      if(state.camOpen){
-        const watchingHim = (state.cam === m.pos) || (state.cam === 'V' && m.inVent);
-        const p = watchingHim ? 0.40 : 0.62;
-        if(Math.random() > p) return;
-      }
-
-      // ODM gate
-      if(!rollODM('Grey')) return;
-
-      // === ROUTE (v17) ===
-      // Inicio: 1 -> 2
+      // Ruta base: 1 -> 2 -> (CRUCE) -> 6 -> 7 -> 8 -> ataque
       if(m.pos === 1){
         m.pos = 2;
-        m.path = null;
         playFreddyMoveSfx('step');
-        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*700) : (1400 + Math.random()*900));
         return;
       }
 
-      // Desde CAM 2: izquierda (3->5), derecha (6->7->8) o directo a VENT
+      // Cruce (CAM 2)
       if(m.pos === 2){
-        const ventProb = clamp(0.18 + ai*0.010, 0.18, 0.32); // no spamear VENT
         const r = Math.random();
-        if(r < ventProb){
+        if(r < 0.30){
+          // 30%: VENT
           startFreddyVentSequence(m, 'direct');
+          // Fail-safe de 10s (lo aplica handleFreddyDoor)
+          if(state.freddyVent) state.freddyVent.enteredAt = now;
+          playFreddyMoveSfx('laugh');
           return;
-        }
-        if(r < ventProb + 0.44){
-          m.pos = 3; m.path = 'L';
         } else {
-          m.pos = 6; m.path = 'R';
-        }
-        playFreddyMoveSfx('step');
-        m.cooldownUntil = now + (state.ucn ? (1200 + Math.random()*900) : (1500 + Math.random()*1100));
-        return;
-      }
-
-      // Left path
-      if(m.pos === 3){
-        m.pos = 5;
-        playFreddyMoveSfx('step');
-        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
-        return;
-      }
-
-      // Right path
-      if(m.pos === 6){
-        m.pos = 7;
-        playFreddyMoveSfx('step');
-        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
-        return;
-      }
-
-      if(m.pos === 7){
-        // (v21) Desde CAM 7 sí puede desviar a VENT. Desde CAM 8 es imposible.
-        const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
-        if(Math.random() < divertProb){
-          startFreddyVentSequence(m, 'side', 'r');
+          // 70%: ruta cocina
+          m.pos = 6;
+          playFreddyMoveSfx('step');
           return;
         }
+      }
 
-        m.pos = 8;
-        playFreddyMoveSfx('step');
-        m.cooldownUntil = now + (state.ucn ? (1100 + Math.random()*900) : (1400 + Math.random()*1100));
+      if(m.pos === 6){ m.pos = 7; playFreddyMoveSfx('step'); return; }
+      if(m.pos === 7){ m.pos = 8; playFreddyMoveSfx('step'); return; }
+
+      // Ataque desde la esquina derecha (CAM 8) => strike a puerta derecha
+      if(m.pos === 8){
+        if(!state.freddyDoor) state.freddyDoor = { active:false, side:null, attackAt:0, source:'', startedAt:0 };
+        state.freddyDoor.active = true;
+        state.freddyDoor.side = 'r';
+        state.freddyDoor.source = 'cam8';
+        state.freddyDoor.startedAt = now;
+        state.freddyDoor.attackAt = now + (1100 + Math.random()*900);
+
+        // Mientras prepara strike, queda oculto de las cámaras
+        m.hidden = true;
+        playFreddyMoveSfx('laugh');
         return;
       }
 
-
-      // At CAM 5 / CAM 8:
-      // - CAM 5: puede decidir atacar puerta IZQ o desviar a VENT (lateral).
-      // - CAM 8 (puerta DER): NO puede entrar a VENT. Desde ahí solo ataca o espera. (Fix v22 #1)
-      if(m.pos === 5 || m.pos === 8){
-        const side = (m.pos === 5) ? 'l' : 'r';
-
-        // Desvío a ventilación desde lateral (más raro) — SOLO válido desde CAM 5.
-        if(m.pos === 5){
-          const divertProb = clamp(0.10 + ai*0.008, 0.10, 0.22);
-          if(Math.random() < divertProb){
-            startFreddyVentSequence(m, 'side', side);
-            return;
-          }
-        }
-
-        // Sistema cola: si Bonnie/Chica ocupan la puerta, Freddy espera invisible en CAM 5/8
-        const busy = isDoorOccupied(side) || (Date.now() < (state.doorAttackBusyUntil?.[side]||0));
-        if(busy){
-          m.waitingDoor = true;
-          m.waitSide = side;
-          m.hidden = true; // invisible en la cámara mientras espera
-          m.cooldownUntil = now + 600;
-          return;
-        }
-
-        armFreddyDoorAttack(m, side, 'hall');
-        return;
-      }
-
-
-      // Re-anchor if off-route
-      m.pos = 2;
+      // Si se desincronizó, lo devolvemos
+      m.pos = 1;
+      m.hidden = false;
     }
-
-
-
-
-
 
 function moveFoxy(m){
       if(state.powerOut) return;
@@ -5403,112 +5305,97 @@ function moveFoxy(m){
       const ai = state.ucn ? getUcnAI('Foxy') : getCampaignAI('Foxy');
       if(ai <= 0) return;
 
-      // Freeze progression while watching CAM 4 (FNaF1-like), but do not stop an attack once started.
-      if(state.camOpen && state.cam === 4 && !m.attacking && m.phase < 4){
-        // Watching slows him down but doesn't fully freeze; in PHASE 4 he runs even if watched
-        if(Math.random() < 0.55) return;
-      }
+      // Inicializa contador de paciencia
+      if(typeof m.patience !== 'number' || !isFinite(m.patience)) m.patience = 100;
+      if(typeof m.phase !== 'number' || !isFinite(m.phase)) m.phase = 0;
+      if(typeof m.lastPatienceAt !== 'number' || !isFinite(m.lastPatienceAt)) m.lastPatienceAt = now;
 
-      if(m.cooldownUntil == null) m.cooldownUntil = 0;
-      if(!m.attacking && now < m.cooldownUntil) return;
+      // Actualiza paciencia con dt (segundos)
+      const dt = Math.min(0.40, Math.max(0, (now - m.lastPatienceAt)/1000));
+      m.lastPatienceAt = now;
 
-      // ODM roll (same system as others)
-      if(!rollODM('Foxy')) return;
+      // Velocidades base (más agresivo con más AI)
+      const mult = 1 + (ai / 20); // 1.05..2.0 aprox
+      const fastDown = 9.0 * mult;   // sin cámaras (baja rápido)
+      const slowDown = 2.0 * mult;   // mirando otras cams
+      const lookUp   = 2.2;          // mirando CAM 4 (sube leve)
 
-      // If already attacking, timers drive it
-      if(m.attacking) return;
-
-      // Advance phases 0->4
-      m.phase = Math.min(4, m.phase + 1);
-
-      // Keep him in Pirate Cove until phase 4 triggers the run
-      if(m.phase < 4){
-        m.pos = 4;
+      if(m.attacking){
+        // Ataque en curso: no "regenera"
+        if(now >= (m.attackAt||0)){
+          // Impacto: puerta izquierda por defecto (FNaF1 feel)
+          const side = 'l';
+          if(state.doors[side]){
+            // Bloqueado => drena 10% y resetea
+            state.pwr = clamp(state.pwr - 10, 0, 100);
+            playSound(70, 'triangle', 0.10, 0.12); // golpe seco
+            m.attacking = false;
+            m.attackAt = 0;
+            m.patience = 100;
+            m.pos = 4;
+          } else {
+            m.attacking = false;
+            m.attackAt = 0;
+            die('Foxy', { reason:'foxy_run', side });
+          }
+        }
         return;
       }
 
-      // === Phase 4: Foxy RUN ===
-      m.attacking = true;
-      // Clear any previous Foxy timers to avoid cross-run glitches
-      if(!m.foxyTimers) m.foxyTimers = [];
-      m.foxyTimers.forEach(t=>{ try{ clearTimeout(t); }catch(e){} });
-      m.foxyTimers.length = 0;
-      const left = (Math.random() < 0.5);
-      m.attackSide = left ? 1 : 2; // 1=left, 2=right for UI
-      const telegraphMs = state.ucn ? 2500 : 3200;
+      // Progresión / regresión de paciencia según cámaras
+      if(state.camOpen){
+        if(state.cam === 4){
+          m.patience = clamp(m.patience + lookUp*dt, 0, 100);
+        } else {
+          m.patience = clamp(m.patience - slowDown*dt, 0, 100);
+        }
+      } else {
+        m.patience = clamp(m.patience - fastDown*dt, 0, 100);
+      }
 
-      // He "leaves" Pirate Cove during the run (so watching CAM 4 you see him disappear)
-      m.foxyTimers.push(setTimeout(()=>{
-        m.pos = -1; // not visible on any cam while running
-      }, 380));
+      // Fases por umbrales
+      if(m.patience >= 75) m.phase = 0;
+      else if(m.patience >= 50) m.phase = 1;
+      else if(m.patience >= 25) m.phase = 2;
+      else m.phase = 3;
 
-      // === v24: 3D running cue (stereo) ===
-      m.foxyTimers.push(setTimeout(() => {
-        if(state.powerOut) return;
-        playFoxyRun(left ? 'L' : 'R');
-      }, Math.max(160, telegraphMs - 680)));
-      m.foxyTimers.push(setTimeout(() => {
-        if(state.powerOut) return;
-
-        // Appears at the door camera (CAM 5 / CAM 8)
-        m.pos = left ? 5 : 8;
-        m.phase = 5;
-
-        const holdMs = 500; // Espera corta en puerta (letal pero justo)
-        m.foxyTimers.push(setTimeout(() => {
-          if(state.powerOut) return;
-
-          const doorKey = left ? 'l' : 'r';
-
-          if(state.doors[doorKey]){
-            // Blocked: drain some power (capped)
-            const drain = Math.min(16, 1 + (m.drainCount||0) * 5);
-            m.drainCount = Math.min(4, (m.drainCount||0) + 1);
-            state.pwr = clamp(state.pwr - drain, 0, 99);
-            playSound(55, 'triangle', 0.10, 0.14);
-
-            // Return to Pirate Cove in phase 1 (v33: reset completo)
-            m.pos = 4;
-            m.phase = 1;
-            m.attacking = false;
-            m.attackSide = null;
-            // UI inmediata (cámara/mapa)
-            updateFoxyPhaseUI();
-
-            // Cooldown after a blocked run
-            m.cooldownUntil = Date.now() + (state.ucn ? 3600 : 5200);
-            m.attacking = false;
-          } else {
-            // Door open: he kills you
-            kill('Foxy');
-            m.attacking = false;
-          }
-        }, holdMs));
-      }, telegraphMs));
+      // Cuando llega a 0 => corre
+      if(m.patience <= 0.001){
+        m.attacking = true;
+        m.attackAt = now + (650 + Math.random()*450);
+        // Oculta en cams mientras corre
+        m.pos = -1;
+        // SFX de carrera (usa función existente si está, sino fallback)
+        try{
+          if(typeof playFoxyRun === 'function') playFoxyRun('L');
+          else playCamSwitchSfx && playCamSwitchSfx();
+        }catch(_e){}
+      }
     }
 
     function updateFoxyPhaseUI(){
-      const f = state.monsters.find(x => x.id === 'Foxy');
-      if(!f || !ui.foxyPhase) return;
+          const f = state.monsters.find(x => x.id === 'Foxy');
+          if(!f || !ui.foxyPhase) return;
 
-      // v25: sync red alert blink on CAM 4 button in the map
-      const btn4 = document.querySelector('g[onclick="setCam(4)"] rect');
-      const isRunning = (f.phase >= 4);
-      if(btn4) btn4.classList.toggle('map-alert-blink', isRunning);
+          // Sync blink on CAM 4 button in the map
+          const btn4 = document.querySelector('g[onclick="setCam(4)"] rect');
+          const isRunning = !!f.attacking;
+          if(btn4) btn4.classList.toggle('map-alert-blink', isRunning);
 
-      const shouldShow = state.camOpen && state.cam === 4;
-      ui.foxyPhase.style.display = shouldShow ? 'block' : 'none';
-      if(!shouldShow) return;
+          const shouldShow = state.camOpen && state.cam === 4;
+          ui.foxyPhase.style.display = shouldShow ? 'block' : 'none';
+          if(!shouldShow) return;
 
-      let extra = "";
-      if(f.phase === 4){
-        extra = f.attackSide === 2 ? " (DER → CAM 8)" : (f.attackSide === 1 ? " (IZQ → CAM 5)" : "");
-      }
-      if(f.phase === 5){
-        extra = f.attackSide === 2 ? " (CIERRA DER!)" : " (CIERRA IZQ!)";
-      }
-      ui.foxyPhase.innerText = `FOXY: FASE ${Math.min(5, Math.max(0, f.phase))}${extra}`;
-    }
+          const pct = (typeof f.patience === 'number') ? Math.round(f.patience) : 100;
+          const label =
+            (f.phase === 0) ? "FASE 0 (CORTINA)" :
+            (f.phase === 1) ? "FASE 1 (ASOMA)" :
+            (f.phase === 2) ? "FASE 2 (FUERA)" :
+            (f.phase === 3) ? (f.attacking ? "CORRIENDO" : "FASE 3 (LISTO)") :
+            "—";
+
+          ui.foxyPhase.innerHTML = `${label}<br><span class="dim">PACIENCIA: ${pct}</span>`;
+        }
 
     function scheduleAttack(m, overrideDelay=null){
       if(state.powerOut) return;

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrera de Cubos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+    .animate-bounce-slow { animation: bounce 2s infinite; }
+    .transition-all { transition: all 0.3s ease; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-pink-900 text-white overflow-hidden">
+
+  <div id="app" class="relative w-full h-screen"></div>
+
+  <script>
+    // Estado del juego
+    let screen = 'menu';
+    let spawns = [];
+    let walls = [];
+    let goal = null;
+    let selectedTool = 'spawn';
+    let cubes = [];
+    let winner = null;
+    let draggingWall = null;
+    let resizingWall = null;
+    let selectedWall = null;
+    let history = [];
+    let volume = 0.5;
+    let toolbarVisible = true;
+    let savedMaps = JSON.parse(localStorage.getItem('cubeRaceMaps') || '[]');
+
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#A8E6CF'];
+
+    // Canvas full screen
+    const canvas = document.createElement('canvas');
+    canvas.className = 'absolute inset-0 w-full h-full cursor-crosshair';
+    canvas.style.boxShadow = '0 0 40px rgba(0, 255, 255, 0.5)';
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let animationId = null;
+
+    // Audio
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = volume;
+    gainNode.connect(audioCtx.destination);
+
+    function playSound(freq, dur, type = 'square') {
+      const osc = audioCtx.createOscillator();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.connect(gainNode);
+      osc.start();
+      setTimeout(() => osc.stop(), dur);
+    }
+
+    function playBounce() { playSound(440, 50, 'square'); }
+    function playWin() { playSound(880, 500, 'sine'); }
+    function playClick() { playSound(660, 100, 'triangle'); }
+    function playStart() { playSound(550, 200, 'sawtooth'); }
+
+    function setVolume(v) {
+      volume = v;
+      gainNode.gain.value = v;
+    }
+
+    // Guardar / Cargar mapas
+    function promptSaveMap() {
+      const name = prompt('Nombre del mapa:', `Mapa ${savedMaps.length + 1}`);
+      if (name) {
+        const mapData = { spawns: [...spawns], walls: walls.map(w => ({...w})), goal: {...goal} };
+        savedMaps.push({ name, data: mapData });
+        localStorage.setItem('cubeRaceMaps', JSON.stringify(savedMaps));
+      }
+    }
+
+    function loadMap(mapData) {
+      spawns = mapData.spawns.map(s => ({...s}));
+      walls = mapData.walls.map(w => ({...w}));
+      goal = {...mapData.goal};
+      history = [];
+      render();
+    }
+
+    function editMap(index) {
+      const map = savedMaps[index];
+      const newName = prompt('Nuevo nombre del mapa:', map.name);
+      if (newName) {
+        map.name = newName;
+        localStorage.setItem('cubeRaceMaps', JSON.stringify(savedMaps));
+        render();
+      } else {
+        loadMap(map.data);
+        screen = 'creator';
+        render();
+      }
+    }
+
+    function deleteMap(index) {
+      savedMaps.splice(index, 1);
+      localStorage.setItem('cubeRaceMaps', JSON.stringify(savedMaps));
+      render();
+    }
+
+    // Historia para deshacer
+    function saveHistory() {
+      history.push({
+        spawns: spawns.map(s => ({...s})),
+        walls: walls.map(w => ({...w})),
+        goal: goal ? {...goal} : null
+      });
+      if (history.length > 20) history.shift();
+    }
+
+    function undo() {
+      if (history.length > 0) {
+        const prev = history.pop();
+        spawns = prev.spawns;
+        walls = prev.walls;
+        goal = prev.goal;
+        render();
+      }
+    }
+
+    // Inicio
+    function startCreator() {
+      screen = 'creator';
+      spawns = [];
+      walls = [];
+      goal = null;
+      cubes = [];
+      winner = null;
+      history = [];
+      toolbarVisible = true;
+      render();
+    }
+
+    function startGame() {
+      if (spawns.length === 0 || !goal) {
+        alert('Necesitas al menos un spawn y una meta.');
+        return;
+      }
+      cubes = spawns.map((spawn, i) => {
+        const speed = Math.random() * 5 + 6;
+        const angle = Math.random() * Math.PI * 2;
+        return {
+          x: spawn.x,
+          y: spawn.y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color: spawn.color,
+          size: 20,
+          trail: []
+        };
+      });
+      winner = null;
+      screen = 'game';
+      toolbarVisible = false;
+      playStart();
+      render();
+    }
+
+    // Eventos canvas
+    function handleCanvasClick(e) {
+      if (screen !== 'creator') return;
+      playClick();
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      selectedWall = null;
+      for (let i = walls.length - 1; i >= 0; i--) {
+        const w = walls[i];
+        if (x >= w.x && x <= w.x + w.width && y >= w.y && y <= w.y + w.height) {
+          selectedWall = i;
+          break;
+        }
+      }
+
+      if (selectedTool === 'spawn' && selectedWall === null) {
+        saveHistory();
+        spawns.push({ x, y, color: colors[spawns.length % colors.length] });
+      } else if (selectedTool === 'goal' && selectedWall === null) {
+        saveHistory();
+        goal = { x, y };
+      } else if (selectedTool === 'wall' && selectedWall === null) {
+        saveHistory();
+        walls.push({ x: x - 50, y: y - 25, width: 100, height: 50 });
+      }
+      render();
+    }
+
+    function handleMouseDown(e) {
+      if (screen !== 'creator') return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (selectedWall !== null) {
+        const w = walls[selectedWall];
+        if (x >= w.x + w.width - 10 && x <= w.x + w.width + 10 &&
+            y >= w.y + w.height - 10 && y <= w.y + w.height + 10) {
+          resizingWall = { index: selectedWall, startWidth: w.width, startHeight: w.height, startX: x, startY: y };
+          return;
+        }
+      }
+
+      for (let i = 0; i < walls.length; i++) {
+        const w = walls[i];
+        if (x >= w.x && x <= w.x + w.width && y >= w.y && y <= w.y + w.height) {
+          saveHistory();
+          draggingWall = { index: i, offsetX: x - w.x, offsetY: y - w.y };
+          selectedWall = i;
+          break;
+        }
+      }
+    }
+
+    function handleMouseMove(e) {
+      if (screen !== 'creator') return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (resizingWall) {
+        const diffX = x - resizingWall.startX;
+        const diffY = y - resizingWall.startY;
+        const w = walls[resizingWall.index];
+        w.width = Math.max(30, resizingWall.startWidth + diffX);
+        w.height = Math.max(30, resizingWall.startHeight + diffY);
+        render();
+      } else if (draggingWall) {
+        const newX = x - draggingWall.offsetX;
+        const newY = y - draggingWall.offsetY;
+        walls[draggingWall.index].x = newX;
+        walls[draggingWall.index].y = newY;
+        render();
+      }
+    }
+
+    function handleMouseUp() {
+      draggingWall = null;
+      resizingWall = null;
+    }
+
+    // Dibujado
+    function draw() {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(0, 0, w, h);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+      for (let i = 0; i < h; i += 40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+
+      // Walls
+      walls.forEach((wall, i) => {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00ffff';
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+        ctx.shadowBlur = 0;
+        if (screen === 'creator') {
+          ctx.strokeStyle = selectedWall === i ? '#ff0000' : '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
+          if (selectedWall === i) {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(wall.x + wall.width - 8, wall.y + wall.height - 8, 16, 16);
+          }
+        }
+      });
+
+      // Goal
+      if (goal) {
+        const grad = ctx.createRadialGradient(goal.x, goal.y, 0, goal.x, goal.y, 40);
+        grad.addColorStop(0, '#FFD700');
+        grad.addColorStop(1, '#FF8C00');
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = '#FFD700';
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(goal.x, goal.y, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 36px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Meta', goal.x, goal.y);
+      }
+
+      // Spawns
+      if (screen === 'creator') {
+        spawns.forEach((s, i) => {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = s.color;
+          ctx.fillStyle = s.color;
+          ctx.fillRect(s.x - 12, s.y - 12, 24, 24);
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 16px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(i + 1, s.x, s.y + 35);
+        });
+      }
+
+      // Cubes
+      if (screen === 'game') {
+        cubes.forEach((cube, i) => {
+          if (cube.trail.length > 1) {
+            ctx.strokeStyle = cube.color + '80';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            cube.trail.forEach((p, j) => j === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            ctx.stroke();
+          }
+          ctx.shadowBlur = 30;
+          ctx.shadowColor = cube.color;
+          ctx.fillStyle = cube.color;
+          ctx.fillRect(cube.x - cube.size/2, cube.y - cube.size/2, cube.size, cube.size);
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 18px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(i + 1, cube.x, cube.y);
+        });
+      }
+    }
+
+    function update() {
+      if (screen !== 'game' || winner) {
+        draw();
+        animationId = requestAnimationFrame(update);
+        return;
+      }
+
+      let bounced = false;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      cubes = cubes.map(cube => {
+        let newX = cube.x + cube.vx;
+        let newY = cube.y + cube.vy;
+
+        if (newX - cube.size/2 < 0 || newX + cube.size/2 > width) { cube.vx = -cube.vx; newX = Math.max(cube.size/2, Math.min(width - cube.size/2, newX)); bounced = true; }
+        if (newY - cube.size/2 < 0 || newY + cube.size/2 > height) { cube.vy = -cube.vy; newY = Math.max(cube.size/2, Math.min(height - cube.size/2, newY)); bounced = true; }
+
+        walls.forEach(wall => {
+          const left = newX - cube.size/2;
+          const right = newX + cube.size/2;
+          const top = newY - cube.size/2;
+          const bottom = newY + cube.size/2;
+
+          if (right > wall.x && left < wall.x + wall.width && bottom > wall.y && top < wall.y + wall.height) {
+            const oLeft = right - wall.x;
+            const oRight = wall.x + wall.width - left;
+            const oTop = bottom - wall.y;
+            const oBottom = wall.y + wall.height - top;
+            const minO = Math.min(oLeft, oRight, oTop, oBottom);
+            if (minO === oLeft || minO === oRight) {
+              cube.vx = -cube.vx;
+              newX = minO === oLeft ? wall.x - cube.size/2 : wall.x + wall.width + cube.size/2;
+            } else {
+              cube.vy = -cube.vy;
+              newY = minO === oTop ? wall.y - cube.size/2 : wall.y + wall.height + cube.size/2;
+            }
+            bounced = true;
+          }
+        });
+
+        const trail = [...cube.trail, { x: newX, y: newY }];
+        if (trail.length > 50) trail.shift();
+
+        return { ...cube, x: newX, y: newY, trail };
+      });
+
+      // Colisiones entre cubos
+      for (let i = 0; i < cubes.length; i++) {
+        for (let j = i + 1; j < cubes.length; j++) {
+          const c1 = cubes[i];
+          const c2 = cubes[j];
+          const dx = c1.x - c2.x;
+          const dy = c1.y - c2.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < c1.size) {
+            // Rebote simple: intercambiar velocidades
+            [c1.vx, c2.vx] = [c2.vx, c1.vx];
+            [c1.vy, c2.vy] = [c2.vy, c1.vy];
+            bounced = true;
+          }
+        }
+      }
+
+      if (bounced) playBounce();
+
+      if (goal && !winner) {
+        cubes.forEach((cube, i) => {
+          const dist = Math.hypot(cube.x - goal.x, cube.y - goal.y);
+          if (dist < 45) {
+            winner = { index: i, color: cube.color };
+            playWin();
+            render();
+          }
+        });
+      }
+
+      draw();
+      animationId = requestAnimationFrame(update);
+    }
+
+    // Render UI
+    function render() {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+      app.appendChild(canvas);
+
+      if (screen === 'menu') {
+        app.innerHTML += `
+          <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+            <h1 class="text-8xl font-bold mb-12 drop-shadow-2xl animate-bounce-slow" style="text-shadow: 0 0 40px #fff, 0 0 80px #00ffff;">
+              Carrera de Cubos
+            </h1>
+            <button id="new-map-btn" class="pointer-events-auto bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-20 py-10 rounded-full text-4xl font-bold shadow-2xl transform hover:scale-110 transition-all" style="box-shadow: 0 0 50px rgba(255, 105, 180, 0.9);">
+              Nuevo Mapa
+            </button>
+          </div>
+          <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl z-10">
+            <h2 class="text-3xl font-bold text-center mb-4">Mapas Guardados</h2>
+            <div id="saved-maps-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-64 overflow-y-auto">
+              ${savedMaps.length === 0 ? '<p class="text-center col-span-3 text-xl">No hay mapas guardados</p>' : ''}
+            </div>
+          </div>
+        `;
+        document.getElementById('new-map-btn')?.addEventListener('click', () => { playClick(); startCreator(); });
+
+        const list = document.getElementById('saved-maps-list');
+        if (list) {
+          savedMaps.forEach((map, i) => {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-800 bg-opacity-80 rounded-xl p-4 pointer-events-auto flex flex-col';
+            card.innerHTML = `
+              <span class="text-xl mb-2">${map.name}</span>
+              <div class="flex justify-between">
+                <button class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm" data-index="${i}">Jugar</button>
+                <button class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm" data-edit="${i}">Editar</button>
+                <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm" data-delete="${i}">Borrar</button>
+              </div>
+            `;
+            card.querySelector('[data-index]').onclick = () => { playClick(); loadMap(map.data); startGame(); };
+            card.querySelector('[data-edit]').onclick = () => { playClick(); editMap(i); };
+            card.querySelector('[data-delete]').onclick = () => { playClick(); deleteMap(i); };
+            list.appendChild(card);
+          });
+        }
+
+      } else {
+        // Toolbar
+        const toolbar = document.createElement('div');
+        toolbar.className = `absolute top-0 left-0 right-0 bg-gradient-to-b from-black to-transparent p-4 flex flex-wrap gap-4 items-center z-20 transition-all ${toolbarVisible ? 'translate-y-0' : '-translate-y-full'}`;
+        if (screen === 'creator') {
+          toolbar.innerHTML = `
+            <button id="toggle-toolbar" class="bg-gray-800 hover:bg-gray-700 px-4 py-3 rounded-xl text-2xl">v</button>
+            <button id="tool-spawn" class="px-8 py-4 rounded-xl font-bold text-lg ${selectedTool==='spawn' ? 'bg-gradient-to-r from-red-500 to-orange-500 scale-110 shadow-xl' : 'bg-gray-800 hover:bg-gray-700'}">Spawn</button>
+            <button id="tool-wall" class="px-8 py-4 rounded-xl font-bold text-lg ${selectedTool==='wall' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 scale-110 shadow-xl' : 'bg-gray-800 hover:bg-gray-700'}">Pared</button>
+            <button id="tool-goal" class="px-8 py-4 rounded-xl font-bold text-lg ${selectedTool==='goal' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 scale-110 shadow-xl' : 'bg-gray-800 hover:bg-gray-700'}">Meta</button>
+            <button id="btn-undo" class="px-8 py-4 rounded-xl font-bold text-lg bg-gray-800 hover:bg-gray-700">Deshacer</button>
+            <button id="btn-save" class="px-8 py-4 rounded-xl font-bold text-lg bg-blue-500 hover:bg-blue-600 shadow-xl">Guardar Mapa</button>
+            <button id="btn-play" class="px-10 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-xl">Jugar</button>
+            <div class="flex items-center ml-auto">
+              <label class="mr-3 text-lg">Volumen:</label>
+              <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="${volume}" class="w-40">
+            </div>
+          `;
+          toolbar.querySelector('#toggle-toolbar').onclick = () => { toolbarVisible = !toolbarVisible; render(); };
+          toolbar.querySelector('#tool-spawn').onclick = () => { playClick(); selectedTool = 'spawn'; render(); };
+          toolbar.querySelector('#tool-wall').onclick = () => { playClick(); selectedTool = 'wall'; render(); };
+          toolbar.querySelector('#tool-goal').onclick = () => { playClick(); selectedTool = 'goal'; render(); };
+          toolbar.querySelector('#btn-undo').onclick = () => { playClick(); undo(); };
+          toolbar.querySelector('#btn-save').onclick = () => { playClick(); promptSaveMap(); };
+          toolbar.querySelector('#btn-play').onclick = () => { playClick(); startGame(); };
+          toolbar.querySelector('#volume-slider').oninput = (e) => setVolume(parseFloat(e.target.value));
+        }
+        app.appendChild(toolbar);
+
+        // Botón mostrar toolbar si oculto
+        if (!toolbarVisible && screen === 'creator') {
+          const showBtn = document.createElement('button');
+          showBtn.textContent = '^';
+          showBtn.className = 'absolute top-4 left-4 bg-gray-800 hover:bg-gray-700 px-4 py-3 rounded-xl text-2xl z-20';
+          showBtn.onclick = () => { toolbarVisible = true; render(); };
+          app.appendChild(showBtn);
+        }
+
+        // Eventos canvas
+        canvas.onclick = handleCanvasClick;
+        canvas.onmousedown = handleMouseDown;
+        canvas.onmousemove = handleMouseMove;
+        canvas.onmouseup = handleMouseUp;
+        canvas.onmouseleave = handleMouseUp;
+        canvas.oncontextmenu = e => e.preventDefault();
+
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(update);
+
+        // Modal ganador
+        if (winner) {
+          const overlay = document.createElement('div');
+          overlay.className = 'absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 animate-fade-in';
+          overlay.innerHTML = `
+            <div class="bg-gradient-to-br from-yellow-400 via-orange-500 to-pink-600 p-20 rounded-3xl text-center shadow-2xl">
+              <h2 class="text-7xl font-bold mb-10" style="text-shadow: 0 0 40px #000;">Ganador</h2>
+              <div class="w-48 h-48 mx-auto mb-12 rounded-3xl flex items-center justify-center text-9xl font-bold" style="background-color: ${winner.color}; box-shadow: 0 0 100px ${winner.color};">
+                ${winner.index + 1}
+              </div>
+              <div class="flex gap-12 justify-center">
+                <button id="save" class="bg-blue-500 text-white px-12 py-6 rounded-full text-3xl font-bold hover:bg-blue-600 shadow-2xl">
+                  Guardar Mapa
+                </button>
+                <button id="retry" class="bg-white text-purple-900 px-12 py-6 rounded-full text-3xl font-bold hover:bg-gray-200 shadow-2xl">
+                  Reintentar
+                </button>
+                <button id="menu" class="bg-purple-900 text-white px-12 py-6 rounded-full text-3xl font-bold hover:bg-purple-800 shadow-2xl">
+                  Menu
+                </button>
+              </div>
+            </div>
+          `;
+          app.appendChild(overlay);
+          overlay.querySelector('#save').onclick = () => { playClick(); promptSaveMap(); };
+          overlay.querySelector('#retry').onclick = () => { playClick(); winner = null; startGame(); };
+          overlay.querySelector('#menu').onclick = () => { playClick(); screen = 'menu'; render(); };
+        }
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
