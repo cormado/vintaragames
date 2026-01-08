@@ -3,23 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boom Tycoon: Crash Proof</title>
+    <title>FireWorkers</title>
+    <link rel="icon" href="icon.png" type="image/png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;900&display=swap');
         body { margin: 0; overflow: hidden; background-color: #050510; font-family: 'Poppins', sans-serif; color: white; user-select: none; cursor: crosshair; }
         #gameCanvas { display: block; width: 100vw; height: 100vh; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
-        .header { padding: 15px; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.8); background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); }
+        .header { padding: 15px; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.8); background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); pointer-events: auto; }
         .money-display { font-size: 3rem; font-weight: 900; color: #ffd700; -webkit-text-stroke: 1.5px #5a3e1b; text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
-        .shop { background: rgba(15, 20, 25, 0.95); backdrop-filter: blur(10px); padding: 10px; padding-bottom: 20px; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; pointer-events: auto; border-top: 4px solid #ffd700; max-height: 25vh; overflow-y: auto; }
-        .shop::-webkit-scrollbar { width: 5px; } .shop::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .shop-item { background: linear-gradient(180deg, #333, #1a1a1a); border: 1px solid #555; border-radius: 6px; padding: 5px; width: 80px; text-align: center; cursor: pointer; transition: all 0.1s; position: relative; }
-        .shop-item:hover { transform: translateY(-3px); border-color: #fff; background: #444; } .shop-item:active { transform: scale(0.95); }
+        
+        /* Tienda mejorada para muchos items */
+        .shop-container-wrapper {
+            background: rgba(10, 15, 20, 0.95);
+            border-top: 4px solid #ffd700;
+            padding: 10px;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .shop-title {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .shop { 
+            display: flex; 
+            justify-content: flex-start; /* Alineado a la izquierda para scroll horizontal si es necesario, o wrap */
+            flex-wrap: wrap;
+            gap: 8px; 
+            max-height: 25vh; 
+            overflow-y: auto; 
+            padding-right: 10px;
+            justify-content: center;
+        }
+        
+        .shop::-webkit-scrollbar { width: 8px; } 
+        .shop::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
+        .shop::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; border: 1px solid #222; }
+        .shop::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        .shop-item { background: linear-gradient(180deg, #333, #1a1a1a); border: 1px solid #555; border-radius: 6px; padding: 5px; width: 75px; text-align: center; cursor: pointer; transition: all 0.1s; position: relative; flex-shrink: 0; }
+        .shop-item:hover { transform: translateY(-3px); border-color: #fff; background: #444; z-index: 10; } 
+        .shop-item:active { transform: scale(0.95); }
         .shop-item.selected { border-color: #ffd700; background: #332a00; box-shadow: 0 0 10px #ffd700; }
-        .shop-item.komodo { border-color: #ff3333; } .shop-item.komodo.selected { background: #300; box-shadow: 0 0 15px #ff0000; }
+        .shop-item.komodo { border-color: #ff3333; background: linear-gradient(180deg, #500, #200); } 
+        .shop-item.komodo.selected { background: #300; box-shadow: 0 0 15px #ff0000; }
         .shop-item.disabled { opacity: 0.3; filter: grayscale(1); }
-        .shop-item h3 { margin: 0; font-size: 0.65rem; color: #ddd; text-transform: uppercase; }
-        .shop-item p { margin: 2px 0 0; font-size: 0.75rem; color: #ffd700; font-weight: bold; }
+        .shop-item h3 { margin: 0; font-size: 0.6rem; color: #ddd; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .shop-item p { margin: 2px 0 0; font-size: 0.7rem; color: #ffd700; font-weight: bold; }
+        
+        .tutorial { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); text-align: center; opacity: 0.8; pointer-events: none; animation: fadeOut 5s forwards 5s; text-shadow: 0 2px 4px black; }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -28,11 +67,15 @@
             <div>DINERO</div>
             <div class="money-display">$<span id="money">50</span></div>
         </div>
-        <div class="shop" id="shop-container"></div>
+        <div class="tutorial"><h1 style="margin:0; color:#ffd700">FireWorkers</h1><p>Click IZQ: Poner 1 | Mantener Click DER: Spamear</p></div>
+        
+        <div class="shop-container-wrapper">
+            <div class="shop-title">Catálogo de Pirotecnia</div>
+            <div class="shop" id="shop-container"></div>
+        </div>
     </div>
     <canvas id="gameCanvas"></canvas>
 <script>
-    // --- MOTOR GRÁFICO SEGURO ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d', { alpha: false });
     const moneyEl = document.getElementById('money');
@@ -44,25 +87,62 @@
     const mouse = { x: 0, y: 0, leftDown: false, rightDown: false };
     let selectedShopIndex = 0, isInteractingWithShop = false;
 
+    // --- MEGA LISTA DE 32 CUETES ---
+    // Shapes: 'onion', 'stick', 'triangle', 'rect', 'tower', 'tube', 'rocket', 'rocket_big', 'komodo'
+    // Behaviors: 'normal', 'ground' (suelo), 'spiral' (loco), 'static' (torre), 'launch' (cohete), 'mortar' (tubo)
+    
     const FIREWORK_TYPES = [
+        // TIER 1: Baratos y Pequeños
         { name: "Cebollita", price: 10, reward: 15, size: 10, color: "#fff", explosionSize: 30, fuseTime: 30, shape: 'onion', behavior: 'normal', hasFlash: false },
-        { name: "Buscapies", price: 30, reward: 50, size: 15, color: "#fa0", explosionSize: 40, fuseTime: 100, shape: 'stick', behavior: 'ground', hasFlash: false },
-        { name: "Paloma", price: 60, reward: 85, size: 18, color: "#ddd", explosionSize: 80, fuseTime: 60, shape: 'triangle', behavior: 'normal', hasFlash: false },
-        { name: "Chiflador", price: 120, reward: 200, size: 20, color: "#0ff", explosionSize: 60, fuseTime: 80, shape: 'stick', behavior: 'spiral', hasFlash: false },
-        { name: "R-15", price: 300, reward: 400, size: 24, color: "#f44", explosionSize: 140, fuseTime: 80, shape: 'rect', behavior: 'normal', hasFlash: false },
-        { name: "Castillo", price: 800, reward: 1200, size: 40, color: "#ff0", explosionSize: 180, fuseTime: 200, shape: 'tower', behavior: 'static', hasFlash: false },
-        { name: "Cohetón", price: 1500, reward: 2000, size: 30, color: "#f70", explosionSize: 250, fuseTime: 120, shape: 'rocket', behavior: 'launch', hasFlash: false },
-        { name: "Mortero", price: 3500, reward: 5000, size: 35, color: "#f0f", explosionSize: 350, fuseTime: 50, shape: 'tube', behavior: 'mortar', hasFlash: false },
-        { name: "Saturno", price: 12000, reward: 18000, size: 45, color: "#fff", explosionSize: 450, fuseTime: 150, shape: 'rocket_big', behavior: 'launch', hasFlash: false },
-        { name: "KOMODO", price: 50000, reward: 100000, size: 60, color: "#f00", explosionSize: 1000, fuseTime: 250, shape: 'komodo', behavior: 'normal', hasFlash: true }
+        { name: "Ratoncito", price: 25, reward: 35, size: 10, color: "#aaa", explosionSize: 35, fuseTime: 60, shape: 'onion', behavior: 'ground', hasFlash: false },
+        { name: "Brujita", price: 45, reward: 60, size: 12, color: "#0f0", explosionSize: 40, fuseTime: 80, shape: 'stick', behavior: 'ground', hasFlash: false },
+        { name: "Chispita", price: 70, reward: 90, size: 15, color: "#ff0", explosionSize: 50, fuseTime: 100, shape: 'tower', behavior: 'static', hasFlash: false },
+        
+        // TIER 2: Aéreos Básicos
+        { name: "Paloma", price: 100, reward: 130, size: 18, color: "#eee", explosionSize: 80, fuseTime: 60, shape: 'triangle', behavior: 'normal', hasFlash: false },
+        { name: "Palomón", price: 180, reward: 220, size: 22, color: "#ddd", explosionSize: 100, fuseTime: 70, shape: 'triangle', behavior: 'normal', hasFlash: false },
+        { name: "Buscapies", price: 250, reward: 300, size: 15, color: "#fa0", explosionSize: 90, fuseTime: 120, shape: 'stick', behavior: 'ground', hasFlash: false },
+        { name: "Chiflador", price: 350, reward: 450, size: 20, color: "#0ff", explosionSize: 70, fuseTime: 80, shape: 'stick', behavior: 'spiral', hasFlash: false },
+        
+        // TIER 3: Explosivos Medios
+        { name: "Abeja", price: 500, reward: 650, size: 15, color: "#ff0", explosionSize: 80, fuseTime: 90, shape: 'stick', behavior: 'spiral', hasFlash: false },
+        { name: "R-15", price: 750, reward: 900, size: 24, color: "#f44", explosionSize: 140, fuseTime: 80, shape: 'rect', behavior: 'normal', hasFlash: false },
+        { name: "Hulk", price: 1000, reward: 1250, size: 26, color: "#4f4", explosionSize: 160, fuseTime: 90, shape: 'rect', behavior: 'normal', hasFlash: false },
+        { name: "Vampiro", price: 1500, reward: 2000, size: 25, color: "#300", explosionSize: 180, fuseTime: 100, shape: 'rocket', behavior: 'launch', hasFlash: false },
+        
+        // TIER 4: Cohetes y Volcanes
+        { name: "Cohetón", price: 2200, reward: 3000, size: 30, color: "#fa0", explosionSize: 250, fuseTime: 120, shape: 'rocket', behavior: 'launch', hasFlash: false },
+        { name: "Volcán", price: 3000, reward: 4000, size: 35, color: "#f80", explosionSize: 200, fuseTime: 200, shape: 'tower', behavior: 'static', hasFlash: false },
+        { name: "Olla de Luz", price: 4000, reward: 5500, size: 40, color: "#f0f", explosionSize: 220, fuseTime: 220, shape: 'tower', behavior: 'static', hasFlash: false },
+        { name: "Mortero", price: 5500, reward: 7500, size: 35, color: "#555", explosionSize: 350, fuseTime: 50, shape: 'tube', behavior: 'mortar', hasFlash: false },
+        
+        // TIER 5: Pesados
+        { name: "Bazooka", price: 7500, reward: 10000, size: 40, color: "#252", explosionSize: 400, fuseTime: 60, shape: 'tube', behavior: 'mortar', hasFlash: false },
+        { name: "Tomahawk", price: 10000, reward: 13000, size: 35, color: "#888", explosionSize: 450, fuseTime: 130, shape: 'rocket', behavior: 'launch', hasFlash: false },
+        { name: "Cara Diablo", price: 15000, reward: 20000, size: 30, color: "#a00", explosionSize: 500, fuseTime: 80, shape: 'triangle', behavior: 'normal', hasFlash: false },
+        { name: "Dinamita", price: 20000, reward: 28000, size: 20, color: "#f00", explosionSize: 600, fuseTime: 150, shape: 'stick', behavior: 'normal', hasFlash: false },
+        
+        // TIER 6: Estructuras y Misiles
+        { name: "C-4", price: 30000, reward: 42000, size: 25, color: "#ccc", explosionSize: 700, fuseTime: 120, shape: 'rect', behavior: 'normal', hasFlash: false },
+        { name: "Castillo", price: 45000, reward: 60000, size: 50, color: "#ffaa00", explosionSize: 400, fuseTime: 300, shape: 'tower', behavior: 'static', hasFlash: false },
+        { name: "Torre Eiffel", price: 65000, reward: 90000, size: 55, color: "#ffd700", explosionSize: 500, fuseTime: 350, shape: 'tower', behavior: 'static', hasFlash: false },
+        { name: "Saturno", price: 90000, reward: 120000, size: 45, color: "#fff", explosionSize: 600, fuseTime: 150, shape: 'rocket_big', behavior: 'launch', hasFlash: false },
+        
+        // TIER 7: Armas de Destrucción Masiva
+        { name: "Titan", price: 150000, reward: 200000, size: 50, color: "#00f", explosionSize: 800, fuseTime: 180, shape: 'rocket_big', behavior: 'launch', hasFlash: false },
+        { name: "Space-X", price: 250000, reward: 350000, size: 55, color: "#fff", explosionSize: 1000, fuseTime: 200, shape: 'rocket_big', behavior: 'launch', hasFlash: false },
+        { name: "M.O.A.B.", price: 500000, reward: 750000, size: 50, color: "#343", explosionSize: 1500, fuseTime: 100, shape: 'tube', behavior: 'mortar', hasFlash: false },
+        { name: "Tsar Bomba", price: 1000000, reward: 1500000, size: 60, color: "#3f3", explosionSize: 2000, fuseTime: 150, shape: 'tube', behavior: 'mortar', hasFlash: false },
+        { name: "Supernova", price: 2500000, reward: 4000000, size: 20, color: "#fff", explosionSize: 3000, fuseTime: 400, shape: 'onion', behavior: 'static', hasFlash: false },
+        { name: "Big Bang", price: 5000000, reward: 8000000, size: 70, color: "#000", explosionSize: 4000, fuseTime: 300, shape: 'rocket_big', behavior: 'launch', hasFlash: false },
+        
+        // EL REY
+        { name: "KOMODO", price: 10000000, reward: 20000000, size: 60, color: "#f00", explosionSize: 5000, fuseTime: 250, shape: 'komodo', behavior: 'normal', hasFlash: true }
     ];
 
-    // --- AUDIO CON PROTECCIÓN ---
     function initAudio() {
-        try {
-            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startAmbience(); }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        } catch(e) {}
+        if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); startAmbience(); }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
     }
     function startAmbience() {
         try {
@@ -183,7 +263,6 @@
         initAudio();
         if(e.button===0){
             mouse.leftDown=true;
-            // Solo spawnear si no estamos clickeando uno existente
             let clickingFw = false;
             for(let fw of fireworks){ if(Math.hypot(e.clientX-fw.x,e.clientY-fw.y)<45){ clickingFw=true; break; } }
             if(!clickingFw) spawn(selectedShopIndex,false);
@@ -197,8 +276,7 @@
     function loop(){
         requestAnimationFrame(loop); tick++;
         
-        // --- PROTECCIÓN CONTRA CRASHES VISUALES ---
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Resetea la matriz siempre
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // FIX: Reset Matrix
         ctx.globalAlpha = 1;
         
         if(mouse.rightDown && tick%5===0 && !isInteractingWithShop) spawn(selectedShopIndex,true);
@@ -219,7 +297,6 @@
         for(let i=0;i<=width;i+=30)ctx.quadraticCurveTo(i+15,gy-8,i+30,gy); ctx.lineTo(width,height);ctx.fill();
 
         ctx.globalCompositeOperation = 'lighter';
-        // Proteger el loop de partículas
         for(let i=particles.length-1;i>=0;i--){ 
             try { particles[i].update(); particles[i].draw(); if(particles[i].life<=0)particles.splice(i,1); } catch(e){}
         }
@@ -227,7 +304,6 @@
 
         ctx.globalCompositeOperation = 'source-over';
 
-        // Proteger el loop de cuetes
         for(let i=fireworks.length-1;i>=0;i--){ 
             try { fireworks[i].update(); fireworks[i].draw(); if(fireworks[i].dead)fireworks.splice(i,1); } catch(e){}
         }
