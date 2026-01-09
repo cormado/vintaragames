@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Legends</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap');
+
+        :root {
+            --sky-day: linear-gradient(to bottom, #4facfe, #00f2fe);
+            --sky-sunset: linear-gradient(to bottom, #2b1026, #fa709a 30%, #ffd700 80%);
+            --sky-night: linear-gradient(to bottom, #000000, #0f2027 100%);
+            --hud-color: #e6ff00;
+            --hud-bg: rgba(5, 5, 5, 0.95);
+            --neon: #a020f0;
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-user-drag: none; outline: none; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Rajdhani', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; transition: background 1s; }
+
+        /* EFECTOS VISUALES */
+        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.15) 50%); background-size: 100% 4px; opacity: 0.5; }
+        
+        /* ANIMACIÓN DE TEMBLOR AGRESIVA */
+        @keyframes shakeHard { 
+            0% { transform: translate(0,0) rotate(0deg); }
+            20% { transform: translate(-3px, -3px) rotate(-1deg); }
+            40% { transform: translate(3px, 2px) rotate(1deg); }
+            60% { transform: translate(-4px, 1px) rotate(0deg); }
+            80% { transform: translate(2px, -3px) rotate(-1deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+        /* Aplica el temblor a todo el cuerpo cuando la clase está activa */
+        body.shake-screen { animation: shakeHard 0.15s infinite linear; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* PANTALLAS */
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        .screen.active { display: flex; }
+
+        /* --- 1. MENU --- */
+        #menu-screen { background: radial-gradient(circle at 50% 40%, #1a1a1a 0%, #000 90%); flex-direction: column; align-items: center; justify-content: flex-end; z-index: 1000; }
+        
+        .menu-top { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 20; }
+        .game-logo { font-family: 'Teko'; font-size: 6rem; font-style: italic; line-height: 0.8; color: #fff; text-shadow: 0 0 20px var(--hud-color); }
+        
+        .stats-panel { display: flex; gap: 15px; }
+        .stat-box { background: rgba(0,0,0,0.8); border: 1px solid #444; padding: 5px 15px; display: flex; flex-direction: column; min-width: 120px; transform: skewX(-10deg); }
+        .stat-val { font-size: 1.8rem; font-family: 'Teko'; font-weight: bold; }
+        .val-money { color: #2ecc71; } .val-rank { color: var(--hud-color); }
+        .xp-container { width: 100%; height: 4px; background: #333; margin-top: 5px; }
+        .xp-bar { height: 100%; background: #3498db; width: 0%; box-shadow: 0 0 5px #3498db; transition: width 0.5s; }
+
+        .garage-view { position: absolute; top: 0; left: 0; width: 100%; height: 60%; display: flex; justify-content: center; align-items: center; z-index: 5; }
+        .floor-grid { position: absolute; bottom: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #111 0%, #000 100%), linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.05) 50%, transparent 51%); background-size: 100px 100px; transform: perspective(800px) rotateX(60deg) scale(2); pointer-events: none; }
+        #menu-car-anchor { position: relative; width: 300px; height: 150px; z-index: 10; display: flex; justify-content: center; align-items: center; margin-top: 100px; }
+
+        .play-area { position: absolute; top: 40%; right: 5%; text-align: right; z-index: 30; }
+        #play-btn { font-family: 'Teko'; font-size: 3.5rem; padding: 10px 50px; background: var(--hud-color); color: #000; border: none; cursor: pointer; clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%); transform: skewX(-10deg); animation: pulse 2s infinite; }
+        #play-btn:hover { background: #fff; transform: skewX(-10deg) scale(1.05); }
+        .players-online { color: #00f2fe; margin-top: 5px; text-shadow: 0 0 10px #00f2fe; font-weight: bold; }
+
+        .shop-panel { width: 100%; height: 40%; background: rgba(5,5,5,0.98); border-top: 3px solid var(--hud-color); z-index: 50; display: flex; flex-direction: column; box-shadow: 0 -10px 50px #000; }
+        .shop-tabs { display: flex; justify-content: center; padding: 0 20px; background: rgba(255,255,255,0.02); }
+        .tab { background: transparent; color: #666; border: none; padding: 15px 30px; font-family: 'Teko'; font-size: 1.8rem; cursor: pointer; border-bottom: 4px solid transparent; }
+        .tab.active { color: #fff; border-color: var(--hud-color); background: linear-gradient(to top, rgba(230,255,0,0.1), transparent); }
+        .shop-grid { flex: 1; display: flex; gap: 20px; overflow-x: auto; padding: 20px; align-items: center; }
+        .item-card { min-width: 180px; height: 200px; background: #151515; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; cursor: pointer; position: relative; clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 10%); transition: 0.2s; }
+        .item-card:hover:not(.locked) { background: #1a1a1a; border-color: var(--hud-color); transform: translateY(-5px); }
+        .item-card.owned { border-color: #2ecc71; opacity: 0.8; }
+        .item-card.selected { border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); opacity: 1; background: #222; }
+        .item-card.locked { opacity: 0.5; cursor: not-allowed; border-color: #500; background: #0a0a0a; }
+        .item-title { font-size: 1.4rem; color: #fff; font-family: 'Teko'; text-transform: uppercase; margin-bottom: 5px; }
+        .item-desc { color: #888; font-size: 0.9rem; margin-bottom: 10px; }
+        .item-cost { font-size: 1.4rem; color: var(--hud-color); font-weight: bold; font-family: 'Teko'; }
+        .owned .item-cost { color: #2ecc71; }
+        .lock-msg { color: #f00; font-size: 0.8rem; border: 1px solid #f00; padding: 2px 5px; margin-bottom: 5px; }
+
+        /* --- 2. MATCHMAKING --- */
+        #match-screen { background: #000; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        .loading-circle {
+            width: 100px; height: 100px; 
+            border: 8px solid #222; border-top: 8px solid var(--hud-color); 
+            border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 30px;
+            box-shadow: 0 0 20px var(--hud-color);
+            display: block;
+        }
+        .match-status { font-family: 'Teko'; font-size: 3rem; letter-spacing: 2px; }
+        .rival-panel { display: none; background: rgba(255,255,255,0.05); padding: 20px 60px; border: 1px solid #fff; align-items: center; gap: 20px; margin-top: 20px; backdrop-filter: blur(10px); transform: skewX(-10deg); animation: pulse 0.5s ease; }
+        .rival-name { font-size: 3rem; font-family: 'Teko'; color: #fff; line-height: 1; }
+
+        /* --- 3. JUEGO Y FONDOS RESTAURADOS --- */
+        #game-screen { position: relative; width: 100%; height: 100%; }
+        .game-container { flex: 1; position: relative; overflow: hidden; width:100%; height:100%; }
+
+        /* Fondos dinámicos */
+        body.time-day .game-container { background: var(--sky-day); }
+        body.time-sunset .game-container { background: var(--sky-sunset); }
+        body.time-night .game-container { background: var(--sky-night); }
+
+        .parallax-layer { position: absolute; width: 100%; pointer-events: none; }
+        .bg-stars { background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px); background-size: 350px 350px; z-index: 1; height: 60%; top:0; opacity: 0; transition: opacity 2s; }
+        body.time-night .bg-stars { opacity: 1; }
+        
+        .bg-clouds { background-image: radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 150px 100px; filter: blur(20px); z-index: 2; height: 40%; top:10%; opacity: 0.6; transition: opacity 2s; }
+        body.time-night .bg-clouds { opacity: 0.1; }
+        
+        .bg-city { z-index: 10; bottom: 35%; height: 35%; 
+            background-image: linear-gradient(to top, #000 90%, transparent), 
+            repeating-linear-gradient(90deg, #1a1a2e 0px, #1a1a2e 30px, transparent 30px, transparent 50px, #1a1a2e 50px, #1a1a2e 80px, transparent 80px, transparent 120px); 
+            background-size: 100% 100%; transition: 0.1s ease-out; }
+        body.time-sunset .bg-city { filter: sepia(0.5) brightness(0.8); }
+
+        .bg-road { position: absolute; bottom: 0; width: 100%; height: 35%; background: #2c3e50; z-index: 20; border-top: 4px solid #111; box-shadow: inset 0 20px 50px rgba(0,0,0,0.5); }
+        body.time-night .bg-road { background: #151515; }
+
+        .road-lines { position: absolute; top: 40%; width: 100%; height: 4px; background: repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(255,255,255,0.5) 100px, rgba(255,255,255,0.5) 200px); transition: 0.1s ease-out; }
+        .finish-line { position: absolute; top: 0; height: 100%; width: 50px; background: repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px); left: 120%; z-index: 5; }
+
+        /* COCHES */
+        .car { position: absolute; width: 240px; height: 70px; bottom: 18%; left: 50px; z-index: 50; transition: left 0.1s linear; }
+        #menuCar { bottom: auto; left: auto; transform: scale(1.8); position: relative; } 
+        .car.opponent { bottom: 30%; z-index: 40; transform: scale(0.9); filter: brightness(0.7); }
+        
+        .car-body { width: 100%; height: 100%; position: relative; clip-path: polygon(2% 45%, 12% 15%, 35% 5%, 65% 5%, 85% 20%, 100% 22%, 100% 70%, 95% 85%, 5% 85%, 0% 65%); transition: background 0.3s; }
+        .car-body.paint-default { background: linear-gradient(135deg, #2c003e 0%, #512b58 50%, #2c003e 100%); }
+        .car-body.paint-gold { background: linear-gradient(45deg, #eecda3, #ef629f); background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); background-size: 200%; animation: shine 3s infinite linear; }
+        .car-body.paint-rainbow { background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); background-size: 400%; animation: shine 1s infinite linear; }
+        .underglow { position: absolute; bottom: 0px; left: 10%; width: 80%; height: 15px; border-radius: 50%; opacity: 0; transition: opacity 1s; mix-blend-mode: screen; box-shadow: 0 0 20px 5px var(--neon-color); background: var(--neon-color); }
+        body.time-night .underglow, body.time-sunset .underglow, #menuCar .underglow { opacity: 1; }
+        .player .underglow, #menuCar .underglow { opacity: 0.5; }
+        .opponent .underglow { box-shadow: 0 10px 20px 5px #00f; background: rgba(0,0,255,0.2); }
+        .car-glass { position: absolute; top: 5px; left: 35%; width: 40%; height: 12px; background: #111; transform: skewX(-30deg); border: 1px solid #444; }
+        .spoiler { position: absolute; top: -5px; left: 5px; width: 20px; height: 30px; background: #111; transform: skewX(-20deg); }
+        .spoiler::after { content:''; position: absolute; top:0; left:-5px; width: 35px; height: 4px; background: #111; }
+        .car-detail-vent { position: absolute; top: 40%; left: 70%; width: 15px; height: 25px; background: rgba(0,0,0,0.5); transform: skewX(-20deg); border-left: 2px solid rgba(255,255,255,0.1); }
+        
+        .wheel { position: absolute; bottom: -12px; width: 55px; height: 55px; background: #111; border-radius: 50%; border: 3px solid #333; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        .wheel.rear { left: 25px; } .wheel.front { right: 35px; }
+        .rim { width: 70%; height: 70%; border: 2px solid #ccc; border-radius: 50%; background: radial-gradient(circle, #222 30%, transparent 31%), conic-gradient(#444 0deg, #888 90deg, #444 180deg, #888 270deg, #444 360deg); }
+        .headlight { position: absolute; right: 0; top: 50%; width: 15px; height: 10px; background: #fff; box-shadow: 0 0 25px 10px #fff; opacity: 0; border-radius: 0 5px 5px 0; }
+        .taillight { position: absolute; left: 0; top: 45%; width: 8px; height: 15px; background: #f00; box-shadow: 0 0 20px 5px #f00; opacity: 0; }
+        body.time-night .headlight, body.time-night .taillight, body.time-sunset .headlight, body.time-sunset .taillight, #menuCar .headlight { opacity: 1; }
+        .exhaust-flame { position: absolute; bottom: 8px; left: -30px; width: 40px; height: 15px; background: linear-gradient(to right, transparent, orange, #ffff00, transparent); border-radius: 50%; display: none; filter: blur(4px); z-index: 100; }
+
+        /* HUD */
+        .hud { position: absolute; bottom: 20px; right: 20px; display: flex; transform: skewX(-10deg); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); z-index: 100; }
+        .hud-gear { width: 100px; height: 100px; background: var(--hud-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 6rem; font-family: 'Teko'; font-weight: bold; border: 3px solid #fff; }
+        .hud-data { background: var(--hud-bg); backdrop-filter: blur(5px); width: 350px; padding: 10px 20px; border: 3px solid #fff; border-left: none; display: flex; flex-direction: column; justify-content: center; }
+        .hud-speed { font-size: 5rem; font-family: 'Teko'; line-height: 0.8; text-align: right; }
+        .hud-rpm-box { width: 100%; height: 15px; background: #333; margin-top: 10px; position: relative; }
+        .hud-rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #fff, var(--hud-color), #f00); }
+        .hud-shift-zone { position: absolute; top: -5px; bottom: -5px; left: 78%; width: 12%; border: 2px solid var(--hud-color); background: rgba(230, 255, 0, 0.2); }
+
+        .game-controls { position: absolute; bottom: 30px; left: 30px; display: flex; gap: 15px; z-index: 200; }
+        .btn-game { width: 90px; height: 90px; background: rgba(0,0,0,0.6); border: 2px solid #fff; color: #fff; font-family: 'Teko'; font-size: 1.5rem; border-radius: 10px; cursor: pointer; transform: skewX(-10deg); }
+        .btn-game:active { background: var(--hud-color); color: #000; transform: skewX(-10deg) scale(0.95); }
+        .btn-big { width: 140px; border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+
+        .traffic-light { position: absolute; top: 20px; left: 50%; transform: translateX(-50%) skewX(-15deg); background: rgba(0,0,0,0.8); padding: 10px 20px; display: flex; gap: 20px; z-index: 200; border: 1px solid #333; }
+        .light-bulb { width: 30px; height: 30px; background: #222; border-radius: 50%; transition: 0.1s; }
+        .light-bulb.on { filter: brightness(1.5); box-shadow: 0 0 30px currentColor; border: 2px solid #fff; }
+
+        .result-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 50px; border: 2px solid var(--hud-color); text-align: center; display: none; z-index: 3000; width: 500px; box-shadow: 0 0 50px rgba(230, 255, 0, 0.2); }
+        .res-btn { background: transparent; color: #fff; border: 1px solid #fff; width: 100%; padding: 15px; margin-top: 15px; font-size: 2rem; font-family: 'Teko'; cursor: pointer; transition: 0.2s; }
+        .res-btn:hover { background: var(--hud-color); color: #000; }
+
+        .flag { display: inline-block; width: 40px; height: 25px; border: 1px solid #fff; vertical-align: middle; }
+        .f-jp { background: radial-gradient(circle at 50% 50%, #BC002D 35%, #fff 36%); }
+        .f-de { background: linear-gradient(#000 33%, #DD0000 33%, #DD0000 66%, #FFCE00 66%); }
+        .f-us { background: linear-gradient(90deg, #3C3B6E 40%, #B22234 40%); }
+        .f-br { background: #009c3b; background-image: radial-gradient(#002776 25%, #ffdf00 26%, #ffdf00 45%, transparent 46%); }
+        .f-mx { background: linear-gradient(90deg, #006847 33%, #fff 33%, #fff 66%, #ce1126 66%); }
+        .f-ar { background: linear-gradient(#75aadb 33%, #fff 33%, #fff 66%, #75aadb 66%); }
+        .f-es { background: linear-gradient(#AA151B 25%, #F1BF00 25%, #F1BF00 75%, #AA151B 75%); }
+        .f-it { background: linear-gradient(90deg, #009246 33%, #fff 33%, #fff 66%, #ce2b37 66%); }
+        .f-fr { background: linear-gradient(90deg, #0055a4 33%, #fff 33%, #fff 66%, #ef4135 66%); }
+        .f-ru { background: linear-gradient(#fff 33%, #0039A6 33%, #0039A6 66%, #D52B1E 66%); }
+
+        #levelup-pop { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: linear-gradient(45deg, #00c6ff, #0072ff); padding: 40px; border: 4px solid #fff; text-align: center; z-index: 4000; box-shadow: 0 0 50px #0072ff; pointer-events: none; transition: transform 0.5s; }
+        #levelup-pop.show { transform: translate(-50%, -50%) scale(1); }
+    </style>
+</head>
+<body class="time-day">
+    <div class="scanlines"></div>
+
+    <div id="menu-screen" class="screen active">
+        <div class="menu-top">
+            <div class="game-logo">SHIFT LEGENDS</div>
+            <div class="stats-panel">
+                <div class="stat-box"><span class="stat-label">MONEY</span><span class="stat-val money">$<span id="uiMoney">0</span></span></div>
+                <div class="stat-box"><span class="stat-label">RANK</span><span class="stat-val rank" id="uiRank">BRONZE</span></div>
+                <div class="stat-box" style="min-width: 150px;"><span class="stat-label">LEVEL <span id="uiLvl">1</span></span><div class="xp-container"><div id="uiXp" class="xp-bar"></div></div></div>
+            </div>
+        </div>
+
+        <div class="garage-view">
+            <div class="floor-grid"></div>
+            <div id="menu-car-anchor">
+                <div id="menuCar" class="car">
+                    <div class="underglow"></div><div class="spoiler"></div><div class="car-body"><div class="car-detail-vent"></div></div>
+                    <div class="car-glass"></div><div class="headlight"></div><div class="taillight"></div>
+                    <div class="wheel rear"><div class="rim"></div></div><div class="wheel front"><div class="rim"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="play-area">
+            <button id="play-btn" onclick="UI.startMatch()">BUSCAR PARTIDA</button>
+            <div class="players-online">Jugadores: <span id="uiOnline">0</span></div>
+        </div>
+
+        <div class="shop-panel">
+            <div class="shop-tabs">
+                <button class="tab active" onclick="Shop.show('engine')">MOTOR</button>
+                <button class="tab" onclick="Shop.show('transmission')">CAJA</button>
+                <button class="tab" onclick="Shop.show('color')">PINTURA</button>
+                <button class="tab" onclick="Shop.show('rank')">RANGO</button>
+            </div>
+            <div id="shop-grid" class="shop-grid"></div>
+        </div>
+    </div>
+
+    <div id="match-screen" class="screen">
+        <div class="loading-circle"></div>
+        <div class="match-status" id="matchText">BUSCANDO...</div>
+        <div class="rival-panel" id="rivalCard">
+            <div id="rivalFlag" class="flag f-jp" style="transform: scale(1.5);"></div>
+            <div class="rival-name" id="rivalName">RIVAL</div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="game-world" id="world">
+                <div class="parallax-layer bg-stars"></div>
+                <div class="parallax-layer bg-clouds"></div>
+                <div class="parallax-layer bg-city"></div>
+                <div class="bg-road">
+                    <div class="road-lines"></div>
+                    <div class="finish-line"></div>
+                </div>
+
+                <div class="traffic-light">
+                    <div id="tl-1" class="light-bulb"></div>
+                    <div id="tl-2" class="light-bulb"></div>
+                    <div id="tl-3" class="light-bulb"></div>
+                </div>
+
+                <div id="feedback" style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) skewX(-10deg); font-size: 6rem; opacity: 0; z-index: 300; font-family: 'Teko'; text-shadow: 0 0 20px rgba(0,0,0,0.8);">PERFECT</div>
+
+                <div id="playerCar" class="car">
+                    <div style="position:absolute; top:-30px; left:50%; transform:translateX(-50%); color:#fff; font-size:12px;">YOU</div>
+                    <div class="underglow"></div><div class="spoiler"></div><div class="car-body"><div class="car-detail-vent"></div></div><div class="car-glass"></div>
+                    <div class="headlight"></div><div class="taillight"></div><div class="exhaust-flame" id="pFlame"></div>
+                    <div class="wheel rear"><div class="rim"></div></div><div class="wheel front"><div class="rim"></div></div>
+                </div>
+
+                <div id="aiCar" class="car opponent">
+                    <div style="position:absolute; top:-30px; left:50%; transform:translateX(-50%); color:#ccc; font-size:12px; display:flex; align-items:center; gap:5px;">
+                        <span id="aiLabel">RIVAL</span><div id="aiFlagLabel" class="flag f-de" style="width:20px; height:14px;"></div>
+                    </div>
+                    <div class="underglow"></div><div class="spoiler"></div><div class="car-body"></div><div class="car-glass"></div>
+                    <div class="headlight"></div><div class="taillight"></div>
+                    <div class="wheel rear"><div class="rim"></div></div><div class="wheel front"><div class="rim"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hud">
+            <div class="hud-gear"><span id="hudGear">N</span></div>
+            <div class="hud-data">
+                <div class="hud-speed"><span id="hudSpeed">0</span> KM/H</div>
+                <div class="hud-rpm-box"><div class="hud-shift-zone"></div><div class="hud-rpm-fill" id="hudRpm"></div></div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn-game" onmousedown="Input.shiftDown()" onclick="Input.shiftDown()">DOWN (Q)</button>
+            <button class="btn-game" onmousedown="Input.shiftUp()" onclick="Input.shiftUp()">UP (E)</button>
+            <button class="btn-game btn-big" onmousedown="Input.gas(true)" onmouseup="Input.gas(false)" ontouchstart="Input.gas(true)" ontouchend="Input.gas(false)">GAS (W)</button>
+        </div>
+
+        <div id="res-screen" class="result-overlay">
+            <h1 id="res-title" style="font-family:'Teko'; font-size:5rem; margin:0;">VICTORY</h1>
+            <div id="res-money" style="font-size:3rem; color:#2ecc71; font-family:'Teko'">+$500</div>
+            <div id="res-xp" style="font-size:2rem; color:#3498db; margin-bottom:20px; font-family:'Teko'">+100 XP</div>
+            <div id="res-time" style="color:#aaa;">Time: 10.0s</div>
+            <button class="res-btn" onclick="UI.startMatch()">BUSCAR PARTIDA</button>
+            <button class="res-btn" onclick="UI.toMenu()">MENU PRINCIPAL</button>
+        </div>
+    </div>
+
+    <div id="levelup-pop">
+        <div style="font-size:4rem; font-weight:bold; font-family:'Teko'; font-style:italic;">LEVEL UP!</div>
+        <div id="lvl-txt" style="font-size:4rem; font-family:'Teko'; color:#fff;">2</div>
+        <div style="margin-top:10px; color:#fff;">New parts unlocked!</div>
+    </div>
+
+    <script>
+        const DB_KEY = 'ShiftLegends_GOLD';
+        const DEFAULTS = {
+            money: 1500, xp: 0, level: 1, nextLvl: 500, rank: 0,
+            inv: { engine:[0], transmission:[0], color:['#2c003e'], rank:[0] },
+            equip: { engine:0, transmission:0, color:'#2c003e', colorType:'paint' }
+        };
+        
+        let User = JSON.parse(localStorage.getItem(DB_KEY)) || JSON.parse(JSON.stringify(DEFAULTS));
+        if(!User.inv.transmission) User = JSON.parse(JSON.stringify(DEFAULTS));
+
+        function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(User)); UI.updateGarage(); }
+
+        const DATA = {
+            shop: {
+                engine: [
+                    { id:0, name:"Stock 1.6L", price:0, power:1.0, req:1 },
+                    { id:1, name:"Sport 2.0T", price:800, power:1.15, req:2 },
+                    { id:2, name:"Pro V6", price:2500, power:1.3, req:4 },
+                    { id:3, name:"Super V8", price:6000, power:1.5, req:7 },
+                    { id:4, name:"Twin Turbo", price:15000, power:1.8, req:12 }
+                ],
+                transmission: [
+                    { id:0, name:"Stock 4-Spd", price:0, gears:[0, 3.8, 2.5, 1.5, 1.0], boost:1.0, req:1 },
+                    { id:1, name:"Sport 5-Spd", price:1200, gears:[0, 4.0, 2.9, 2.1, 1.5, 1.1], boost:1.1, req:3 },
+                    { id:2, name:"Race 6-Spd", price:4000, gears:[0, 4.2, 3.2, 2.5, 2.0, 1.6, 1.3], boost:1.25, req:6 }
+                ],
+                color: [
+                    { id:'#2c003e', name:"Midnight Purple", price:0, type:'paint', req:1 },
+                    { id:'#000000', name:"Black", price:200, type:'paint', req:1 },
+                    { id:'#ffffff', name:"White", price:200, type:'paint', req:1 },
+                    { id:'#ff0000', name:"Red", price:200, type:'paint', req:1 },
+                    { id:'#0000ff', name:"Blue", price:200, type:'paint', req:1 },
+                    { id:'gold', name:"GOLD", price:5000, type:'special', req:8 },
+                    { id:'rainbow', name:"RAINBOW", price:10000, type:'special', req:10 }
+                ],
+                rank: [
+                    { id:0, name:"BRONZE", price:0, bonus:1.0, diff:0.50, color:"#cd7f32", req:1 },
+                    { id:1, name:"SILVER", price:500, bonus:1.2, diff:0.52, color:"#c0c0c0", req:2 },
+                    { id:2, name:"GOLD", price:1500, bonus:1.5, diff:0.54, color:"#ffd700", req:3 },
+                    { id:3, name:"PLATINUM", price:3000, bonus:1.8, diff:0.56, color:"#00ffff", req:5 },
+                    { id:4, name:"DIAMOND", price:6000, bonus:2.2, diff:0.58, color:"#b9f2ff", req:8 },
+                    { id:5, name:"CHAMPION", price:12000, bonus:3.0, diff:0.60, color:"#ff00ff", req:12 },
+                    { id:6, name:"GRAND CHAMP", price:25000, bonus:5.0, diff:0.63, color:"#ff0000", req:15 }
+                ]
+            },
+            bots: [
+                {n:"Takumi",f:"f-jp"}, {n:"Toretto",f:"f-us"}, {n:"Speedy",f:"f-uk"}, {n:"Nitro",f:"f-us"}, {n:"RacerX",f:"f-de"}, 
+                {n:"Ghost",f:"f-jp"}, {n:"Viper",f:"f-us"}, {n:"Checo",f:"f-mx"}, {n:"Hamilton",f:"f-uk"}, {n:"Max",f:"f-de"},
+                {n:"Senna",f:"f-br"}, {n:"Fangio",f:"f-ar"}, {n:"Rossi",f:"f-it"}, {n:"Loeb",f:"f-fr"}, {n:"Sainz",f:"f-es"},
+                {n:"Petrov",f:"f-ru"}, {n:"Kubica",f:"f-pl"}, {n:"Ricciardo",f:"f-us"}, {n:"Botas",f:"f-fi"}
+            ],
+            flags: ["f-jp", "f-de", "f-us", "f-br", "f-ar", "f-mx", "f-fr", "f-it", "f-uk", "f-es", "f-ru"]
+        };
+
+        const Audio = {
+            ctx: null, osc1: null, osc2: null, gain: null, ready: false,
+            init: function() {
+                if(this.ready) return;
+                const AC = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AC();
+                this.gain = this.ctx.createGain(); this.gain.gain.value = 0;
+                this.gain.connect(this.ctx.destination);
+                this.osc1 = this.ctx.createOscillator(); this.osc1.type = 'sawtooth'; this.osc1.connect(this.gain);
+                this.osc2 = this.ctx.createOscillator(); this.osc2.type = 'square'; this.osc2.detune.value = 10; this.osc2.connect(this.gain);
+                this.osc1.start(); this.osc2.start(); this.ready = true;
+            },
+            rev: function(rpm) {
+                if(!this.ready) return;
+                const freq = 60 + (rpm/9000)*500;
+                this.osc1.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.1);
+                this.osc2.frequency.setTargetAtTime(freq*0.5, this.ctx.currentTime, 0.1);
+                const vol = 0.05 + (rpm/9000)*0.15;
+                this.gain.gain.setTargetAtTime(vol, this.ctx.currentTime, 0.1);
+            },
+            stop: function() { if(this.ready) this.gain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.5); },
+            click: function() { if(!this.ready) this.init(); const o=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.setValueAtTime(400,this.ctx.currentTime); o.type='square'; o.start(); g.gain.setValueAtTime(0.1,this.ctx.currentTime); g.gain.linearRampToValueAtTime(0,this.ctx.currentTime+0.05); o.stop(this.ctx.currentTime+0.05); },
+            beep: function(t) { if(!this.ready) return; const o=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.value=t==='r'?440:880; o.type='square'; o.start(); g.gain.setValueAtTime(0.1,this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+0.15); o.stop(this.ctx.currentTime+0.15); }
+        };
+
+        const Input = {
+            keys: {},
+            init: function() {
+                window.addEventListener('keydown', e => {
+                    Input.keys[e.key.toLowerCase()] = true;
+                    if(e.key.toLowerCase() === 'e' || e.key === 'ArrowUp') Input.shiftUp();
+                    if(e.key.toLowerCase() === 'q' || e.key === 'ArrowDown') Input.shiftDown();
+                });
+                window.addEventListener('keyup', e => { Input.keys[e.key.toLowerCase()] = false; });
+            },
+            isDown: function(k) { return Input.keys[k] === true; },
+            gas: function(on) { Input.keys['w'] = on; },
+            shiftUp: function() { Game.shiftUp(); },
+            shiftDown: function() { Game.shiftDown(); }
+        };
+
+        const Game = {
+            state: 'MENU',
+            player: { pos:0, speed:0, rpm:0, gear:0 },
+            ai: { pos:0, speed:0, accel:0 },
+            rival: null, timer: 0, length: 15000,
+
+            loop: function() {
+                if(Game.state !== 'RACING' && Game.state !== 'WAITING') return;
+                
+                Audio.rev(Game.player.rpm);
+                const pwr = DATA.shop.engine[User.equip.engine].power;
+                const gears = DATA.shop.transmission[User.equip.transmission].gears;
+                let gas = Input.isDown('w');
+
+                // Check False Start
+                if(Game.state === 'WAITING' && gas && Game.player.gear > 0) {
+                    Game.end(false, "FALSE START");
+                    return;
+                }
+
+                if (Game.player.gear === 0) {
+                    if (gas) Game.player.rpm += 800; else Game.player.rpm -= 400;
+                } else {
+                    if (gas) {
+                        if (Game.player.rpm < 9000) {
+                            let t = (35/Game.player.gear) * pwr;
+                            if (Game.player.rpm < 4000) t *= 0.7; 
+                            Game.player.speed += t * 0.05;
+                        } else { Game.player.speed -= 0.5; UI.shake(true); }
+                    } else { Game.player.speed -= 0.3; }
+                    
+                    Game.player.speed *= 0.998;
+                    if (Game.player.speed < 0) Game.player.speed = 0;
+                    Game.player.rpm = Game.player.speed * gears[Game.player.gear] * 11;
+                }
+
+                if (Game.player.rpm < 1000) Game.player.rpm = 1000;
+                if (Game.player.rpm > 9200) Game.player.rpm = 9200;
+
+                if (Game.state === 'RACING') {
+                    Game.player.pos += Game.player.speed * 0.1;
+                    if (Date.now() > Game.timer + 500 && Game.ai.pos < Game.length) {
+                        Game.ai.pos += Game.ai.speed * 0.1;
+                        if (Game.ai.speed < 360) Game.ai.speed += Game.ai.accel;
+                    }
+                    if (Game.player.speed > 0) {
+                        const city = document.querySelector('.bg-city');
+                        const road = document.querySelector('.road-lines');
+                        let cp = parseFloat(city.dataset.pos || 0) - (Game.player.speed * 0.05);
+                        city.style.backgroundPositionX = cp + "px"; city.dataset.pos = cp;
+                        road.style.backgroundPositionX = (cp * 10) + "px";
+                    }
+                    // SHAKE EFFECT IF SPEED > 300
+                    if (Game.player.speed > 300) UI.shake(true);
+                    else UI.shake(false);
+                }
+
+                UI.updateGame();
+                requestAnimationFrame(Game.loop);
+            },
+            
+            shiftUp: function() {
+                if(Game.state !== 'RACING' && Game.state !== 'WAITING') return;
+                Audio.click();
+                const gears = DATA.shop.transmission[User.equip.transmission].gears;
+                if (Game.player.gear < gears.length - 1) {
+                    let old = Game.player.rpm;
+                    Game.player.gear++;
+                    if (old > 6800 && old < 8800) {
+                        let boost = DATA.shop.transmission[User.equip.transmission].boost;
+                        Game.player.speed += 15 * boost;
+                        UI.feedback("PERFECT", "#e6ff00");
+                        UI.shake(true); setTimeout(()=>UI.shake(false), 300);
+                    }
+                }
+            },
+            shiftDown: function() { 
+                if(Game.state !== 'RACING' && Game.state !== 'WAITING') return;
+                Audio.click();
+                if (Game.player.gear > 0) { Game.player.gear--; Game.player.rpm += 2000; } 
+            },
+
+            end: function(win, reason) {
+                Game.state = 'FINISHED';
+                Audio.stop(); UI.shake(false);
+                document.querySelectorAll('.rim').forEach(r => r.style.animationPlayState = 'paused');
+                
+                let reward = 0, xp = 0;
+                let time = ((Date.now() - Game.timer)/1000).toFixed(2);
+                let bonus = DATA.shop.rank[User.rank].bonus;
+
+                if(win) { reward = Math.floor(1000 * bonus); xp = 200; } else { reward = -50; xp = 50; }
+
+                User.money += reward; if(User.money<0) User.money=0;
+                User.xp += xp;
+                if(User.xp >= User.nextLvl) {
+                    User.xp -= User.nextLvl; User.level++; User.nextLvl = Math.floor(User.nextLvl * 1.5);
+                    UI.showLevelUp();
+                }
+                saveData();
+
+                document.getElementById('res-screen').style.display = 'block';
+                document.getElementById('res-title').innerText = win ? "VICTORY" : reason || "DEFEAT";
+                document.getElementById('res-title').style.color = win ? "#2ecc71" : "#f00";
+                document.getElementById('res-money').innerText = (win?"+":"")+"$"+reward;
+                document.getElementById('res-money').style.color = win ? "#2ecc71" : "#f00";
+                document.getElementById('res-xp').innerText = "+"+xp+" XP";
+                document.getElementById('res-time').innerText = "Time: " + time + "s";
+            }
+        };
+
+        const UI = {
+            screens: { menu: document.getElementById('menu-screen'), match: document.getElementById('match-screen'), game: document.getElementById('game-screen') },
+            
+            init: function() {
+                Input.init();
+                document.getElementById('uiOnline').innerText = Math.floor(Math.random()*(982-127)+127);
+                UI.updateGarage();
+                Shop.show('engine');
+            },
+
+            updateGarage: function() {
+                document.getElementById('uiMoney').innerText = User.money;
+                document.getElementById('uiLvl').innerText = User.level;
+                document.getElementById('uiXp').style.width = (User.xp/User.nextLvl*100) + "%";
+                let r = DATA.shop.rank[User.rank];
+                document.getElementById('uiRank').innerText = r.name;
+                document.getElementById('uiRank').style.color = r.color;
+
+                const paintCar = (sel) => {
+                    let el = document.querySelector(sel);
+                    el.className = 'car-body';
+                    if (User.equip.colorType === 'special') el.classList.add('paint-'+User.equip.color);
+                    else { el.classList.add('paint-default'); el.style.background = `linear-gradient(135deg, ${User.equip.color} 0%, #000 100%)`; }
+                };
+                paintCar('#menuCar .car-body'); paintCar('#playerCar .car-body');
+            },
+
+            startMatch: function() {
+                Audio.click(); Audio.stop();
+                UI.switch('match');
+                document.getElementById('matchText').innerText = "CONECTANDO...";
+                document.getElementById('rivalCard').style.display = 'none';
+                document.getElementById('res-screen').style.display = 'none';
+
+                let wait = Math.random()*3000 + 1000;
+                let msgs = ["BUSCANDO...", "NEGOCIANDO...", "CONECTANDO..."];
+                let i = 0;
+                let inter = setInterval(() => { document.getElementById('matchText').innerText = msgs[i++%msgs.length]; }, 800);
+
+                setTimeout(() => {
+                    clearInterval(inter);
+                    document.getElementById('matchText').innerText = "PARTIDA ENCONTRADA";
+                    Game.rival = DATA.bots[Math.floor(Math.random()*DATA.bots.length)];
+                    let flag = DATA.flags[Math.floor(Math.random()*DATA.flags.length)];
+                    
+                    document.getElementById('rivalName').innerText = Game.rival.n;
+                    document.getElementById('rivalFlag').className = `flag f-${flag.split('-')[1]}`;
+                    document.getElementById('rivalCard').style.display = 'flex';
+
+                    document.getElementById('aiLabel').innerText = Game.rival.n;
+                    document.getElementById('aiFlagLabel').className = `flag f-${flag.split('-')[1]}`;
+
+                    setTimeout(UI.startGame, 2000);
+                }, wait);
+            },
+
+            startGame: function() {
+                UI.switch('game');
+                Game.player = { pos:0, speed:0, rpm:0, gear:0 };
+                let diff = DATA.shop.rank[User.rank].diff;
+                Game.ai = { pos:0, speed:0, accel: diff + (Math.random()*0.05) };
+                Game.state = 'START';
+                
+                document.getElementById('playerCar').style.left = "50px";
+                document.getElementById('aiCar').style.left = "50px";
+                document.querySelector('.finish-line').style.left = "120%";
+                document.querySelectorAll('.light-bulb').forEach(l => { l.style.background="#222"; l.classList.remove('on'); });
+                document.querySelectorAll('.rim').forEach(r => r.style.animationPlayState = 'running');
+                
+                // Random Time of Day
+                document.body.className = ['time-day', 'time-sunset', 'time-night'][Math.floor(Math.random()*3)];
+
+                setTimeout(() => { document.getElementById('tl-1').style.background="#f00"; document.getElementById('tl-1').classList.add('on'); Audio.beep('r'); }, 1000);
+                setTimeout(() => { document.getElementById('tl-2').style.background="#ff0"; document.getElementById('tl-2').classList.add('on'); Audio.beep('r'); Game.state='WAITING'; }, 2000);
+                setTimeout(() => {
+                    if(Game.state === 'FINISHED') return;
+                    document.getElementById('tl-3').style.background="#0f0"; document.getElementById('tl-3').classList.add('on'); Audio.beep('g');
+                    Game.state = 'RACING';
+                    Game.timer = Date.now();
+                    
+                    // Boost Launch Check
+                    if (Input.isDown('w') && Game.player.gear > 0) {
+                        let boost = DATA.shop.transmission[User.equip.transmission].boost;
+                        Game.player.speed += 40 * boost;
+                        UI.feedback("LAUNCH", "#0f0");
+                    }
+                    requestAnimationFrame(Game.loop);
+                }, 3000);
+            },
+
+            updateGame: function() {
+                document.getElementById('hudSpeed').innerText = Math.floor(Game.player.speed);
+                document.getElementById('hudGear').innerText = Game.player.gear === 0 ? "N" : Game.player.gear;
+                let pct = (Game.player.rpm / 9000) * 100;
+                let bar = document.getElementById('hudRpm');
+                bar.style.width = pct + "%";
+                bar.style.background = Game.player.rpm > 8800 ? "#f00" : Game.player.rpm > 6800 ? "var(--hud-color)" : "linear-gradient(90deg, #fff, var(--hud-color))";
+                document.getElementById('pFlame').style.display = (Input.isDown('w') && Game.player.rpm > 7500 && Game.player.gear > 0) ? 'block' : 'none';
+
+                let pp = (Game.player.pos / Game.length) * 100;
+                let ap = (Game.ai.pos / Game.length) * 100;
+                let pv = 10 + (pp * 0.5); if(pv > 60) pv = 60;
+                
+                document.getElementById('playerCar').style.left = pv + "%";
+                document.getElementById('aiCar').style.left = (pv + (ap - pp)) + "%";
+
+                if (pp > 90) document.querySelector('.finish-line').style.left = (100 - ((pp - 90) * 8)) + "%";
+
+                if (Game.player.pos >= Game.length) Game.end(true);
+                else if (Game.ai.pos >= Game.length) Game.end(false);
+            },
+
+            switch: function(s) {
+                Object.values(UI.screens).forEach(el => el.classList.remove('active'));
+                UI.screens[s].classList.add('active');
+            },
+            toMenu: function() { Audio.click(); Audio.stop(); UI.switch('menu'); UI.updateGarage(); },
+            feedback: function(t, c) {
+                let f = document.getElementById('feedback');
+                f.innerText = t; f.style.color = c; f.style.opacity = 1;
+                f.style.transform = "translate(-50%, -50%) skewX(-10deg) scale(1.2)";
+                setTimeout(() => { f.style.opacity = 0; f.style.transform = "translate(-50%, -50%) skewX(-10deg) scale(0.5)"; }, 800);
+            },
+            shake: function(on) { 
+                if(on) document.body.classList.add('shake-screen'); 
+                else document.body.classList.remove('shake-screen'); 
+            },
+            showLevelUp: function() {
+                document.getElementById('newLevelText').innerText = User.level;
+                document.getElementById('levelup-pop').classList.add('show');
+                setTimeout(() => document.getElementById('levelup-pop').classList.remove('show'), 3000);
+            }
+        };
+
+        const Shop = {
+            show: function(cat) {
+                Audio.click();
+                document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
+                const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
+
+                DATA.shop[cat].forEach((item, idx) => {
+                    const div = document.createElement('div'); div.className = 'item-card';
+                    let isRank = cat==='rank';
+                    let owned = isRank ? User.rank >= idx : (cat==='color' ? User.inv.color.includes(item.id) : User.inv[cat].includes(item.id));
+                    let equipped = isRank ? User.rank===idx : (cat==='color' ? User.equip.color===item.id : User.equip[cat]===item.id);
+                    let prevOwned = true;
+                    if (!isRank && cat !== 'color' && idx > 0) prevOwned = User.inv[cat].includes(DATA.shop[cat][idx-1].id);
+                    if (isRank && idx > User.rank + 1) prevOwned = false;
+                    let lvlOk = User.level >= item.req;
+                    let locked = !owned && (!prevOwned || !lvlOk);
+
+                    if (locked) {
+                        div.classList.add('locked');
+                        div.innerHTML = `<div class="lock-msg">REQ LVL ${item.req}</div><div class="item-title" style="opacity:0.5">${item.name}</div><div style="font-size:2rem">🔒</div>`;
+                    } else {
+                        if(owned) div.classList.add('owned');
+                        if(equipped && !isRank) div.classList.add('selected');
+                        if(isRank && User.rank === idx) div.classList.add('selected');
+                        let info = cat==='engine'?`+${Math.round((item.power-1)*100)}% PWR` : cat==='transmission'?`${item.gears.length-1} Gears` : cat==='rank'?`Bonus x${item.bonus}` : 'Paint';
+                        div.innerHTML = `<div class="item-title">${item.name}</div><div class="item-stat">${info}</div><div class="item-cost">${owned?'OWNED':'$'+item.price}</div>`;
+                        div.onclick = () => Shop.buy(cat, item, idx);
+                    }
+                    grid.appendChild(div);
+                });
+            },
+
+            buy: function(cat, item, idx) {
+                Audio.click();
+                let isRank = cat==='rank';
+                let owned = isRank ? User.rank >= idx : (cat==='color' ? User.inv.color.includes(item.id) : User.inv[cat].includes(item.id));
+
+                if(owned) {
+                    if(!isRank) {
+                        if(cat==='color') { User.equip.color = item.id; User.equip.colorType = item.type; }
+                        else User.equip[cat] = item.id;
+                        saveData(); Shop.show(cat);
+                    }
+                } else {
+                    if(User.money >= item.price) {
+                        User.money -= item.price;
+                        if(isRank) User.rank = idx;
+                        else if(cat==='color') User.inv.color.push(item.id);
+                        else User.inv[cat].push(item.id);
+                        if(!isRank) {
+                            if(cat==='color') { User.equip.color = item.id; User.equip.colorType = item.type; }
+                            else User.equip[cat] = item.id;
+                        }
+                        saveData(); Shop.show(cat);
+                    } else alert("NO MONEY!");
+                }
+            }
+        };
+
+        UI.init();
+    </script>
+</body>
+</html>
